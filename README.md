@@ -7,6 +7,10 @@ SANDRA
 ANDREW
 MACG?
 
+
+WHAT IS GOING ON IN EACH FOLDER
+1. DATA PREP - preparing data seperately for each year
+
 FILE STRUCTURE/INVENTORY
 
-1. DATA PREP
+1. DATA PREP 
