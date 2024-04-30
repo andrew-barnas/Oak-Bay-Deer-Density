@@ -1,0 +1,998 @@
+﻿Project.ID,Deployment.Location.ID,SiteName,Camera.Deployment.Start.Date,Camera.Deployment.End.Date,Deployment.ID,Year,Months,Folder,Problem,Camera
+UWSS,Site01,1,2018-08-03,2018-08-10,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site01,1,2018-08-25,2018-09-22,Sep2018,2018,September,September Check,,Bushnell
+UWSS,Site01,1,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site01,1,2018-10-28,2018-12-24,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site01,1,2018-12-24,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site01,1,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site01,1,2019-03-30,2019-05-10,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site01,1,NA,NA,Sep2019,2019,June;July;August;September,SeptoNov2019,Camera angle off,Bushnell
+UWSS,Site01,1,NA,NA,Dec2019,2019,September;October;November,December 2019,Camera angle off,Bushnell
+UWSS,Site01,1,NA,NA,Jan2020,2020,December;January,January 2020,Camera angle off,Bushnell
+UWSS,Site01,1,NA,NA,Feb2020,2020,January;February,February 2020,Camera angle off,Bushnell
+UWSS,Site01,1,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site01,1,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site01,1,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site01,1,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site01,1,2020-08-04,2020-10-14,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site01,1,2020-10-14,2020-11-27,Nov2020,2020,October;November,Nov-Dec 2020,,Bushnell
+UWSS,Site01,1,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site01,1,2021-01-21,2021-04-23,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site01,1,2021-04-23,2021-05-12,Jul2021,2021,April;May,July 2021,,Bushnell
+UWSS,Site01,1,2021-07-31,2021-09-01,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site01,1,2021-09-01,2021-10-18,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site01,1,2021-10-18,2022-05-28,Jun2022,2022,Oct-May,June2022,,Bushnell
+UWSS,Site01,1,2022-06-23,2022-08-21,Aug2022,2022,June; July; August,August2022,,Bushnell
+UWSS,Site01,1,2022-08-21,2022-09-15,Sep2022,2022,August;September,September2022,Bad camera,Bushnell
+,,,,,,,,,,
+UWSS,Site02,2,2018-07-31,2018-08-15,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site02,2,2018-08-26,2018-09-17,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site02,2,2018-09-22,2018-10-16,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site02,2,2018-10-28,2018-12-24,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site02,2,2018-12-24,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site02,2,2019-01-27,2019-02-25,Mar2019,2019,January;February,MarchandApril2019,,Bushnell
+UWSS,Site02,2,2019-03-30,2019-06-14,Jun2019,2019,March;April;June,JuneJuly2019,,Bushnell
+UWSS,Site02,2,2019-06-30,2019-08-15,Sep2019,2019,June;July;August,SeptoNov2019,,Bushnell
+UWSS,Site02,2,2019-09-15,2019-11-13,Dec2019,2019,September;October;November,December 2019,,Bushnell
+UWSS,Site02,2,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site02,2,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site02,2,2020-02-29,2020-04-12,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site02,2,2020-04-26,2020-05-27,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site02,2,2020-05-30,2020-06-29,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site02,2,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site02,2,2020-08-04,2020-08-12,Oct2020,2020,August,October 2020,,Bushnell
+UWSS,Site02,2,2020-10-14,2020-10-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site02,2,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site02a,2a,2021-01-22,2021-02-19,Mar2021,2021,January;February,MarchApril2021,,Bushnell
+UWSS,Site02a,2a,2021-04-23,2021-07-31,Jul2021,2021,February;March;April;May;June;July,July 2021,,Bushnell
+UWSS,Site02a,2a,2021-07-31,2021-09-01,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site02a,2a,2021-09-01,2021-10-18,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site02a,2a,2021-10-18,2022-05-24,Jun2022,2022,Oct-May,June2022,,Bushnell
+UWSS,Site02a,2a,2022-06-23,2022-08-21,Aug2022,2022,June;July;August,August2022,,Bushnell
+UWSS,Site02a,2a,2022-08-21,2022-10-02,Sep2022,2022,August;September; October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site03,3,2018-08-03,2018-08-25,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site03,3,2018-08-25,2018-09-22,Sep2018,2018,September,September Check,,Bushnell
+UWSS,Site03,3,NA,NA,Nov2018,2018,NA,October November Check,Date error,Bushnell
+UWSS,Site03,3,2018-10-28,2018-12-24,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site03,3,2018-12-24,2018-12-29,Jan2019,2019,December,January2019,Date error,Bushnell
+UWSS,Site03,3,2018-01-27,2018-03-30,Mar2019,2019,January;March;April,MarchandApril2019,,Bushnell
+UWSS,Site03,3,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site03,3,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site03,3,2019-09-15,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site03,3,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site03,3,2020-01-25,2020-02-04,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site03,3,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site03,3,2020-04-26,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site03,3,2020-06-01,2020-07-08,Jun2020,2020,June;July,June 2020,,Bushnell
+UWSS,Site03,3,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site03,3,2020-08-04,2020-10-11,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site03,3,2020-10-14,2020-10-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site03,3,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site03a,3a,2021-03-01,2021-04-23,Mar2021,2021,March;April,MarchApril2021,,Bushnell
+UWSS,Site03a,3a,2021-04-23,2021-07-31,Jul2021,2021,April;May;June;July,July 2021,,Bushnell
+UWSS,Site03a,3a,2021-07-31,2021-09-01,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site03a,3a,2021-09-01,2021-10-18,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site03a,3a,2021-10-18,2022-03-30,Jun2022,2022,Oct-Mar,June2022,,Bushnell
+UWSS,Site03a,3a,2022-06-23,2022-08-21,Aug2022,2022,June;July;August,August2022,,Browning
+UWSS,Site03a,3a,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site04,4,2018-08-09,2018-08-24,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site04,4,2018-08-28,2018-10-12,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site04,4,2018-10-12,2018-11-27,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site04,4,2018-11-27,2018-12-22,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site04,4,2018-12-24,2019-02-05,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site04,4,2019-02-05,2019-03-22,Mar2019,2019,February;March,MarchandApril2019,,Bushnell
+UWSS,Site04,4,NA,NA,Jun2019,2019,NA,JuneJuly2019,,Bushnell
+UWSS,Site04,4,NA,NA,Sep2019,2019,NA,SeptoNov2019,,Bushnell
+UWSS,Site04,4,NA,NA,Dec2019,2019,NA,December 2019,,Bushnell
+UWSS,Site04,4,2019-12-30,2020-01-07,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site04,4,2020-01-25,2020-02-01,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site04,4,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site04,4,2020-04-26,2020-06-12,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site04,4,2020-06-12,2020-07-07,Jun2020,2020,June;July,June 2020,,Bushnell
+UWSS,Site04,4,2020-07-07,2020-08-18,Oct2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site04,4,2020-08-18,2020-10-16,Oct2020,2020,August;September;October,October 2020,battery failed,Bushnell
+UWSS,Site04,4,2020-12-02,2020-12-27,Mar2021,2020,December,MarchApril2021,corrupt media files,Bushnell
+UWSS,Site04,4,2021-04-23,2021-05-01,Jul2021,2021,April;May,July 2021,,Bushnell
+UWSS,Site04,4,2021-08-09,2021-08-24,Sep2021,2021,August,September 2021,battery dead,Bushnell
+UWSS,Site04,4,2021-09-03,2021-10-24,Oct2021,2021,September;October,October2021,,Bushnell
+UWSS,Site04,4,2021-10-24,2021-11-11,Jul2022,2021,October;November,July2022,,Bushnell
+UWSS,Site04,4,2022-07-31,2022-08-28,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site04,4,2022-08-28,2022-11-06,Sep2022,2022,August;September;October; November,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site05,5,2018-08-03,2018-08-25,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site05,5,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site05,5,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site05,5,2018-10-28,2018-12-20,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site05,5,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site05,5,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site05,5,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site05,5,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site05,5,2019-09-15,2019-12-29,Dec2019,2019,September;October;November,December 2019,,Bushnell
+UWSS,Site05,5,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site05,5,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site05,5,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site05,5,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site05,5,2020-05-31,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site05,5,2020-07-08,2020-10-14,Oct2020,2020,July;August;September;October,October 2020,,Bushnell
+UWSS,Site05,5,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site05,5,2020-11-27,2021-01-19,Jan2021,2020,November;December;January,January 2021,,Bushnell
+UWSS,Site05,5,2021-01-19,2021-04-23,Mar2021,2021,January;February;March;April,MarchApril 2021,,Bushnell
+UWSS,Site05,5,2021-04-23,2021-07-31,Jul2021,2021,April;May;June;July,July 2021,,Bushnell
+UWSS,Site05,5,2021-07-31,2021-09-01,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site05,5,2021-09-24,2021-10-18,Oct2021,2021,September;October,October 2021,Camera malfunction,Bushnell
+UWSS,Site05,5,2022-06-23,2022-08-21,Aug2022,2022,June;July;August,August2022,,Bushnell
+UWSS,Site05,5,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site06,6,2018-07-31,2018-08-08,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site06,6,2018-08-27,2018-09-04,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site06,6,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site06,6,2018-10-29,2018-12-19,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site06,6,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site06,6,2019-01-27,2019-03-16,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site06,6,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site06,6,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site06,6,2019-09-15,2019-12-29,Dec2019,2019,September;October;November,December 2019,,Bushnell
+UWSS,Site06,6,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site06,6,2020-01-26,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site06,6,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site06,6,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site06,6,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site06,6,2020-07-08,2020-10-14,Oct2020,2020,July;August;September;October,October 2020,,Bushnell
+UWSS,Site06,6,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site06,6,2020-11-27,2021-01-19,Jan2021,2021,November;December;January,January 2021,,Bushnell
+UWSS,Site06a,6a,2021-05-10,2021-06-08,Jul2021,2021,May;June,July 2021,,Bushnell
+UWSS,Site06a,6a,2021-07-31,2021-08-11,Sep2021,2021,July;August,September 2021,full; corrupt media files,Bushnell
+UWSS,Site06a,6a,2021-09-01,2021-09-03,Oct2021,2021,September,October 2021,"Malfunction, date",Bushnell
+UWSS,Site06,6,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site07,7,2018-08-03,2018-08-26,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site07,7,2018-08-26,2018-10-03,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site07,7,2018-10-08,2018-10-28,Oct2018,2018,October,October November Check,,Bushnell
+UWSS,Site07,7,2018-10-28,2018-12-24,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site07,7,2018-12-24,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site07,7,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site07,7,2019-03-30,2019-05-19,Jun2019,2019,March;April;May,JuneJuly2019,,Bushnell
+UWSS,Site07,7,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site07,7,2019-09-15,2019-10-26,Dec2019,2019,September;October;November,December 2019,,Bushnell
+UWSS,Site07,7,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site07,7,2020-01-25,2020-02-09,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site07,7,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site07,7,2020-04-26,2020-06-01,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site07,7,2020-06-01,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site07,7,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site07,7,2020-08-04,2020-09-29,Oct2020,2020,July;August;September;October,October 2020,,Bushnell
+UWSS,Site07,7,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site07,7,2020-11-27,2021-01-21,Jan2021,2021,"November,December,January",January 2021,,Bushnell
+UWSS,Site07,7,2021-01-21,2021-04-23,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site07,7,2021-04-23,2021-06-04,Jul2021,2021,April;May;June,July 2021,,Bushnell
+UWSS,Site07,7,2021-07-31,2021-08-28,Sep2021,2021,July;August,September 2021,,Bushnell
+UWSS,Site07,7,2021-09-01,2021-09-16,Oct2021,2021,September,October 2021,"dead, corrupt images",Bushnell
+UWSS,Site07a,7a,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site08,8,2018-08-09,2018-08-28,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site08,8,2018-08-28,2018-10-12,Sep2018,2018,August;September; October,September Check,,Bushnell
+UWSS,Site08,8,2018-10-12,2018-11-25,Oct2018,2018,October,October November Check,,Bushnell
+UWSS,Site08,8,2018-11-27,2018-12-23,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site08,8,2018-12-24,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site08,8,2019-01-27,2019-03-22,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site08,8,2019-03-22,2019-06-17,Jun2019,2019,March;April;May,JuneJuly2019,,Bushnell
+UWSS,Site08,8,NA,NA,Sep2019,2019,NA,SeptoNov2019,,Bushnell
+UWSS,Site08,8,NA,NA,Dec2019,2019,NA,December 2019,,Bushnell
+UWSS,Site08,8,2019-12-30,2020-01-19,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site08,8,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site08,8,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site08,8,2020-04-26,2020-06-12,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site08,8,2020-06-12,2020-07-07,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site08,8,2020-07-07,2020-08-18,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site08,8,2020-08-18,2020-09-21,Oct2020,2020,August;September,October 2020,Taken down due to construction,Bushnell
+UWSS,Site08a,8a,2020-10-16,2020-12-02,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site08a,8a,2020-12-02,2021-04-26,Mar2021,2021,December;January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site08a,8a,2021-04-26,2021-07-27,July2021,2021,April;May;June;July,July 2021,,Bushnell
+UWSS,Site08a,8a,2021-08-09,2021-08-19,Sep2021,2021,August,September 2021,date corruption,Bushnell
+UWSS,Site08a,8a,2021-09-03,2021-09-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site08a,8a,2021-10-24,2022-04-13,July2022,2022,October;November;December; January; February;March;April,July2022,,Bushnell
+UWSS,Site08a,8a,2022-07-31,2022-08-28,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site08a,8a,2022-08-28,2022-09-23,Sep2022,2022,August;September,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site09,9,2018-07-30,2018-08-26,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site09,9,2018-08-26,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site09,9,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site09,9,2018-10-28,2018-12-19,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site09,9,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site09,9,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site09,9,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site09,9,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site09,9,2019-09-15,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site09,9,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site09,9,2020-01-25,2020-02-09,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site09,9,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site09,9,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site09,9,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site09,9,2020-07-08,2020-07-24,Jul2020,2020,July,July 2020,,Bushnell
+UWSS,Site09,9,2020-08-04,2020-10-13,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site09,9,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site09,9,2020-11-27,2021-01-19,Jan2021,2021,November;December;January,January 2021,,Bushnell
+UWSS,Site09,9,2021-01-19,2021-04-23,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site09,9,2021-04-23,2021-06-12,Jul2021,2021,April;May;June,July 2021,,Bushnell
+UWSS,Site09,9,2021-07-31,2021-09-01,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site09,9,2021-09-01,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site09,9,2021-10-23,2022-05-07,Jul2022,2021,October;November;December;January;February;March;April;May,July2022,,Bushnell
+UWSS,Site09,9,2022-07-17,2022-08-08,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site09,9,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site10,10,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site10,10,2018-08-25,2018-08-28,Sep2018,2018,August,September Check,wrong date,Bushnell
+UWSS,Site10,10,NA,NA,Oct2018,2018,NA,October November Check,wrong date,Bushnell
+UWSS,Site10,10,2018-11-18,2018-12-20,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site10,10,2018-12-20,2019-03-30,Mar2019,2019,December;January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site10,10,2019-03-30,2019-06-01,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site10,10,2019-06-30,2019-09-11,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site10,10,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site10,10,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site10,10,2020-01-25,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site10,10,2020-03-01,2020-04-26,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site10,10,2020-04-26,2020-05-02,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site10,10,2020-05-30,2020-06-11,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site10,10,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site10,10,2020-08-04,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site10,10,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site10a,10a,2021-03-27,2021-06-01,May2021,2021,March;April;May;June,May2021,,Bushnell
+UWSS,Site10a,10a,2021-06-01,2021-08-01,Jul2021,2021,June;July;August,July 2021,,Bushnell
+UWSS,Site10a,10a,2021-08-01,2021-08-06,Aug2021,2021,August,September 2021,Full,Bushnell
+UWSS,Site10a,10a,2021-09-01,2021-09-05,Oct2021,2021,September,October 2021,Dead,Bushnell
+UWSS,Site10b,10b,2022-08-14,2022-08-20,Aug2022,2022,August,August2022,,Browning
+UWSS,Site10b,10b,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+UWSS,Site10b,10b,2022-10-02,2023-04-14,Jun2023,2023,October;November;December;January;February;March;April,June2023,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site11,11,2018-08-15,2018-08-25,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site11,11,2018-08-26,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site11,11,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site11,11,2018-11-18,2019-12-04,Jan2019,2019,November;December,January2019,,Bushnell
+UWSS,Site11,11,2019-03-20,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site11,11,2019-03-30,2019-04-24,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site11,11,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site11,11,2019-09-15,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site11,11,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site11,11,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site11,11,2020-03-01,2020-03-23,Apr2020,2020,March,April 2020,wrong date,Bushnell
+UWSS,Site11,11,2020-04-26,2020-05-11,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site11,11,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site11,11,2020-08-04,2020-10-14,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site11,11,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site11,11,2020-11-27,2021-01-19,Jan2021,2021,November;December;January,January 2021,,Bushnell
+UWSS,Site11,11,2021-01-19,2021-02-05,Mar2021,2021,January;February,MarchApril2021,,Bushnell
+UWSS,Site11,11,2021-04-23,2021-07-31,Jul2021,2021,February;March;April,July 2021,,Bushnell
+UWSS,Site11,11,2021-07-31,2021-09-13,Sep2021,2021,July;August;September,September 2021,,Bushnell
+UWSS,Site11,11,2021-10-02,2021-10-18,Oct2021,2021,September;October,October 2021,Something weird happened?,Bushnell
+UWSS,Site11,11,2021-10-18,2021-11-29,Jul2022,2021,October;November,July2022,,Bushnell
+UWSS,Site11,11,2022-07-17,2022-08-21,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site11,11,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site12,12,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site12,12,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site12,12,2018-09-22,2018-10-28,Oct2018,2018,September;October;November,October November Check,,Bushnell
+UWSS,Site12,12,2018-10-28,2018-12-20,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site12,12,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site12,12,2019-03-07,2019-03-21,Mar2019,2019,March,MarchandApril2019,,Bushnell
+UWSS,Site12,12,2019-03-30,2019-06-03,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site12,12,2019-06-30,2019-07-24,Sep2019,2019,June;July,SeptoNov2019,,Bushnell
+UWSS,Site12,12,2019-09-15,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site12,12,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site12,12,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site12,12,2020-02-29,2020-03-23,Apr2020,2020,February;March,April 2020,,Bushnell
+UWSS,Site12,12,2020-04-26,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site12,12,2020-06-01,2020-07-08,Jun2020,2020,June;July,June 2020,,Bushnell
+UWSS,Site12,12,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site12,12,2020-08-04,2020-10-14,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site12,12,2020-10-14,2020-11-27,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site12,12,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site12a,12a,2021-01-21,2021-04-23,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site12a,12a,2021-04-23,2021-06-05,Jul2021,2021,April;May;June,July 2021,,Bushnell
+UWSS,Site12b,12b,2021-07-31,2021-09-01,Sep2021,2021,July;August,September 2021,,Bushnell
+UWSS,Site12b,12b,NA,NA,NA,NA,NA,October 2021,Corrupt?,Bushnell
+UWSS,Site12b,12b,2021-10-18,2021-10-25,Jun2022,2022,October,June2022,Corrupt? Changed camera,Bushnell
+UWSS,Site12b,12b,2022-06-23,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site12b,12b,2022-07-17,2022-08-21,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site12b,12b,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site13,13,2018-07-30,2018-08-04,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site13,13,2018-08-26,2018-08-30,Sep2018,2018,August,September Check,,Bushnell
+UWSS,Site13,13,NA,NA,Oct2018,2018,NA,October November Check,,Bushnell
+UWSS,Site13a,13a,2018-11-23,2018-12-20,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site13a,13a,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site13a,13a,2019-03-07,2019-04-21,Mar2019,2019,March;April,MarchandApril2019,,Bushnell
+UWSS,Site13a,13a,2019-04-21,2019-06-08,Jun2019,2019,April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site13a,13a,NA,NA,Sep2019,2019,NA,SeptoNov2019,Camera taken down,Bushnell
+UWSS,Site13a,13a,NA,NA,Dec2019,2019,September;October;November;December,December 2019,Camera taken down,Bushnell
+UWSS,Site13,13,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site13,13,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site13,13,2020-02-29,2020-04-09,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site13,13,2020-04-26,2020-05-23,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site13,13,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site13,13,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site13,13,2020-08-04,2020-09-06,Oct2020,2020,August;September,October 2020,,Bushnell
+UWSS,Site13,13,2020-10-18,2020-11-13,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site13,13,NA,NA,NA,NA,NA,NA,Not deployed,Bushnell
+UWSS,Site13,13,NA,NA,NA,NA,NA,October 2021,Stolen again,Bushnell
+UWSS,Site13,13,2022-08-28,2022-10-02,Sep2022,2022,August;September,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site14,14,2018-07-16,2018-08-26,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site14,14,2018-08-26,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site14,14,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site14,14,2018-11-18,2018-12-20,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site14,14,2018-12-20,2019-01-17,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site14,14,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site14,14,2019-03-30,2019-06-03,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site14,14,2019-06-30,2019-08-30,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site14,14,2019-09-07,2019-12-28,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site14,14,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site14,14,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site14,14,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site14,14,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site14,14,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site14,14,2020-07-08,2020-08-04,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site14,14,2020-08-04,2020-10-29,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site14,14,NA,NA,Nov2020,2020,NA,November 2020,"only took 40 pics, wrong site and date? SD card no 6",Bushnell
+UWSS,Site14,14,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site14,14,2021-01-22,2021-04-23,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site14,14,2021-04-23,2021-07-31,Jul2021,2021,April;May;June;July,July 2021,,Bushnell
+UWSS,Site14,14,2021-07-31,2021-08-24,Sep2021,2021,July;August,September 2021,,Bushnell
+UWSS,Site14,14,NA,NA,NA,NA,NA,October 2021,Corrupt,Bushnell
+UWSS,Site14,14,2021-10-18,2021-11-28,Nov2021,2021,October;November,November 2021,,Bushnell
+UWSS,Site14a,14a,2022-07-17,2022-07-23,Aug2022,2022,July,August2022,,Browning
+UWSS,Site14a,14a,2022-08-21,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site15,15,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site15,15,2018-08-25,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site15,15,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site15,15,2018-11-18,2018-12-20,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site15,15,2018-12-20,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site15,15,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site15,15,NA,NA,Jun2019,2019,NA,JuneJuly2019,,Bushnell
+UWSS,Site15,15,2019-06-30,2019-07-14,Sep2019,2019,June;July;August,SeptoNov2019,,Bushnell
+UWSS,Site15,15,2019-09-15,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site15,15,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site15,15,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site15,15,2020-02-29,2020-04-07,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site15,15,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site15,15,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site15,15,2020-07-08,2020-07-26,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site15,15,2020-08-04,2020-08-17,Oct2020,2020,August,October 2020,Date error,Bushnell
+UWSS,Site15,15,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site15,15,NA,NA,Jul2021,NA,NA,July 2021,Corrupt images; pink,Bushnell
+UWSS,Site15,15,2021-08-01,2021-08-04,Sep2021,2021,August,September 2021,Corrupt media files,Bushnell
+UWSS,Site15,15,NA,NA,NA,NA,NA,October 2021,Stolen,Bushnell
+UWSS,Site15a,15a,2022-08-28,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+UWSS,Site15a,15a,2022-10-02,2023-03-25,Jun2023,2023,October;November;December;January;February;March,June2023,,Browning
+,,,,,,,,,,
+UWSS,Site16,16,2018-07-30,2018-08-06,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site16,16,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site16,16,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site16,16,2018-10-28,2018-12-18,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site16,16,2018-12-18,2019-01-25,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site16,16,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site16,16,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site16,16,2019-06-30,2019-07-03,Sep2019,2019,June;July,SeptoNov2019,,Bushnell
+UWSS,Site16,16,2019-10-08,2019-12-29,Dec2019,2019,October;November;December,December 2019,,Bushnell
+UWSS,Site16,16,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site16,16,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site16,16,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site16,16,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site16,16,2020-05-30,2020-05-31,Jun2020,2020,May,June 2020,,Bushnell
+UWSS,Site16,16,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site16,16,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site16,16,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site16,16,2020-12-05,2021-01-09,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site16,16,2021-01-09,2021-04-22,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site16,16,2021-04-22,2021-07-31,Jul2021,2021,April;May;June;July,July 2021,,Bushnell
+UWSS,Site16,16,2021-08-01,2021-09-02,Sep2021,2021,August;September,September2021,,Bushnell
+UWSS,Site16,16,2021-09-02,2021-09-10,Oct2021,2021,September,October 2021,dead,Bushnell
+UWSS,Site16,16,2021-10-15,2021-12-25,Jul2022,2021,October;November,July2022,,Bushnell
+UWSS,Site16,16,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site16,16,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site17,17,2018-07-31,2018-08-09,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site17,17,2018-08-26,2018-09-12,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site17,17,2018-09-22,2018-09-29,Oct2018,2018,September,October November Check,,Bushnell
+UWSS,Site17,17,2018-10-28,2018-12-18,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site17,17,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site17,17,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site17,17,2019-03-30,2019-06-23,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site17,17,2019-06-30,2019-07-30,Sep2019,2019,June;July,SeptoNov2019,,Bushnell
+UWSS,Site17,17,NA,NA,Dec2019,2019,NA,December 2019,Camera malfunction,Bushnell
+UWSS,Site17,17,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site17,17,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site17,17,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site17,17,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site17,17,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site17,17,2020-07-08,2020-08-02,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site17,17,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site17,17,2020-10-15,2020-11-20,Nov2020,2020,October;November,November 2020,,Bushnell
+UWSS,Site17,17,NA,NA,Jan2021,2021,NA,January 2021,Camera malfunction,Bushnell
+UWSS,Site17,17,2021-01-22,2021-03-29,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site17,17,2021-03-29,2021-06-01,May2021,2021,March;April;May;June,May2021,,Bushnell
+UWSS,Site17,17,2021-06-01,2021-07-31,Jul2021,2021,June;July,July 2021,full,Bushnell
+UWSS,Site17,17,2021-08-01,2021-08-09,Sep2021,2021,August,September 2021,dead,Bushnell
+UWSS,Site17,17,2021-09-02,2021-09-11,Oct2021,2021,September,October 2021,dead; malfunction,Bushnell
+UWSS,Site17,17,2021-10-15,2021-11-28,Nov2021,2021,October;November,November 2021,"pulled camera, test at home",Bushnell
+UWSS,Site17,17,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Browning
+UWSS,Site17,17,2022-08-14,2022-08-20,Aug2022,2022,August,August2022,,Browning
+UWSS,Site17,17,2022-08-20,2022-09-03,Sep2022,2022,August;September,September2022,camera malfunction,Browning
+UWSS,Site17,17,2022-10-02,2022-10-09,Jun2023,2022,October,June2023,Camera malfunction,Browning
+,,,,,,,,,,
+UWSS,Site18,18,2018-07-30,2018-08-26,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site18,18,2018-08-26,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site18,18,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site18,18,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site18,18,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site18,18,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site18,18,2019-03-31,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site18,18,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site18,18,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site18,18,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site18,18,2020-01-25,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site18,18,2020-03-01,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site18,18,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site18,18,2020-05-30,2020-07-08,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site18,18,2020-07-08,2020-08-02,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site18,18,2020-08-04,2020-10-13,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site18,18,2020-10-15,2020-12-14,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site18,18,2020-12-14,2021-01-19,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site18a,18a,2021-03-29,2021-04-13,May2021,2021,March;April,May2021,Weird folders being created,Bushnell
+UWSS,Site18a,18a,2021-06-01,2021-06-02,Jul2021,2021,June,July 2021,"Malfunction, weird folders",Bushnell
+UWSS,Site18a,18a,NA,NA,NA,NA,NA,NA,Malfunction,Bushnell
+UWSS,Site18a,18a,2021-08-30,2021-08-31,Oct2021,2021,August,October 2021,Malfunction,Bushnell
+UWSS,Site18a,18a,2022-06-19,2022-07-16,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site18a,18a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site19,19,2018-07-30,2018-08-26,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site19,19,2018-08-26,2018-09-18,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site19,19,2018-09-22,2018-10-02,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site19,19,2018-10-28,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site19,19,2018-12-18,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site19,19,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site19,19,2019-03-30,2019-04-08,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site19,19,2019-06-30,2019-08-13,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site19,19,2019-10-08,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site19,19,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site19,19,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site19,19,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site19,19,2020-04-26,2020-05-22,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site19,19,2020-05-30,2020-06-29,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site19,19,2020-07-09,2020-08-09,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site19,19,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site19,19,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site19,19,2020-12-05,2021-01-09,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site19,19,2021-01-09,2021-03-26,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site19,19,2021-04-22,2021-05-24,Jul2021,2021,April;May,July 2021,,Bushnell
+UWSS,Site19,19,2021-08-01,2021-09-02,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site19,19,2021-09-02,2021-10-15,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site19,19,2021-10-16,2022-05-23,Aug2022,2022,October;November;December;January;February;March;April;May,August2022,,Bushnell
+UWSS,Site19,19,NA,NA,Sep2022,2022,NA,September2022,camera not on,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site20,20,2018-07-30,2018-08-08,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site20,20,2018-08-26,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site20,20,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site20,20,2018-10-28,2019-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site20,20,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site20,20,2019-01-30,2019-03-30,Mar2019,2019,February,MarchandApril2019,,Bushnell
+UWSS,Site20,20,2019-03-30,2019-06-30,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site20,20,2019-06-30,2019-12-29,Dec2019,2019,June;July;August;September;October;November;December,December 2019,,Bushnell
+UWSS,Site20,20,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site20,20,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site20,20,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site20,20,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site20,20,2020-05-30,2020-07-09,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site20,20,2020-07-09,2020-08-10,Jul2020,2020,July,July 2020,,Bushnell
+UWSS,Site20,20,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site20,20,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site20,20,2020-12-05,2021-01-27,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site20a,20a,2021-05-06,2021-05-16,Jul2021,2021,May,July 2021,,Bushnell
+UWSS,Site20a,20a,2021-08-01,2021-08-14,Sep2021,2021,August,September 2021,,Bushnell
+UWSS,Site20a,20a,2021-09-02,2021-09-06,Oct2021,2021,September,October 2021,,Bushnell
+UWSS,Site20a,20a,2021-10-15,2021-10-26,Nov2021,2021,October,November 2021,,Bushnell
+UWSS,Site20a,20a,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Browning
+UWSS,Site20a,20a,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site20a,20a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site21,21,NA,NA,Aug2018,2018,NA,Aug 25th check,,Bushnell
+UWSS,Site21,21,NA,NA,Sep2018,2018,NA,September Check,,Bushnell
+UWSS,Site21,21,2018-08-26,2018-08-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site21,21,2018-11-18,2018-11-28,Dec2018,2018,November,December2018,,Bushnell
+UWSS,Site21,21,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site21,21,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site21,21,2019-03-30,2019-06-18,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site21,21,2019-06-30,2019-09-15,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site21,21,2019-09-15,2019-12-30,Dec2019,2019,September;November;December,December 2019,,Bushnell
+UWSS,Site21,21,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site21,21,2020-01-25,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site21,21,2020-03-01,2020-04-26,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site21,21,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site21,21,2020-05-30,2020-07-09,Jun2020,2020,May;June;July,June 2020,,Bushnell
+UWSS,Site21,21,2020-07-09,2020-08-10,Jul2020,2020,July,July 2020,,Bushnell
+UWSS,Site21,21,2020-08-10,2020-09-12,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site21,21,2020-10-15,2020-12-14,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site21a,21a,2021-03-27,2021-06-01,May2021,2021,March;April;May;June,May2021,,Bushnell
+UWSS,Site21a,21a,2021-06-01,2021-08-01,Jul2021,2021,June;July;August,July 2021,,Bushnell
+UWSS,Site21a,21a,2021-08-01,2021-09-02,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site21a,21a,2021-09-02,2021-10-15,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site21a,21a,2021-10-15,2022-03-27,Jul2022,2022,October;November;December; January;February;March,July2022,,Bushnell
+UWSS,Site21a,21a,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site21a,21a,2022-08-20,2022-10-01,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site22,22,2018-07-20,2018-08-26,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site22,22,2018-08-26,2018-09-01,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site22,22,2018-10-08,2018-11-05,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site22,22,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site22,22,2018-12-18,2019-01-13,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site22,22,2019-02-05,2019-02-14,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site22,22,2019-04-21,2019-05-02,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site22,22,NA,NA,Sep2019,2019,June;July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site22,22,2019-09-15,2019-12-08,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site22,22,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site22,22,2020-01-25,2020-02-17,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site22,22,2020-03-01,2020-04-27,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site22,22,2020-04-27,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site22,22,NA,NA,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site22,22,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site22,22,2020-08-10,2020-09-17,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site22,22,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site22a,22a,2021-01-25,2021-04-22,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site22a,22a,2021-04-22,2021-06-04,Jul2021,2021,April;May;June,July 2021,,Bushnell
+UWSS,Site22a,22a,2021-08-01,2021-08-24,Sep2021,2021,August,September 2021,,Bushnell
+UWSS,Site22a,22a,2021-09-03,2021-10-15,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site22a,22a,2021-10-15,2022-05-17,Jun2022,2022,Oct-May,June2022,,Bushnell
+UWSS,Site22a,22a,2022-06-19,2022-08-20,Aug2022,2022,June;July;August,August2022,,Bushnell
+UWSS,Site22a,22a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+UWSS,Site22a,22a,2022-10-02,2022-12-31,Jun2023,2022,October;November;December,June2023,,Bushnell
+,,,,,,,,,,
+UWSS,Site23,23,NA,NA,Aug2018,2018,NA,Aug 25th check,,Bushnell
+UWSS,Site23,23,NA,NA,Sep2018,2018,NA,September Check,,Bushnell
+UWSS,Site23,23,NA,NA,Oct2018,2018,NA,October November Check,,Bushnell
+UWSS,Site23a,23a,2018-11-23,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site23a,23a,2018-12-18,2019-01-27,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site23a,23a,2019-01-27,2019-04-21,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site23a,23a,2019-04-22,2019-11-06,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site23a,23a,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site23a,23a,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site23a,23a,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site23a,23a,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site23a,23a,2020-05-30,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site23a,23a,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site23a,23a,2020-08-10,2020-10-14,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site23a,23a,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site23a,23a,2020-12-05,2021-01-22,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site23b,23b,2021-02-03,2021-03-29,Mar2021,2021,February;March,MarchApril2021,,Bushnell
+UWSS,Site23b,23b,2021-03-29,2021-07-30,Jul2021,2021,March;April;May;June;July,July 2021,,Bushnell
+UWSS,Site23b,23b,2021-08-01,2021-08-30,Sep2021,2021,August,September 2021,,Bushnell
+UWSS,Site23b,23b,NA,NA,NA,NA,NA,October 2021,Malfunction,Bushnell
+UWSS,Site23b,23b,2021-10-15,2021-10-16,Nov2021,2021,October,November 2021,"Date malfunction, took cam down",Bushnell
+UWSS,Site23b,23b,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site23b,23b,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+UWSS,Site23b,23b,2022-10-02,2023-01-29,Jun2023,2023,October;November;December;January,June2023,,Browning
+,,,,,,,,,,
+UWSS,Site24,24,2018-07-30,2018-08-28,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site24,24,2018-08-28,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site24,24,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site24,24,2018-10-28,2018-12-18,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site24,24,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site24,24,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site24,24,2019-03-30,2019-06-30,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site24,24,2019-06-30,2019-08-29,Sep2019,2019,June;July;August,SeptoNov2019,,Bushnell
+UWSS,Site24,24,2019-10-08,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site24,24,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site24,24,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site24,24,2020-02-29,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site24,24,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site24,24,2020-05-30,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site24,24,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site24,24,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site24,24,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site24,24,2020-12-05,2021-01-22,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site24a,24a,2021-02-03,2021-03-29,Mar2021,2021,February;March,MarchApril2021,,Bushnell
+UWSS,Site24a,24a,2021-03-29,2021-06-01,May2021,2021,March;April;May;June,May2021,,Bushnell
+UWSS,Site24a,24a,2021-06-01,2021-06-05,Jul2021,2021,June,July2021,Malfunction,Bushnell
+UWSS,Site24a,24a,2021-08-01,2021-08-05,Sep2021,2021,August,September 2021,Malfunction,Bushnell
+UWSS,Site24a,24a,2021-09-02,2021-09-04,Oct2021,2021,September,September 2021,Error,Bushnell
+UWSS,Site24a,24a,2021-10-16,2021-10-30,Nov2021,2021,October,November 2021,,Bushnell
+UWSS,Site24a,24a,2022-06-19,2022-08-20,Aug2022,2022,June;July;August,August2022,,Browning
+UWSS,Site24a,24a,2022-08-20,2022-09-05,Sep2022,2022,August;September,September2022,Error?,Browning
+UWSS,Site24a,24a,2022-10-02,2023-04-11,Jun2023,2023,October;November;December; January;February;March;April,June2023,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site25,25,2018-08-03,2018-08-26,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site25,25,2018-08-26,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site25,25,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site25,25,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site25,25,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site25,25,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site25,25,2019-04-21,2019-07-07,Jun2019,2019,March;April;May;June;July,JuneJuly2019,,Bushnell
+UWSS,Site25,25,2019-07-07,2019-09-15,Sep2019,2019,July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site25,25,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site25,25,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site25,25,2020-01-26,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site25,25,2020-03-01,2020-04-26,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site25,25,2020-04-26,2020-05-16,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site25,25,2020-05-30,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site25,25,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site25,25,2020-08-10,2020-10-06,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site25,25,NA,NA,Nov2020,2020,NA,November 2020,SD card empty? SD card malfunction - read as having 26 images but empty.,Bushnell
+UWSS,Site25,25,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site25a,25a,2021-04-22,2021-05-13,May2021,2021,April;May,May2021,"Weird folders, tree movement",Bushnell
+UWSS,Site25a,25a,2021-06-01,2021-06-03,Jul2021,2021,June,July 2021,Malfunction,Bushnell
+UWSS,Site25a,25a,NA,NA,NA,NA,NA,September 2021,Turned off,Bushnell
+UWSS,Site25a,25a,2021-09-02,2021-09-15,Oct2021,2021,September,October 2021,Weird folders,Bushnell
+UWSS,Site25a,25a,2022-07-17,2022-08-03,Aug2022,2022,July;August,July2022,,Browning
+UWSS,Site25,25,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site26,26,2018-07-31,2018-08-03,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site26,26,2018-08-25,2018-10-28,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site26,26,NA,NA,Oct2018,2018,NA,October November Check,,Bushnell
+UWSS,Site26a,26a,2018-12-12,2018-12-18,Dec2018,2018,December,December2018,,Bushnell
+UWSS,Site26a,26a,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site26a,26a,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site26a,26a,2019-04-21,2019-07-07,Jun2019,2019,March;April;May;June;July,JuneJuly2019,,Bushnell
+UWSS,Site26b,26b,2019-07-07,2019-07-14,Sep2019,2019,July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site26b,26b,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site26b,26b,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site26b,26b,2020-01-26,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site26b,26b,2020-03-01,2020-04-26,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site26b,26b,2020-04-26,2020-05-03,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site26b,26b,2020-05-30,2020-06-21,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site26b,26b,2020-07-09,2020-07-31,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site26b,26b,NA,NA,Oct2020,2020,NA,October 2020,Stolen,Bushnell
+UWSS,Site26c,26c,2020-11-06,2020-12-04,Nov2020,2020,November;December,November 2020,,Bushnell
+UWSS,Site26c,26c,2020-12-04,2021-01-18,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site26c,26c,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site26d,26d,2021-08-30,2021-10-05,Oct2021,2021,August;September;October,October 2021,,Bushnell
+UWSS,Site26d,26d,NA,NA,Sep2022,2022,NA,September2022,Stolen,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site27,27,NA,NA,Aug2018,2018,NA,Aug 25th check,,Bushnell
+UWSS,Site27,27,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site27,27,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site27,27,NA,NA,Dec2018,2018,NA,December2018,,Bushnell
+UWSS,Site27,27,2018-12-18,2018-12-20,Jan2019,2019,December;January,January2019,wrong date,Bushnell
+UWSS,Site27,27,2019-01-27,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site27,27,2019-03-30,2019-06-28,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site27,27,2019-06-28,2019-10-08,Sep2019,2019,July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site27,27,2019-10-08,2019-12-29,Dec2019,2019,October;November;December,December 2019,,Bushnell
+UWSS,Site27,27,2019-12-29,2020-01-02,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site27,27,2020-01-25,2020-02-29,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site27,27,2020-02-29,2020-04-26,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site27,27,2020-04-26,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site27,27,2020-05-30,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site27,27,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site27,27,2020-08-10,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site27,27,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,October 2020,,Bushnell
+UWSS,Site27,27,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site27a,27a,2021-04-26,2021-05-31,May2021,2021,April;May,May2021,,Bushnell
+UWSS,Site27a,27a,2021-05-31,2021-08-01,Jul2021,2021,May;June;July;August,July 2021,,Bushnell
+UWSS,Site27a,27a,2021-08-01,2021-09-02,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site27a,27a,2021-09-02,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site27a,27a,2021-10-23,2022-06-19,Jun2022,2022,Oct-Jun,June2022,,Bushnell
+UWSS,Site27a,27a,2022-06-19,2022-08-20,Aug2022,2022,June;July;August,August2022,,Bushnell
+UWSS,Site27a,27a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+UWSS,Site27a,27a,2022-10-02,2023-04-30,Jun23,2023,October;November;December; January;February;March;April,June2023,,Bushnell
+,,,,,,,,,,
+UWSS,Site28,28,2018-07-30,2018-08-17,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site28,28,2018-08-28,2018-10-08,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site28,28,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site28,28,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site28,28,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site28,28,2019-01-30,2019-04-21,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site28,28,2019-04-21,2019-08-02,Sep2019,2019,April;May;June;July;August,SeptoNov2019,,Bushnell
+UWSS,Site28,28,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site28,28,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site28,28,2020-01-26,2020-03-01,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site28,28,2020-03-01,2020-04-26,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site28,28,2020-04-26,2020-06-27,Jun2020,2020,April;May;June,June 2020,,Bushnell
+UWSS,Site28,28,2020-07-09,2020-08-10,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site28,28,2020-08-10,2020-11-28,Nov2020,2020,August;September;October;November,November 2020,Battery,Bushnell
+UWSS,Site28,28,2020-12-05,2021-01-25,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site28,28,2021-01-27,2021-04-22,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site28,28,2021-04-22,2021-07-22,Jul2021,2021,April;May;June;July;August,July 2021,,Bushnell
+UWSS,Site28,28,2021-08-04,2021-08-28,Sep2021,2021,August,September 2021,,Bushnell
+UWSS,Site28,28,2021-09-02,2021-10-15,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site28,28,2021-10-15,2022-12-31,Jun2022,2022,October - Dec,June 2022,,Bushnell
+UWSS,Site28,28,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site28,28,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site28,28,2022-08-28,2022-09-03,Sep2022,2022,August;September,September2022,,Bushnell
+UWSS,Site28,28,2022-10-02,2022-10-02,Jun2023,2023,October,June2023,"Card fills up, deer and human activity",Bushnell
+,,,,,,,,,,
+UWSS,Site29,29,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site29,29,2018-08-25,2018-10-08,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site29,29,2018-10-08,2018-11-18,Oct2018,2018,October;Novmeber,October November Check,,Bushnell
+UWSS,Site29,29,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site29,29,2018-12-18,2019-01-14,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site29,29,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site29,29,2019-04-21,2019-07-07,Jun2019,2019,April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site29,29,2019-07-07,2019-09-15,Sep2019,2019,July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site29,29,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site29,29,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site29,29,2020-01-26,2020-02-05,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site29,29,2020-03-01,2020-04-28,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site29,29,2020-04-28,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site29,29,2020-06-01,2020-06-04,Jun2020,2020,June,June 2020,,Bushnell
+UWSS,Site29,29,2020-07-09,2020-08-13,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site29,29,2020-08-13,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site29,29,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,October 2020,,Bushnell
+UWSS,Site29,29,2020-12-05,2021-01-20,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site29,29,2021-01-20,2021-05-31,May2021,2021,January;February;March;April;May,May2021,,Bushnell
+UWSS,Site29,29,2021-05-31,2021-07-20,Jul2021,2021,May;June;July,July 2021,,Bushnell
+UWSS,Site29,29,2021-08-04,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site29,29,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site29,29,2021-10-23,2022-01-15,Jun2022,2022,Oct-Jan,June2022,,Bushnell
+UWSS,Site29,29,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site29,29,2022-07-17,2022-08-14,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site29,29,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+UWSS,Site29,29,2022-10-02,2023-06-02,Jun2023,2023,October;November;December;January;February;March;April;May;June,June2023,,Browning
+,,,,,,,,,,
+UWSS,Site30,30,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site30,30,2018-08-25,2018-10-08,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site30,30,2018-10-08,2018-11-18,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site30,30,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site30,30,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site30,30,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site30,30,2019-04-21,2019-05-05,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site30,30,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site30,30,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site30,30,2020-01-26,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site30,30,2020-03-01,2020-04-28,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site30,30,2020-04-28,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site30,30,2020-06-01,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site30,30,2020-07-09,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site30,30,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site30a,30a,2021-04-22,2021-05-31,May2021,2021,April;May,May2021,,Bushnell
+UWSS,Site30a,30a,2021-05-31,2021-07-08,Jul2021,2021,May;June;July,July 2021,Covered,Bushnell
+UWSS,Site30,30,2021-08-12,2021-09-02,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site30,30,2021-09-04,2021-09-09,Oct2021,2021,September,October 2021,Dead,Bushnell
+UWSS,Site30,30,2021-10-09,2021-10-23,Nov2021,2021,October,November 2021,"Corrupt media files, pulled cam",Bushnell
+UWSS,Site30,30,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+UWSS,Site31,31,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site31,31,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site31,31,2018-09-22,2018-10-18,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site31,31,2018-10-28,2018-12-18,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site31,31,2018-12-18,2019-01-10,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site31,31,2019-01-30,2019-02-21,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site31,31,2019-03-31,2019-06-28,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site31,31,2019-06-28,2019-10-22,Dec2019,2019,June;July;August;September;October,December 2019,,Bushnell
+UWSS,Site31,31,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site31,31,2020-01-25,2020-02-29,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site31,31,2020-02-29,2020-04-23,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site31,31,2020-04-28,2020-05-30,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site31,31,2020-05-30,2020-08-13,Jul2020,2020,May;June;July;August,July 2020,,Bushnell
+UWSS,Site31,31,2020-08-13,2020-09-29,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site31,31,2020-10-22,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site31,31,2020-12-05,2021-01-09,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site31a,31a,2021-02-03,2021-03-29,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site31a,31a,2021-03-29,2021-05-31,May2021,2021,March;April;May,May2021,,Bushnell
+UWSS,Site31a,31a,2021-05-31,2021-08-03,Jul2021,2021,May;June;July;August,July 2021,,Bushnell
+UWSS,Site31a,31a,2021-08-03,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site31a,31a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site31a,31a,2021-10-23,2022-04-26,Jun2022,2022,Oct-Apr,June2022,,Bushnell
+UWSS,Site31a,31a,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site31a,31a,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site31a,31a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+UWSS,Site31a,31a,2022-10-02,2023-05-22,Jun2023,2023,October;November;December;January;February;March;April;May,June2023,,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site32,32,2018-08-09,2018-08-28,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site32,32,2018-08-28,2018-10-10,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site32,32,NA,NA,Oct2018,2018,NA,October November Check,Corrupt,Bushnell
+UWSS,Site32,32,2018-10-10,2018-12-24,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site32,32,2019-02-05,2019-04-05,Jan2019,2019,December;January;March;April,January2019,,Bushnell
+UWSS,Site32,32,2019-04-05,2019-11-19,Dec2019,2019,April;May;June;July;August;September;October;November,December 2019,,Bushnell
+UWSS,Site32,32,2019-12-30,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site32,32,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site32,32,2020-02-29,2020-04-28,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site32,32,2020-04-28,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site32,32,2020-05-30,2020-08-13,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site32,32,2020-08-13,2020-12-05,Nov2020,2020,August;September;October;November;December,November 2020,,Bushnell
+UWSS,Site32,32,2020-12-05,2021-01-09,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site32,32,2021-01-09,2021-04-22,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site32,32,2021-04-22,2021-08-12,Jul2021,2021,April;May;June;July;August,July 2021,,Bushnell
+UWSS,Site32,32,2021-08-12,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site32,32,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site32,32,2022-08-01,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+,,,,,,,,,,
+UWSS,Site33,33,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site33,33,2018-08-25,2018-10-08,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site33,33,2018-10-08,2018-11-18,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site33,33,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site33,33,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site33,33,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site33,33,2019-04-22,2019-07-07,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site33,33,2019-07-07,2019-09-15,Sep2019,2019,July;August;September,SeptoNov2019,,Bushnell
+UWSS,Site33,33,2019-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site33,33,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site33,33,2020-01-26,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site33,33,2020-03-01,2020-04-28,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site33,33,2020-04-28,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site33,33,2020-06-01,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site33,33,2020-07-09,2020-08-13,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site33,33,2020-08-13,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site33,33,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,October 2020,,Bushnell
+UWSS,Site33,33,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site33a,33a,2021-01-22,2021-04-20,Mar2021,2021,January;February;March;April,MarchApril2021,,Bushnell
+UWSS,Site33a,33a,2021-04-22,2021-05-31,May2021,2021,April;May,May2021,,Bushnell
+UWSS,Site33a,33a,2021-05-31,2021-06-28,Jul2021,2021,May;June,July 2021,,Bushnell
+UWSS,Site33,33a,2021-08-03,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site33,33a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site33,33a,2022-08-14,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site34,34,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site34,34,2018-08-25,2018-10-08,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site34,34,2018-10-08,2018-11-18,Oct2018,2018,October;November,October November Check,,Bushnell
+UWSS,Site34,34,2018-11-18,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site34,34,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site34,34,2019-01-30,2019-03-19,Mar2019,2019,January;February;March;April,MarchandApril2019,wrong date,Bushnell
+UWSS,Site34,34,NA,NA,Jun2019,2019,NA,JuneJuly2019,skipped,Bushnell
+UWSS,Site34,34,2019-04-21,2019-06-01,Sep2019,2019,April;May;June,SeptoNov2019,wrong date,Bushnell
+UWSS,Site34,34,2020-09-15,2019-12-30,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site34,34,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site34,34,2020-01-26,2020-02-06,Feb2020,2020,January;February;March,February 2020,wrong date,Bushnell
+UWSS,Site34,34,2020-03-01,2020-04-28,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site34,34,2020-04-28,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site34,34,2020-06-01,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site34,34,2020-07-09,2020-08-13,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site34,34,2020-08-13,2020-10-02,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site34,34,2020-10-15,2020-12-05,Nov2020,2020,October;November;November,November 2020,,Bushnell
+UWSS,Site34,34,2020-12-05,2020-12-13,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site34,34,2021-01-25,2021-03-29,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site34,34,2021-03-29,2021-05-31,May2021,2021,March;April;May,May2021,,Bushnell
+UWSS,Site34,34,2021-05-31,2021-08-04,Jul2021,2021,May;June;July;August,July 2021,,Bushnell
+UWSS,Site34,34,2021-08-04,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site34,34,2021-09-04,2021-09-24,Oct2021,2021,September,October 2021,,Bushnell
+UWSS,Site34,34,2021-09-24,2022-06-19,Jun2022,2022,Sep-Jun,June 2022,,Bushnell
+UWSS,Site34,34,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site34,34,2022-07-17,2022-08-14,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site34,34,2022-08-14,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+UWSS,Site34,34,2022-10-02,2023-04-14,Jun2023,2023,October;November;November; December; January;February;March;April,June2023`,,Bushnell
+,,,,,,,,,,
+UWSS,Site35,35,NA,NA,Aug2018,2018,NA,Aug 25th check,,Bushnell
+UWSS,Site35,35,2018-08-28,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site35,35,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site35,35,2018-10-28,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site35,35,2018-12-31,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site35,35,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site35,35,2019-03-30,2019-06-28,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site35,35,2019-06-28,2019-11-09,Sep2019,2019,June;July;August;September;October;November,SeptoNov2019,,Bushnell
+UWSS,Site35,35,2019-11-09,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site35,35,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site35,35,2020-01-25,2020-02-29,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site35,35,2020-03-01,2020-04-29,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site35,35,NA,NA,May2020,2020,NA,May 2020,skipped,Bushnell
+UWSS,Site35,35,NA,NA,Jun2020,2020,NA,June 2020,skipped,Bushnell
+UWSS,Site35,35,2020-05-30,2020-08-13,Jul2020,2020,May;June;July;August,July 2020,,Bushnell
+UWSS,Site35,35,2020-08-13,2020-10-22,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site35,35,2020-10-22,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site35,35,2020-12-05,2021-01-22,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site35a,35a,2021-03-02,2021-03-29,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site35a,35a,2021-03-29,2021-05-31,May2021,2021,March;April;May,May2021,,Bushnell
+UWSS,Site35a,35a,2021-05-31,2021-08-03,Jul2021,2021,May;June;July;August,July 2021,,Bushnell
+UWSS,Site35a,35a,2021-08-03,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site35a,35a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site35a,35a,2021-10-23,2022-04-22,Jun2022,2022,Oct-April,June2022,,Bushnell
+UWSS,Site35a,35a,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site35a,35a,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Bushnell
+UWSS,Site35a,35a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+UWSS,Site35a,35a,2022-10-02,2022-12-25,Jun2023,2023,October;November;December,June2023,,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site36,36,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site36,36,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site36,36,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site36,36,2018-10-28,2018-12-18,Dec2018,2018,November;December,December2018,,Bushnell
+UWSS,Site36,36,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site36,36,2019-01-30,2019-03-30,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site36,36,2019-03-30,2019-04-30,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site36,36,2019-06-28,2019-07-25,Sep2019,2019,June;July,SeptoNov2019,,Bushnell
+UWSS,Site36,36,2019-11-09,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site36,36,2019-12-29,2020-01-24,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site36,36,2020-01-26,2020-02-29,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site36,36,2020-02-29,2020-04-02,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site36,36,2020-04-28,2020-06-04,Jul2020,2020,April;May;June,July 2020,,Bushnell
+UWSS,Site36,36,2020-08-13,2020-09-05,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site36,36,2020-10-22,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site36,36,2020-12-05,2021-02-03,Jan2021,2021,December;January,January 2021,,Bushnell
+UWSS,Site36a,36a,2021-02-05,2021-03-29,Mar2021,2021,February;March,MarchApril2021,,Bushnell
+UWSS,Site36a,36a,2021-03-29,2021-04-22,Jul2021,2021,March;April,July 2021,,Bushnell
+UWSS,Site36a,36a,2021-08-03,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site36a,36a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site36a,36a,2021-10-23,2022-05-29,Jun2022,2022,Oct-May,June2022,,Bushnell
+UWSS,Site36a,36a,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Bushnell
+UWSS,Site36a,36a,2022-07-17,2022-08-20,Aug2022,2022,July;August,August2022,,Browning
+UWSS,Site36a,36a,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Browning
+UWSS,Site36a,36a,2022-10-02,2022-10-14,Jun2023,2022,October,June2023,,Browning
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site38,38,2018-08-03,2018-08-04,2018,2018,August,Aug 25th check,wrong date,Bushnell
+UWSS,Site38,38,NA,NA,Sep2018,2018,NA,September Check,wrong date,Bushnell
+UWSS,Site38,38,NA,NA,Oct2018,2018,NA,October November Check,wrong date,Bushnell
+UWSS,Site38,38,NA,NA,Dec2018,2018,NA,December2018,wrong date,Bushnell
+UWSS,Site38,38,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site38,38,2019-01-30,2019-04-21,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site38,38,NA,NA,Jun2019,2019,March;April,JuneJuly2019,,Bushnell
+UWSS,Site38,38,NA,NA,Sep2019,2019,NA,SeptoNov2019,,Bushnell
+UWSS,Site38,38,NA,NA,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site38,38,2019-12-30,2020-01-26,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site38,38,2020-01-26,2020-03-01,Feb2020,2020,January;February;March,February 2020,,Bushnell
+UWSS,Site38,38,2020-03-01,2020-04-28,Apr2020,2020,March;April,April 2020,,Bushnell
+UWSS,Site38,38,2020-04-28,2020-06-01,May2020,2020,April;May;June,May 2020,,Bushnell
+UWSS,Site38,38,2020-06-01,2020-07-09,Jun2020,2020,May;June,June 2020,,Bushnell
+UWSS,Site38,38,2020-07-09,2020-08-13,Jul2020,2020,July;August,July 2020,,Bushnell
+UWSS,Site38,38,2020-08-13,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site38,38,2020-10-15,2020-12-05,Nov2020,2020,October;November;December,November 2020,,Bushnell
+UWSS,Site38,38,2020-12-05,2021-01-20,Jan2021,2021,December;January,January2021,,Bushnell
+UWSS,Site38,38,2020-01-25,2021-03-06,Mar2021,2021,January;February;March,MarchApril2021,,Bushnell
+UWSS,Site38,38,2021-03-29,2021-05-31,May2021,2021,March;April;May,May2021,,Bushnell
+UWSS,Site38,38,2021-05-31,2021-08-12,Jul2021,2021,May;June;July;August,July 2021,,Bushnell
+UWSS,Site38a,38a,2021-08-19,2021-09-04,Sep2021,2021,August;September,September 2021,,Bushnell
+UWSS,Site38a,38a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site38b,38b,NA,NA,Sep2022,2022,NA,September2022,cam error,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site39,39,2018-07-31,2018-08-25,Aug2018,2018,July;August,Aug 25th check,,Bushnell
+UWSS,Site39,39,2018-08-25,2018-09-22,Sep2018,2018,August;September,September Check,,Bushnell
+UWSS,Site39,39,2018-09-22,2018-10-28,Oct2018,2018,September;October,October November Check,,Bushnell
+UWSS,Site39,39,2018-10-28,2018-12-18,Dec2018,2018,October;November;December,December2018,,Bushnell
+UWSS,Site39,39,2018-12-18,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site39,39,2019-01-30,2019-03-30,Mar2019,2019,January;February;March,MarchandApril2019,,Bushnell
+UWSS,Site39,39,2019-03-30,2019-06-28,Jun2019,2019,March;April;May;June,JuneJuly2019,,Bushnell
+UWSS,Site39,39,2019-06-28,2019-10-08,Sep2019,2019,June;July;August,SeptoNov2019,,Bushnell
+UWSS,Site39,39,2019-10-08,2019-12-29,Dec2019,2019,September;October;November;December,December 2019,,Bushnell
+UWSS,Site39,39,2019-12-29,2020-01-25,Jan2020,2020,December;January,January 2020,,Bushnell
+UWSS,Site39,39,2020-01-25,2020-02-29,Feb2020,2020,January;February,February 2020,,Bushnell
+UWSS,Site39,39,2020-02-29,2020-04-28,Apr2020,2020,February;March;April,April 2020,,Bushnell
+UWSS,Site39,39,2020-04-28,2020-05-30,May2020,2020,April;May,May 2020,,Bushnell
+UWSS,Site39,39,2020-05-30,2020-06-07,Jul2020,2020,May;June,July 2020,,Bushnell
+UWSS,Site39,39,2020-08-13,2020-10-15,Oct2020,2020,August;September;October,October 2020,,Bushnell
+UWSS,Site39,39,NA,NA,Nov2020,2020,NA,November 2020,"Card reads as empty, SD malfunction maybe, wrote 39 on front of card with star",Bushnell
+UWSS,Site39,39,2020-12-05,2021-01-09,Jan2021,2021,December;January,January2021,,Bushnell
+UWSS,Site39,39,NA,NA,NA,NA,NA,NA,Stolen,Bushnell
+UWSS,Site39a,39a,2021-08-04,2021-08-05,Sep2021,2021,August,September 2021,Malfunction,Bushnell
+UWSS,Site39,39,2022-05-23,2022-08-20,Aug2022,2022,May;June;July;August,August2022,,Bushnell
+UWSS,Site39,39,2022-08-20,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
+,,,,,,,,,,
+,,,,,,,,,,
+UWSS,Site40,40,2018-08-03,2018-08-28,Aug2018,2018,August,Aug 25th check,,Bushnell
+UWSS,Site40,40,2018-08-28,2018-10-10,Sep2018,2018,August;September;October,September Check,,Bushnell
+UWSS,Site40,40,2018-10-10,2018-11-18,Dec2018,2018,October; November,December2018,,Bushnell
+UWSS,Site40,40,2018-12-24,2019-01-30,Jan2019,2019,December;January,January2019,,Bushnell
+UWSS,Site40,40,2019-01-30,2019-04-05,Mar2019,2019,January;February;March;April,MarchandApril2019,,Bushnell
+UWSS,Site40,40,NA,NA,Jun2019,2019,NA,JuneJuly2019,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Sep2019,2019,NA,SeptoNov2019,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Dec2019,2019,NA,December 2019,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Jan2020,2020,NA,January 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Feb2020,2020,NA,February 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Apr2020,2020,NA,April 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,May2020,2020,NA,May 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Jun2020,2020,NA,June 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Jul2020,2020,NA,July 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Aug2020,2020,NA,August 2020,Stolen,Bushnell
+UWSS,Site40,40,NA,NA,Oct2020,2020,NA,October 2020,Stolen,Bushnell
+UWSS,Site40a,40a,2020-10-22,2020-11-18,Nov2020,2020,October; November,November 2020,dead battery,Bushnell
+UWSS,Site40a,40a,2020-12-05,2021-01-20,Jan2021,2021,December;January,January2021,,Bushnell
+UWSS,Site40a,40a,2021-01-20,2021-03-29,Mar2021,2021,January;February;March,MarchApril2021,Photos all tinted pink,Bushnell
+UWSS,Site40a,40a,2021-04-22,2021-05-04,May2021,2021,April;May,May2021,Weird folders,Bushnell
+UWSS,Site40a,40a,2021-05-31,2021-06-09,Jul2021,2021,May;June,July 2021,"Weird folders, malfunction",Bushnell
+UWSS,Site40a,40a,NA,NA,NA,NA,NA,September 2021,Error,Bushnell
+UWSS,Site40a,40a,2021-09-04,2021-10-23,Oct2021,2021,September;October,October 2021,,Bushnell
+UWSS,Site40a,40a,2022-06-19,2022-07-17,Jul2022,2022,June;July,July2022,,Browning
+UWSS,Site40a,40a,2022-08-14,2022-08-20,Aug2022,2022,August,August2022,,Browning
+UWSS,Site40,40,2022-08-28,2022-10-02,Sep2022,2022,August;September;October,September2022,,Bushnell
