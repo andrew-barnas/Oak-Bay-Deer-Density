@@ -1,0 +1,285 @@
+PLAYING WITH SECR OPTIONS
+
+```{r}
+#Clear everything out, its probably messy from the data prep file
+rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(ggplot2)      #data visualization
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+library(rgdal)        #dealing with spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/outputs"), create = TRUE)
+
+
+
+```
+
+Ok so this is the base secr model that I came up with. Every new block is going to have some modifications to it as I figure out the new bits and pieces!
+```{r}
+#Create a capture history object using the above created text files
+deer_secr_2018<-read.capthist(captfile = file.path(input_directory, "captures_2018.txt"), 
+                         trapfile = file.path(input_directory, "deer_cameras_2018.txt"),
+                         detector = "count", #this is a proximity detector (records presence at a point without restricting movement)
+                         #but allows >1 detection per animal per time
+                         markocc = rep(0,30), #This is a vector of n = number of occassions, all zeros indicate no marking done, this is ALL resighting data
+                         skip = 1, #Skip = 1 says don't read the first row, which is the headers!
+                         verify = TRUE) #Checks to make sure sampling occassions, effort, etc. all match up    
+summary(deer_secr_2018)
+
+#This shows a plot of detections for individuals
+#Good to inspect that you dont have an individual located on traps on completely different 
+#sides of the study area (unlikely, would indicate an error likely - unless the move A LOT)
+plot(deer_secr_2018, tracks = TRUE)
+
+#Lets add the unmarked sightings to the capture history object
+deer_secr_2018<-addSightings(deer_secr_2018, unmarked = file.path(input_directory, "unmarked_matrix_2018.txt"), skip = 1)
+summary(deer_secr_2018)
+#And now fit the model with the unmarked sightings included
+fit1_2018<-secr.fit(deer_secr_2018, buffer = 1000,trace = TRUE)
+fit1_2018
+
+
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_2018<-(summary(fit1_2018)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_2018<-(summary(fit1_2018)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_2018<-(summary(fit1_2018)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_2018
+upper_density_CI_2018
+lower_density_CI_2018
+
+
+#WHAT ABOUT SPECIFYING THE DETECTION FUNCTION?
+#And now fit the model with the unmarked sightings included
+fit1_2018_DF<-secr.fit(deer_secr_2018, buffer = 1000,trace = TRUE, 
+                       detectfn = "HN")
+fit1_2018_DF
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_2018_DF<-(summary(fit1_2018_DF)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_2018_DF<-(summary(fit1_2018_DF)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_2018_DF<-(summary(fit1_2018_DF)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_2018_DF
+upper_density_CI_2018_DF
+lower_density_CI_2018_DF
+
+#####################################################################
+#MAKING SURE THE COUNTS ARE MODELED AS A POISSON
+#And now fit the model with the unmarked sightings included
+fit1_2018_DF_Poisson<-secr.fit(deer_secr_2018, buffer = 1000,trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0)  
+fit1_2018_DF_Poisson
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_2018_DF_Poisson<-(summary(fit1_2018_DF_Poisson)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_2018_DF_Poisson<-(summary(fit1_2018_DF_Poisson)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_2018_DF_Poisson<-(summary(fit1_2018_DF_Poisson)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_2018_DF_Poisson
+upper_density_CI_2018_DF_Poisson
+lower_density_CI_2018_DF_Poisson
+
+##################################################
+#MAXIMIZE MODEL BASED ON CONDITIONAL LIKELIHOOD?
+#And now fit the model with the unmarked sightings included
+fit1_2018_4<-secr.fit(deer_secr_2018, buffer = 1000,trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0,  #counts modelled as poisson 
+                       ) 
+
+fit1_2018_4
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_2018_DF_Poisson<-(summary(fit1_2018_4)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_2018_DF_Poisson<-(summary(fit1_2018_4)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_2018_DF_Poisson<-(summary(fit1_2018_4)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_2018_DF_Poisson
+upper_density_CI_2018_DF_Poisson
+lower_density_CI_2018_DF_Poisson
+
+
+```
+
+Playing with masks
+```{r}
+
+#Heres the capture history object
+deer_secr_2018
+#And here is the fitted model
+fit1_2018_4
+
+#What does the mask for this look like?
+par(mar = c(1,1,1,1))
+plot(fit1_2018_4$mask, dots = FALSE, mesh = "grey", col = "white")
+plot(traps(deer_secr_2018), detpar = list(pch = 16, cex = 1), add = TRUE)
+
+#How many rows of data does this mask have?
+nrow(fit1_2018_4$mask)
+
+#Ok now what if we try to make our own mask? This should be basically the same mask as is currently used right!?
+A<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 1000)
+plot(A, dots = FALSE, mesh = "black", col = "white")
+plot(traps(deer_secr_2018), detpar = list(pch = 16, cex = 1), add = TRUE)
+
+#So now if I fit the same model, but with this mask, the estimates should be identical?
+fit_mask<-secr.fit(deer_secr_2018, 
+                     mask = A, 
+                       trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0,  #counts modelled as poisson 
+                       ) 
+
+fit_mask
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_fit_mask<-(summary(fit_mask)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_fit_mask<-(summary(fit_mask)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_fit_mask<-(summary(fit_mask)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_fit_mask
+upper_density_CI_fit_mask
+lower_density_CI_fit_mask
+
+#Pilot estimate for buffer width
+RPSV(deer_secr_2018, CC= TRUE)
+
+
+#Buffer check- see pages 6 and 7 of the handout
+par(pty = "s", mar = c(4,4,2,2), mgp = c(2.5, 0.8, 0), las = 1)
+esa.plot(fit_mask, ylim = c(0,10))
+abline(v = 4*RPSV(deer_secr_2018, CC= TRUE), col = "red", lty = 2 )
+
+suggest.buffer(fit_mask)
+
+#Lets try it! 
+B<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 446)
+fit_mask<-secr.fit(deer_secr_2018, 
+                     mask = B, 
+                       trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0,  #counts modelled as poisson 
+                       ) 
+
+mean_density_fit_mask<-(summary(fit_mask)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_fit_mask<-(summary(fit_mask)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_fit_mask<-(summary(fit_mask)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_fit_mask
+upper_density_CI_fit_mask
+lower_density_CI_fit_mask
+
+
+#Looks like it doesn't make much of a difference
+#What about spacing?
+nrow(A)
+nrow(B)
+
+B<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 446)
+nrow(B)
+
+C<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 446,
+             spacing = 30)
+nrow(C)
+```
+
+Ok lets try it with the custom buffer!
+```{r}
+#Ok first thing, read in the shape file
+oak_bay_clipped<-st_read("new_cams_Buffer1_Erase.shp")
+
+#The ocean!!
+ocean<-st_read("THE_OCEAN.shp")
+
+
+test<-make.mask(traps(deer_secr_2018), type = "trapbuffer", buffer = 1000,
+          poly = oak_bay_clipped)
+#What does the mask for this look like?
+par(mar = c(1,1,1,1))
+plot(test, dots = FALSE, mesh = "grey", col = "white")
+plot(traps(deer_secr_2018), detpar = list(pch = 16, cex = 1), add = TRUE)
+
+
+#How many points is this mask?
+nrow(test)
+
+#mask area in hectares
+maskarea(test)
+
+#mask area in km2
+maskarea(test)/100
+
+#And now we can fit the model with this test mask!
+
+fit_mask_no_ocean<-secr.fit(deer_secr_2018, 
+                     mask = test, 
+                       trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0,  #counts modelled as poisson 
+                       ) 
+
+mean_density_fit_mask_no_oceank<-(summary(fit_mask_no_ocean)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_fit_mask_no_ocean<-(summary(fit_mask_no_ocean)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_fit_mask_no_ocean<-(summary(fit_mask_no_ocean)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_fit_mask_no_oceank
+upper_density_CI_fit_mask_no_ocean
+lower_density_CI_fit_mask_no_ocean
+
+
+region.N(fit_mask_no_ocean)
+```
+
+
+Lets try to import a polygon of oak bay
+```{r}
+
+library(sp)
+
+library(rgdal)
+
+library(sf)
+
+
+oak_bay<-st_read("oak_bay.shp")
+st_geometry(oak_bay)
+plot(oak_bay)
+
+
+make.mask("oak_bay.shp")
+
+A<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 1000)
+
+B<-make.mask(traps(deer_secr_2018), type = 'trapbuffer', buffer = 1000,
+             poly = oak_bay)
+
+#Default without mask
+fit1_2018_5<-secr.fit(deer_secr_2018, buffer = 1000,trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0)
+
+#What does the mask for this look like?
+par(mar = c(1,1,1,1))
+plot(fit1_2018_5$mask, dots = FALSE, mesh = "grey", col = "white")
+plot(traps(deer_secr_2018), detpar = list(pch = 16, cex = 1), add = TRUE)
+
+
+#Fit with the defined mask?? A
+fit1_2018_5<-secr.fit(deer_secr_2018, mask = A, trace = TRUE, 
+                       detectfn = "HN", #Half normal detection function
+                       binomN = 0)
+
+#Extract estimate (deer/ha) and convert to deer per km2
+mean_density_2018_5<-(summary(fit1_2018_5)[["predicted"]][["estimate"]][[1]]) *100
+upper_density_CI_2018_5<-(summary(fit1_2018_5)[["predicted"]][["ucl"]][[1]]) *100
+lower_density_CI_2018_5<-(summary(fit1_2018_5)[["predicted"]][["lcl"]][[1]]) *100
+mean_density_2018_5
+upper_density_CI_2018_5
+lower_density_CI_2018_5
+
+#Ok doesn't make much difference I suppose. 
+#Now what about spacing in my mask?
+
+
+
+
+
+
+```
