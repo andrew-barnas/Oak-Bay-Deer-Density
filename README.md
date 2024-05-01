@@ -41,8 +41,10 @@ This folder contains scripts to process raw camera data into summarized detectio
 * <span style = "color: #7B0F17;">**1. Data Prep 2022.RMD**</span>: Markdown file for processing 2022 data
 * <span style = "color: #7B0F17;">**1. Data Prep 2023.RMD**</span>: Markdown file for processing 2023 data
 
-**inputs**
+**_inputs_**
 * <span style = "color: #7B0F17;">**September18-23_with_whid.csv**</span>: Large file of raw camera data from 2018 to 2023 (to be updated with october data for 2019 and 2020- May 1/24)
+* <span style = "color: #7B0F17;">**UWSS_Deployment_Data_updatedJuly27-2023.csv**</span>: File of deployment data for individual cameras. Contains information on start and end dates for cameras, and changes to camera locations indicated by site_name_a, site_name_b, etc.
+* <span style = "color: #7B0F17;">**UWSS_StationCovariates_updatedMay2023.csv**</span>: File of location and other metadata surrounding invidual camera sites
 * <span style = "color: #7B0F17;">**metada**</span>: Folder of ncillary data relevant to the project and data organization, but not used directly within R code
   * *ActiveCameras_Sep2018-2022_updated_July26-2023* - List of active cameras within each month. This is a summarized list based off field notes and knowledge of the system. Note the different months (September vs October) for each year
   * *UWSS_StudyDeer-Markings-Mortalities_updatedMay2023* - Folder of information on captures and known mortalities of individuals. May be used in future versions of models to inform known removals from population. 
