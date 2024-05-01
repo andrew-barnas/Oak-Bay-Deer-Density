@@ -53,6 +53,11 @@ This folder contains scripts to process raw camera data into summarized detectio
   * Not listing the individual files here as they are plentiful and not to be used. 
 
 <hr>
+<hr style="border:2px solid gray">
+<hr style="border:3px solid gray">
+<hr style="border:4px solid gray">
+
+<hr style="border:4px black">
 **2. SECR Prep** 
 Description goes here
 *File list*
