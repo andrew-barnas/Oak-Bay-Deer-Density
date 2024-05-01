@@ -36,7 +36,11 @@ This folder contains scripts to process raw camera data into summarized detectio
 *File and Folder list*
 **inputs**
 * <span style = "color: #7B0F17;">**metada**</span>: Ancillary data relevant to the project and data organization, but not used directly within R code
-  * Sub fhdjkasfhasdk
+  * *ActiveCameras_Sep2018-2022_updated_July26-2023* - List of active cameras within each month. This is a summarized list based off field notes and knowledge of the system. Note the different months (September vs October) for each year
+  * *UWSS_StudyDeer-Markings-Mortalities_updatedMay2023* - Information on captures and known mortalities of individuals. May be used in future versions of models to inform known removals from population. 
+
+* <span style = "color: #7B0F17;">**archived**</span>: Older versions of data that are no longer used. May have contained errors that needed manual adjustments.
+  * Not listing the individual files here as they are plentiful and not to be used. 
 
 
 Details for the contents of these folders found within respective readmes
