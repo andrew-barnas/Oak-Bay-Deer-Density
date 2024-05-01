@@ -35,7 +35,8 @@ This folder contains scripts to process raw camera data into summarized detectio
 
 *File and Folder list*
 **inputs**
-* <span style = "color: #7B0F17;">**metada**</span>; Ancillary data relevant to the project and data organization, but not used directly within R code
+* <span style = "color: #7B0F17;">**metada**</span>: Ancillary data relevant to the project and data organization, but not used directly within R code
+  * Sub fhdjkasfhasdk
 
 
 Details for the contents of these folders found within respective readmes
