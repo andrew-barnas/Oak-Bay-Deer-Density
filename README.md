@@ -34,6 +34,13 @@ This folder contains scripts to process raw camera data into summarized detectio
 
 
 *File and Folder list*
+* <span style = "color: #7B0F17;">**1. Data Prep 2018.RMD**</span>: Markdown file for processing 2018 data
+* <span style = "color: #7B0F17;">**1. Data Prep 2019.RMD**</span>: Markdown file for processing 2019 data
+* <span style = "color: #7B0F17;">**1. Data Prep 2020.RMD**</span>: Markdown file for processing 2020 data
+* <span style = "color: #7B0F17;">**1. Data Prep 2021.RMD**</span>: Markdown file for processing 2021 data
+* <span style = "color: #7B0F17;">**1. Data Prep 2022.RMD**</span>: Markdown file for processing 2022 data
+* <span style = "color: #7B0F17;">**1. Data Prep 2023.RMD**</span>: Markdown file for processing 2023 data
+
 **inputs**
 * <span style = "color: #7B0F17;">**metada**</span>: Ancillary data relevant to the project and data organization, but not used directly within R code
   * *ActiveCameras_Sep2018-2022_updated_July26-2023* - List of active cameras within each month. This is a summarized list based off field notes and knowledge of the system. Note the different months (September vs October) for each year
@@ -42,13 +49,7 @@ This folder contains scripts to process raw camera data into summarized detectio
 * <span style = "color: #7B0F17;">**archived**</span>: Older versions of data that are no longer used. May have contained errors that needed manual adjustments.
   * Not listing the individual files here as they are plentiful and not to be used. 
 
-
-Details for the contents of these folders found within respective readmes
-*inputs
-*outputs
-*figures
-*scripts???
-
+<hr>
 **2. SECR Prep** 
 Description goes here
 *File list*
