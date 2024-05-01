@@ -1,7 +1,9 @@
-The purpose of this script is to prepare the 2018 deer detection data for density estimation using secr. The main ouputs of this script are:
-1. a file of the marked detections in 2018
-2. a file of the unmarked detections in 2018
-3. a camera operability matrix for september 2018
+The purpose of this script is to prepare the 2019 deer detection data for density estimation using secr. The main ouputs of this script are:
+1. a file of the marked detections in 2019
+2. a file of the unmarked detections in 2019
+3. a camera operability matrix for september 2019
+
+The differences in this years data are that we are using October 2019 rather than Septmember as in the other years! This was due to logistic issues in tagging dear in September 2019
 
 Andrew Barnas - April 2024
 andrew.f.barnas@gmail.com
@@ -30,11 +32,69 @@ camloc<- read.csv(file.path(input_directory,"UWSS_StationCovariates_updatedMay20
 #2 Camera deployment data - when cameras were operating - received from SF May 28th 2023
 cam_deploy <- read.csv(file.path(input_directory,"UWSS_Deployment_Data_updatedJuly27-2023.csv"))
 #3 Detection file - this one has all the wildlife health IDS fixed - received from Mac G April 30th 2024
-deer_2018<-read.csv(file.path(input_directory, "September18-23_with_whid.csv"))
+deer_2019<-read.csv(file.path(input_directory, "September18-23_with_whid.csv"))
 
 
 
 ```
+
+Quick look at the deer_2019 data
+```{r}
+deer_2019%>%
+  #filter to 2019
+  filter(df_year == 2019)%>%
+  #read in datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+  summarise(min = min(datetime),
+            max = max(datetime))
+
+#Another way to look at it is histograms?
+deer_2019%>%
+  #filter to 2019
+  filter(df_year == 2019)%>%
+  #read in datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+  ggplot(aes(x = datetime))+
+  geom_histogram()+
+  ggtitle("detections in 2019")
+
+
+#What about 2020?
+deer_2019%>%
+  #filter to 2019
+  filter(df_year == 2020)%>%
+  #read in datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+  summarise(min = min(datetime),
+            max = max(datetime))
+
+deer_2019%>%
+  #filter to 2019
+  filter(df_year == 2020)%>%
+  #read in datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+  ggplot(aes(x = datetime))+
+  geom_histogram()+
+  ggtitle("detections in 2020")
+
+deer_2019%>%
+  #filter to 2019
+  filter(df_year == 2023)%>%
+  #read in datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+  ggplot(aes(x = datetime))+
+  geom_histogram()+
+  ggtitle("detections in 2023")
+
+
+```
+
+
 
 Subsetting and cleaning, want to get rid of some unecessary rows right off the bat
 Spotting some specific issues 
@@ -64,12 +124,11 @@ camloc <- camloc %>%
 #Deer Detections
 #Just want to remove a bunch of cluttery columns (hopefully I dont need them, they look useless)
 #I ALSO ONLY WANT STUFF FROM 2018 HERE
-deer_2018<-deer_2018%>%
+deer_2019<-deer_2019%>%
   select(-c(X, Unnamed..0, File, ImageQuality, Classifier, CommentsImages, Malfunction, DeleteFlag, RelativePath, Folder, Image.quality, Image.quality.1, Delete, Unnamed..31,))%>%
-  filter(df_year == "2018")
+  filter(df_year == "2019")
 
 ```
-
 
 Have to read dates in as a proper datetime format
 ```{r}
@@ -79,75 +138,74 @@ cam_deploy<-cam_deploy%>%
          end_date = lubridate::ymd(Camera.Deployment.End.Date))
 
 #Deer Detections (note the different time format!)
-deer_2018<-deer_2018%>%
+deer_2019<-deer_2019%>%
   mutate(datetime = paste(Date, Time, sep = " "),
          datetime = ymd_hms(datetime))
 
 #And just a quick check to make sure that worked
 str(cam_deploy$start_date)
 str(cam_deploy$end_date)
-str(deer_2018$datetime) #remember this is a datetime, not just a date. 
+str(deer_2019$datetime) #remember this is a datetime, not just a date. 
 ```
 
 
+Continuing to slim down deployment frames and producing a camera operability plot
 ```{r}
 #Continuing to slim down camera deployment dataframe so its just site ID and the deployment range
 cam_deploy<-cam_deploy %>%
   dplyr::select(SiteID = Deployment.Location.ID, start_date, end_date)%>%
   drop_na()
 
-#Before I filter out the September data for the deployment stuff, I need to extract the earliest and latest dates. Need it later for producing the list of sampling occassions
-#and at this point I only want to deal with cameras deployed in September 2018
-#So to do this I want to figure out if the start-end interval exists within the september interval
-#First create an interval for September 2018
-september_interval <-lubridate::interval(start = "2018-09-01", end = "2018-09-30")
-#And then figure out if the start-end date interval overlaps September
-#This is the list of cameras that we could possibly have a detection in September 2021
+#Before I filter out the OCTOBER 2019 data for the deployment stuff, I need to extract the earliest and latest dates. Need it later for producing the list of sampling occassions
+#and at this point I only want to deal with cameras deployed in OCTOBER 2019
+#So to do this I want to figure out if the start-end interval exists within the OCTOBER interval
+#First create an interval for OCTOBER 2019
+october_interval <-lubridate::interval(start = "2019-10-01", end = "2019-10-31")
+#And then figure out if the start-end date interval overlaps October
+#This is the list of cameras that we could possibly have a detection in October 2019
 cam_deploy<-cam_deploy%>%
   mutate(deployment_interval = lubridate::interval(start =start_date, end = end_date))%>%
-  filter(lubridate::int_overlaps(deployment_interval, september_interval))
+  filter(lubridate::int_overlaps(deployment_interval, october_interval))
 
-#Gannt chart of camera deployment in September 2018
+#Gannt chart of camera deployment in October 2019
 
-#Need to do something tricky to the dataframe. Basically need it so that if the camera started before Sep 1, we change the start date to Sep 1st, and if it ended after sep30, we change it to sept 30
+#Need to do something tricky to the dataframe. Basically need it so that if the camera started before Oct 1, we change the start date to Oct 1st, and if it ended after oct 31, we change it to oct 31
 
 
 #I THINK I SAVE THIS AS A SUPPLEMENTAL MATERIAL??
-camop_2018_figure<-ggplot(cam_deploy%>%
-  mutate(new_start = case_when(start_date < ymd("2018-09-01") ~ ymd("2018-09-01"),
-                               start_date > ymd("2018-09-01") ~ start_date),
-         new_end = case_when(end_date > ymd("2018-09-30") ~ ymd("2018-09-30"),
-                               end_date < ymd("2018-09-30") ~ end_date)), 
+camop_2019_figure<-ggplot(cam_deploy%>%
+  mutate(new_start = case_when(start_date < ymd("2019-10-01") ~ ymd("2019-10-01"),
+                               start_date > ymd("2019-10-01") ~ start_date),
+         new_end = case_when(end_date > ymd("2019-10-31") ~ ymd("2019-10-31"),
+                               end_date < ymd("2019-10-31") ~ end_date)), 
   aes(y = SiteID))+
   geom_segment(aes(x = new_start, xend = new_end,
                    y = SiteID, yend=SiteID))+
-  geom_vline(xintercept = ymd("2018-09-01"), linetype = "dashed", color = "red", linewidth = 1)+
-  geom_vline(xintercept = ymd("2018-09-30"), linetype = "dashed", color = "red", linewidth = 1)+
+  geom_vline(xintercept = ymd("2019-10-01"), linetype = "dashed", color = "red", linewidth = 1)+
+  geom_vline(xintercept = ymd("2019-10-31"), linetype = "dashed", color = "red", linewidth = 1)+
   xlab("Date")+
   ylab("Site ID")+
-  ggtitle("September 2018")
+  ggtitle("October 2019")
 
 
 
 #Output the camera operability matrix
-ggsave(filename = "camera_operability_matrix_2018.jpeg", #name of file
-       plot = camop_2018_figure,                 #plot you want to save
+ggsave(filename = "camera_operability_matrix_2019.jpeg", #name of file
+       plot = camop_2019_figure,                 #plot you want to save
        path = figure_directory,            #where it's saved
        width = 2000,                       #how wide
        height = 2000,                      #how tall
         units = "px",                      #units in pixels
         bg = 'white')                      #make sure background is white
 
-
-
-
 #How many days were cameras active? I think I need to bugger around with this a little bit
 A<-cam_deploy%>%
-  mutate(new_start = case_when(start_date <= ymd("2018-09-01") ~ ymd("2018-09-01"),
-                               start_date > ymd("2018-09-01")  ~ start_date),
-         new_end = case_when(end_date <= ymd("2018-09-30") ~ end_date,
-                               end_date > ymd("2018-09-30")  ~ ymd("2018-09-30")),
-         original_n_days = as.numeric(difftime(new_end, new_start, units = "days") + 1))
+  mutate(new_start = case_when(start_date <= ymd("2019-10-01") ~ ymd("2019-10-01"),
+                               start_date > ymd("2019-10-01")  ~ start_date),
+         new_end = case_when(end_date <= ymd("2019-10-31") ~ end_date,
+                               end_date > ymd("2019-10-31")  ~ ymd("2019-10-31")),
+         original_n_days = as.numeric(difftime(new_end, new_start, units = "days")) + 1)
+
 
 #Quick loop to fix this?
 #create a blank dataframe to work on
@@ -193,7 +251,8 @@ for(i in unique(A$SiteID)){
 cam_deploy<-B%>%
   mutate(new_n_days = as.numeric(difftime(new_end, new_start, units = "days")) + 1)
 
-cam_summary_2018<-cam_deploy%>%
+
+cam_summary_2019<-cam_deploy%>%
   group_by(SiteID)%>%
   summarise(n_days = sum(new_n_days))%>%
   ungroup()%>%
@@ -203,36 +262,36 @@ cam_summary_2018<-cam_deploy%>%
             sd_n = sd(n_days),
             min_n = min(n_days),
             max_n = max(n_days))
-write.csv(cam_summary_2018, file.path(output_directory, "camera_operability_summary_2018.csv"),
+write.csv(cam_summary_2019, file.path(output_directory, "camera_operability_summary_2019.csv"),
           row.names = FALSE)
 
 
 
 #Ok thats cool
 #Lets take a look at how site names are formatted in each of the detection file, camera location, deployment files
-unique(deer_2018$Location)
+unique(deer_2019$Location)
 unique(cam_deploy$SiteID)
 unique(camloc$SiteID)
 
 #Ok so in this case, the detection files site names are just not capitalized, but other than that it looks good
 #Recall that "a" at the end of sites indicates it was moved. But since this is the first year of data I dont think we have any that moved. Lets capitalize the detection file (AND RENAME IT SiteID)
-deer_2018<-deer_2018%>%
+deer_2019<-deer_2019%>%
   mutate(SiteID = str_to_title(Location))
-unique(deer_2018$SiteID)
+unique(deer_2019$SiteID)
 
 #Ok lets check something, are the 2018 sites from the detection file in the deployment files? Nope, some are missing.
-unique(deer_2018$SiteID) %in% camloc$SiteID
-unique(deer_2018$SiteID) %in% cam_deploy$SiteID
+unique(deer_2019$SiteID) %in% camloc$SiteID
+unique(deer_2019$SiteID) %in% cam_deploy$SiteID
 
 #Who is NOT in the camloc or the deployment file?
-deer_2018%>%
+deer_2019%>%
   filter(!SiteID %in% unique(camloc$SiteID))%>%
   group_by(SiteID)%>%
   dplyr::select(SiteID)%>%
   slice(1)
 
 #Ahhhh that old chestnut, Sites 1-9 need a zero in front of them!
-deer_2018<-deer_2018%>%
+deer_2019<-deer_2019%>%
   mutate(SiteID = case_when(SiteID == "Site1" ~ "Site01",
                             SiteID == "Site2" ~ "Site02",
                             SiteID == "Site3" ~ "Site03",
@@ -245,11 +304,32 @@ deer_2018<-deer_2018%>%
                             SiteID != "Site1" ~  SiteID)) #This is a default setting, case_when needs this
 
 #And now if we check, everything looks good! So this means all my detections have sites locations and were deployed. 
-unique(deer_2018$SiteID) %in% camloc$SiteID
-unique(deer_2018$SiteID) %in% cam_deploy$SiteID
+unique(deer_2019$SiteID) %in% camloc$SiteID
+unique(deer_2019$SiteID) %in% cam_deploy$SiteID
+
+#Who is not in the deployment data?
+deer_2019%>%
+  filter(!SiteID %in% unique(cam_deploy$SiteID))%>%
+  group_by(SiteID)%>%
+  dplyr::select(SiteID)%>%
+  slice(1)
+
+#Hmmmm lets take a look at these detections in more detail
+missing_2019<-deer_2019%>%
+  filter(!SiteID %in% unique(cam_deploy$SiteID))
+
+#Yup so according to the Active Cameras data (see metadata folder), it should be camera 23a and 26b
+#Lets replace those
+deer_2019<-deer_2019%>%
+  mutate(SiteID = str_replace(SiteID, pattern = "Site23", replacement = "Site23a"),
+         SiteID = str_replace(SiteID, pattern = "Site26", replacement = "Site26b"))
+#Checking here
+unique(deer_2019$SiteID) %in% camloc$SiteID
+unique(deer_2019$SiteID) %in% cam_deploy$SiteID
 
 #So far everything looks good, lets press forward
 ```
+
 
 
 Lets first work on making the camera operation matrix
@@ -286,7 +366,7 @@ cam_deploy<-merge(date_site_expanded,cam_deploy,all.x = T)
 #And replace all the NAs with zeros to indicate it was not active on that day
 cam_deploy<-cam_deploy %>%
   tidyr::spread(Date, value = active)%>%
-  select(c(1,`2018-09-01`:`2018-09-30`))%>%
+  select(c(1,`2019-10-01`:`2019-10-31`))%>%
   replace(is.na(.), 0)
 
 
@@ -296,22 +376,31 @@ cam_deploy<-cam_deploy%>%
   relocate(c(SiteID, easting, northing))
   
 #Write that file to the outputs folder
-write.csv(cam_deploy, file.path(output_directory, "operation_matrix_sept_2018.csv"), row.names = FALSE)
+write.csv(cam_deploy, file.path(output_directory, "operation_matrix_oct_2019.csv"), row.names = FALSE)
 
 ```
+
+
+
 
 A bit more data checking, continuing to clean up the deer detection data file
 ```{r}
 
 #A quick look at the detection and deployment files
-n_distinct(deer_2018$SiteID) #33 sites (looks like one site had zero detections, strange, asked Sandra)
-n_distinct(cam_deploy$SiteID) #34 sites
+n_distinct(deer_2019$SiteID) #28 sites #I guess three sites had zero detections!
+n_distinct(cam_deploy$SiteID) #31 sites
+
+#Uh oh, what is the spread of data from 2019 detections?
+deer_2019%>%
+  summarise(min = min(datetime),
+            max = max(datetime))
+
 
 #Remove rows where date is outside of September 2018
-deer_2018<-deer_2018 %>%
-  filter(datetime >= "2018-09-01" & datetime < "2018-10-01")
+deer_2019<-deer_2019 %>%
+  filter(datetime >= "2019-10-01" & datetime < "2019-10-31")
 
-colnames(deer_2018)
+colnames(deer_2019)
 
 
 #Ok this datafile is simply too expansive to work with. Because it was amalgamated through multiple years
@@ -406,6 +495,13 @@ deer_2018_unmarked<-deer_2018_unmarked%>%
   mutate(WHID_all = "")
 
 ```
+
+
+################################################################################################################################
+
+
+
+
 
 Create independent detections of marked individuals
 ```{r}
