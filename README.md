@@ -17,8 +17,8 @@ Details for the Oak Bay urban deer program can be found on the Urban Wildlife St
 
  Principal Investigator Contact Information  
  Name: Sandra Frey, MSc   
- Institution:  SANDRA TO UPDATE
- Address: SANDRA TO UPDATE
+ Institution: Urban Wildlife Stewardship Society
+ Address: Oak Bay, British Columbia
  Email: [safrey07@gmail.com ](mailto:safrey07@gmail.com ) 
 
  Lead Data Analyst  
