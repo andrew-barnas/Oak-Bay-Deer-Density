@@ -1,5 +1,5 @@
 # Oak-Bay-Deer-Density
-Data analysis repository for the Oak Bay black-tailed deer density project. 
+Data analysis repository for the Oak Bay black-tailed deer density project. The general goals of this project is to estimate population density in response to immunocontraceptive treatment. 
 
 <hr>
 
@@ -30,8 +30,10 @@ Details for the Oak Bay urban deer program can be found on the Urban Wildlife St
 ### DATA & FILE OVERVIEW
 
 **1. Data Prep** 
-Description goes here
-*File list*
+This folder contains scripts to process raw camera data into summarized detections of marked and unmarked individuals, as well as details on camera operability. Data for each year is processed seperately in scripts named, "1. Data Prep XXXX". Minor differences in data collection each year, along with differences in review, neccesitate seperate processing just to make life easier. The outputs from each year are produced seperately, to be combined in future steps
+
+
+*File and Folder list*
 Details for the contents of these folders found within respective readmes
 *inputs
 *outputs
