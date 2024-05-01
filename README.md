@@ -7,21 +7,19 @@ Data analysis repository for the Oak Bay black-tailed deer density project. The 
 **Project Information**
 Details for the Oak Bay urban deer program can be found on the Urban Wildlife Stewardship Society [website](https://uwss.ca/)
 
-**Author Information**
-
- Principal Investigator Contact Information  
+ **Principal Investigator Contact Information**  
  Name: Jason T. Fisher, PhD   
  Institution: University of Victoria  
  Address: 3800 Finnerty Rd, Victoria, BC V8P 5C2  
  Email: [fisherj@uvic.ca](mailto:fisherj@uvic.ca) 
 
- Principal Investigator Contact Information  
+ **Principal Investigator Contact Information**  
  Name: Sandra Frey, MSc   
  Institution: Urban Wildlife Stewardship Society  
  Address: Oak Bay, British Columbia  
  Email: [safrey07@gmail.com ](mailto:safrey07@gmail.com ) 
 
- Lead Data Analyst  
+ **Lead Data Analyst**  
  Name: Andrew Barnas, PhD  
  Institution: University of Victoria  
  Address: 3800 Finnerty Rd, Victoria, BC V8P 5C2  
