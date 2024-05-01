@@ -69,11 +69,12 @@ This folder contains scripts to process raw camera data into summarized detectio
 <hr>
 
 **2. SECR Prep** 
-Description goes here
-*File list*
-Details etc
-*????
+This folder contains scripts to process the data from the previous step (1. Data Prep) into the specialized formats needed for SECR models. Again, data is processed seperately and this is done to produce outputs for each year seperately. UPDATE LATER - HOW DEAL WITH MULTISESSION DATA
 
+*File and Folder list*
+* <span style = "color: #7B0F17;">**2. SECR Prep.RMD**</span>: Markdown file for processing 2018 data
+
+**_outputs_**
 
 NEED PROJECT DESCRIPTION AND CONTACT INFORMATION HERE
 JAKE
