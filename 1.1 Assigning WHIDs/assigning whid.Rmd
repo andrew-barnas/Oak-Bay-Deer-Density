@@ -1,0 +1,227 @@
+The purpose of this script is to produce wildlife health IDs for the October detection data for 2019 and 2020. The reason this is being done seperately is in these two years, deer were being continually marked and added to the population, so we elected to produce density results for the month of October instead of September (as was done for the other study years). The original analyst who processed the other years of data is unavailable for more data processing, so this step is being done seperately using his code to the best of my ability.
+
+The outputs from this script should be two large dataframes:
+1) one with septermber data from 2018 -2023: this will be used for fawning analyses
+2) one with sep data from 2018, 2021-23, and oct data from 2019 and 2020: this will be used for density analyses
+-Andrew Barnas
+andrew.f.barnas@gmail.com
+
+Load packages and data we need
+```{r}
+#Clear everything out, its probably messy from the data prep file
+rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(lubridate)    #datetime data
+library(ggplot2)      #data visualization
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+#library(rgdal)        #dealing with spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "1.1 Assigning WHIDs/inputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "1.1 Assigning WHIDs/outputs"), create = TRUE)
+
+#Ok we need to read in three files:
+#October 2019 data
+dets_2019<-read.csv(file.path(input_directory, "October2019.csv"))
+#October 2020 data
+dets_2020<-read.csv(file.path(input_directory, "October2020.csv"))
+#And the original dataframe
+main<-read.csv(file.path(input_directory, "September18-23_with_whid.csv"))
+
+#And then the files that actually contain the WHID information
+control_markings<-read.csv(file.path(input_directory, "Control_Markings.csv"))
+ic_markings<-read.csv(file.path(input_directory, "IC_Markings.csv"))
+
+```
+
+First things first, I need to verify the timelines for each of these frames
+```{r}
+
+#Ok so these dates look correct, recall we are going from October 8th to November 11th for each year
+dets_2019%>%
+  mutate(date = dmy(Date))%>%
+  summarise(min = min(date),
+            ax = max(date))
+
+dets_2020%>%
+  mutate(date = dmy(Date))%>%
+  summarise(min = min(date),
+            ax = max(date))
+
+#And now for the main dataframe, lets see whats in there. Ok looks fine for now.
+main%>%
+  mutate(date = ymd(Date))%>%
+  group_by(year(date))%>%
+  summarise(min = min(date),
+            ax = max(date))
+
+
+```
+
+Ok for the October data I guess we now go through and see if we can add a column based on if thigns match?
+```{r}
+#Lets clean up these dataframes first so its easier to keep track of things
+str(control_markings)
+control_markings<-control_markings%>%
+  dplyr::select(Willdife_Health_ID, Ear_Tag_Colour, Control2_Collar_Colour, Collar_Symbol)
+
+#Why does the control markings have all those extra rows? I think I can get rid of them easy
+control_markings<-control_markings%>%
+  filter(Willdife_Health_ID != "")
+
+
+#Add a column for WHID_all, this is where we will store the new WHID informaiton
+dets_2019<-dets_2019%>%
+  mutate(WHID_all = as.character(""))
+
+
+#Now a loop that goes through the main dataframe, pulls out the identifiers, and we see if there is a match in the control markings file. If there is a match, we fill it in, If there isn't we leave it blank. 
+for(i in 1:nrow(dets_2019)){
+  
+  #What is the current collar and colur combination? This is the only information I can use for the control animals
+  control_collar_colour<-dets_2019[i, 23]
+  control_collar_symbol<-dets_2019[i, 24]
+  
+  #Ok now extract the control data which meets these conditions
+  temp_data<-control_markings%>%
+    filter(Control2_Collar_Colour == control_collar_colour & Collar_Symbol == control_collar_symbol)
+  #Now, if we identified a match, fill it into the main dataframe
+  if(nrow(temp_data) > 0){
+    dets_2019$WHID_all[i]<-paste("['", temp_data$Willdife_Health_ID[1], "']", sep = "")
+  }
+
+}
+
+#Now the IC Markings
+ic_markings<-ic_markings%>%
+  dplyr::select(Willdife_Health_ID, Ear_Tag_No, Ear_Tag_Colour, IC_Collar_Colour)
+
+
+#I need to see the main dataframe where all we have information on all three characteristics
+#B<-dets_2019%>%
+#  filter(ICCollar_Colour != "")%>%
+#  filter(EarTagNumber_2019 != "NA")%>%
+#  filter(EarTagColour_2019 != "")%>%
+#  dplyr::select(ICCollar_Colour, EarTagColour_2019, EarTagNumber_2019)%>%
+#  mutate(WHID_all = "")
+
+
+for(i in 1:nrow(dets_2019)){
+  
+  #Identify the tag characteristics
+  ic_collar_colour<-dets_2019[i, 25]
+   ear_tag_color<-dets_2019[i, 28]
+  ear_tag_number<-as.numeric(dets_2019[i,26])
+ 
+ 
+  
+  
+  #Ok now extract the control data which meets these conditions
+  temp_data<-ic_markings%>%
+    filter(IC_Collar_Colour == ic_collar_colour & Ear_Tag_No == ear_tag_number & Ear_Tag_Colour == ear_tag_color)
+  #Now, if we identified a match, fill it into the main dataframe
+  if(nrow(temp_data) > 0){
+    dets_2019$WHID_all[i]<-paste("['", temp_data$Willdife_Health_ID[1], "']", sep = "")
+  }
+  
+}
+
+#Nice, looks like it worked
+n_distinct(dets_2019$WHID_all)
+unique(dets_2019$WHID_all)
+
+#Importantly, add a df_year column for filtering downstream
+dets_2019<-dets_2019%>%
+  mutate(df_year = 2019)
+
+```
+
+Now the same thing for 2020
+```{r}
+
+#Add a column for WHID_all, this is where we will store the new WHID informaiton
+dets_2020<-dets_2020%>%
+  mutate(WHID_all = as.character(""))
+
+
+#Now a loop that goes through the main dataframe, pulls out the identifiers, and we see if there is a match in the control markings file. If there is a match, we fill it in, If there isn't we leave it blank. 
+for(i in 1:nrow(dets_2020)){
+  
+  #What is the current collar and colur combination? This is the only information I can use for the control animals
+  control_collar_colour<-dets_2020[i, 23]
+  control_collar_symbol<-dets_2020[i, 24]
+  
+  #Ok now extract the control data which meets these conditions
+  temp_data<-control_markings%>%
+    filter(Control2_Collar_Colour == control_collar_colour & Collar_Symbol == control_collar_symbol)
+  #Now, if we identified a match, fill it into the main dataframe
+  if(nrow(temp_data) > 0){
+    dets_2020$WHID_all[i]<-paste("['", temp_data$Willdife_Health_ID[1], "']", sep = "")
+  }
+
+}
+
+#Now the IC Markings
+
+for(i in 1:nrow(dets_2020)){
+  
+  #Identify the tag characteristics
+  ic_collar_colour<-dets_2020[i, 25]
+   ear_tag_color<-dets_2020[i, 28]
+  ear_tag_number<-as.numeric(dets_2020[i,26])
+ 
+ 
+  
+  
+  #Ok now extract the control data which meets these conditions
+  temp_data<-ic_markings%>%
+    filter(IC_Collar_Colour == ic_collar_colour & Ear_Tag_No == ear_tag_number & Ear_Tag_Colour == ear_tag_color)
+  #Now, if we identified a match, fill it into the main dataframe
+  if(nrow(temp_data) > 0){
+    dets_2020$WHID_all[i]<-paste("['", temp_data$Willdife_Health_ID[1], "']", sep = "")
+  }
+  
+}
+
+#Nice, looks like it worked
+n_distinct(dets_2020$WHID_all)
+unique(dets_2020$WHID_all)
+
+#Importantly, add a df_year column for filtering downstream
+dets_2020<-dets_2020%>%
+  mutate(df_year = 2020)
+
+```
+
+
+Merging the datasets
+```{r}
+#And now we can merge those datasets. I shouldn't have to do any filtering at all since the dets_2019 is october data and the main dataframe is September
+
+#I think I can just bind the 2019 and 2020 datasets here
+dets<-rbind(dets_2019, dets_2020)
+
+
+#Although it looks like there are differences in the column names...
+colnames(main)
+colnames(dets)
+
+#So maybe if they all match I can make this work?
+colnames(dets) %in% colnames(main)
+
+#Lets try it.
+common_columns<- intersect(names(dets), names(main))
+main<-main%>%
+  dplyr::select(all_of(common_columns))
+
+#Now bind those
+main_with_whid<-rbind(main, dets)
+
+#And export that data
+write.csv(main_with_whid, file.path(output_directory, "main_dataframe_with_whid.csv"))
+
+```

@@ -1,0 +1,667 @@
+The purpose of this script is to prepare the 2020 deer detection data for density estimation using secr. The main ouputs of this script are:
+1. a file of the marked detections in 2020
+2. a file of the unmarked detections in 2020
+3. a camera operability matrix for October 2020
+
+Andrew Barnas - April 2024
+andrew.f.barnas@gmail.com
+
+1. Load packages, setup directories, and read in the files we need
+```{r}
+#Clear everything out and start fresh ;)
+rm(list=ls())
+
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(lubridate)    #datetime manipulation
+library(tidyr)        #more data manipulation
+library(stringr)      #detecting character strings
+library(ggplot2)      #data visualization
+
+#This just sets up files for inputs (already created, must contain your files), and outputs
+input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/inputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
+figure_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/figures"), create = TRUE)
+
+
+#Data input
+#1 Most recent location file for cameras- received from SF May 28th 2023
+camloc<- read.csv(file.path(input_directory,"UWSS_StationCovariates_updatedMay2023.csv"))
+#2 Camera deployment data - when cameras were operating - received from SF May 28th 2023
+cam_deploy <- read.csv(file.path(input_directory,"UWSS_Deployment_Data_updatedMay2024.csv"))
+#3 Detection file - this one has all the wildlife health IDS fixed - received from Mac G April 30th 2024
+#deer_2018<-read.csv(file.path(input_directory, "September18-23_with_whid.csv"))
+
+#3 Detection file - this is the revised version with WHIDs assigned in the 1.1 Data Prep folder. As a result we need a slightly different file path
+deer_2020<-read.csv(file.path(getwd(), "1.1 Assigning WHIDs/outputs/main_dataframe_with_whid.csv"))
+
+```
+
+Subsetting and cleaning, want to get rid of some unecessary rows right off the bat
+Spotting some specific issues 
+```{r}
+#Camera deployment
+#Has random blank rows...since its consistent I think I can just filter out blanks in project ID
+#Also pretty sure that I want to get rid of NA values in the camera start / end date columns. Just messy
+cam_deploy<-cam_deploy%>%
+  filter(Project.ID != "")%>%
+  filter(!is.na(Camera.Deployment.Start.Date))%>%
+  filter(!is.na(Camera.Deployment.End.Date))%>%
+  select(-c(Project.ID, Deployment.ID, Year, Months, Folder, Problem))%>%
+  filter(Camera.Deployment.Start.Date != "")%>%
+  filter(Camera.Deployment.Start.Date != "`")%>% 
+  filter(Camera.Deployment.End.Date != "")
+
+#Camera Locations- going to clean this up so its just site name and location
+#Also going to make sure there are no repeat rows of data
+camloc <- camloc %>%
+  dplyr::select(SiteID = Deployment.Location.ID, 
+                easting = Latitude, 
+                northing = Longitude)%>%
+  group_by(SiteID)%>%
+  slice(1)%>%
+  ungroup()
+
+#Deer Detections
+#Just want to remove a bunch of cluttery columns (hopefully I dont need them, they look useless)
+#I ALSO ONLY WANT STUFF FROM 2020 HERE
+deer_2020<-deer_2020%>%
+   select(-c(X, File, ImageQuality, Classifier,  Malfunction, DeleteFlag, RelativePath, Folder))%>%
+  filter(df_year == "2020")
+
+
+
+```
+
+
+Have to read dates in as a proper datetime format
+```{r}
+#Camera Deployment Information 
+cam_deploy<-cam_deploy%>%
+  mutate(start_date = lubridate::ymd(Camera.Deployment.Start.Date), 
+         end_date = lubridate::ymd(Camera.Deployment.End.Date))
+
+
+
+#Deer Detections (note the different time format!)
+deer_2020<-deer_2020%>%
+  #Read in the datetimes
+  mutate(datetime = paste(Date, Time, sep = " "),
+         datetime = ymd_hms(datetime))%>%
+#  select(Date, Time, datetime)%>%
+  #But because some dates are read incorrectly, lets identify them
+  mutate(year = year(datetime))%>%
+  #And now an ifelse statement to read those dates in with a different parsing format
+  mutate(datetime = case_when(
+    year == 2020 ~ datetime,
+    year != 2020 ~ dmy_hms(paste(Date, Time, sep = " "))))
+    
+
+#Lets look at these datetimes just to be sure
+ggplot(deer_2020, aes(x = datetime))+
+  geom_histogram()
+
+
+#And just a quick check to make sure that worked
+str(cam_deploy$start_date)
+str(cam_deploy$end_date)
+str(deer_2020$datetime) #remember this is a datetime, not just a date. 
+
+
+
+```
+
+
+```{r}
+#Continuing to slim down camera deployment dataframe so its just site ID and the deployment range
+cam_deploy<-cam_deploy %>%
+  dplyr::select(SiteID = Deployment.Location.ID, start_date, end_date)%>%
+  drop_na()
+
+min(deer_2020$datetime)
+max(deer_2020$datetime)
+#hist(deer_2019$Date)
+
+#Before I filter out the September data for the deployment stuff, I need to extract the earliest and latest dates. Need it later for producing the list of sampling occassions
+#and at this point I only want to deal with cameras deployed from OCTOBER to November
+#So to do this I want to figure out if the start-end interval exists within the september interval
+#First create an interval for September 2018
+october_november_interval <-lubridate::interval(start = "2020-10-08", end = "2020-11-11")
+#And then figure out if the start-end date interval overlaps September
+#This is the list of cameras that we could possibly have a detection in September 2021
+cam_deploy<-cam_deploy%>%
+  mutate(deployment_interval = lubridate::interval(start =start_date, end = end_date))%>%
+  filter(lubridate::int_overlaps(deployment_interval, october_november_interval))
+
+#Gannt chart of camera deployment in September 2018
+
+#Need to do something tricky to the dataframe. Basically need it so that if the camera started before Sep 1, we change the start date to Sep 1st, and if it ended after sep30, we change it to sept 30
+
+
+#I THINK I SAVE THIS AS A SUPPLEMENTAL MATERIAL??
+camop_2020_figure<-ggplot(cam_deploy%>%
+  mutate(new_start = case_when(start_date <= ymd("2020-10-08") ~ ymd("2020-10-08"),
+                               start_date > ymd("2020-10-08") ~ start_date),
+         new_end = case_when(end_date > ymd("2020-11-11") ~ ymd("2020-11-11"),
+                               end_date < ymd("2020-11-11") ~ end_date)), 
+  aes(y = SiteID))+
+  geom_segment(aes(x = new_start, xend = new_end,
+                   y = SiteID, yend=SiteID))+
+  geom_vline(xintercept = ymd("2020-10-08"), linetype = "dashed", color = "red", linewidth = 1)+
+  geom_vline(xintercept = ymd("2020-11-11"), linetype = "dashed", color = "red", linewidth = 1)+
+  xlab("Date")+
+  ylab("Site ID")+
+  ggtitle("Fall 2020")
+
+
+
+#Output the camera operability matrix
+ggsave(filename = "camera_operability_matrix_2020.jpeg", #name of file
+       plot = camop_2020_figure,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 2000,                       #how wide
+       height = 2000,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+
+
+#How many days were cameras active? I think I need to bugger around with this a little bit
+A<-cam_deploy%>%
+  mutate(new_start = case_when(start_date <= ymd("2020-10-08") ~ ymd("2020-10-08"),
+                               start_date > ymd("2020-10-08")  ~ start_date),
+         new_end = case_when(end_date <= ymd("2020-11-11") ~ end_date,
+                               end_date > ymd("2020-11-11")  ~ ymd("2020-11-11")),
+         original_n_days = as.numeric(difftime(new_end, new_start, units = "days") + 1))
+
+#Quick loop to fix this?
+#create a blank dataframe to work on
+B<-A[0,]
+
+for(i in unique(A$SiteID)){
+  print(i)
+  
+  #extract a temporary dataframe for each site
+  temp<-A%>%filter(SiteID == i)
+  
+  #So now basically for camera check dates, we want to make it so that we don't count the same date twice
+  #E.g. a cameras last day for the first check is October 8th, but then for the second deployment the first date is also October 8th
+  #I think we can get around this by cheekily advancing one of the days forward! But only for cameras that had multiple checks
+  if (nrow(temp) > 1){
+    print(paste("multiple checks for", i, sep = " "))
+    
+    #So now a nested loop that asks if the end date and start date for subsequent checks match, advance the start date by one
+    #This has a built in stop function so that we don't advance beyond the number of rows of data, preventing errors
+    for (j in 2:nrow(temp)-1){
+      #Print the current row
+      print(j)
+      
+      #If the start and end dates match, increase the start date by one day
+      if(temp[j,6] == temp[j+1, 5])
+      {temp[j+1, 5] <- temp[j+1, 5] + 1}
+      
+    } #Close the changing date loop
+    
+    #Execute this loop if there is only a single check, nothing to be done to change dates!
+  } #Close the checking loop for multiple rows
+  else{
+    
+    print(paste("only one check for", i, sep = " "))
+    } #Close the else loop
+
+  #bind the current fixed temp dataframe into the main
+  B<-rbind(B, temp)
+  
+  } #Close the entire loop
+
+#Calculate new operational days 
+cam_deploy<-B%>%
+  mutate(new_n_days = as.numeric(difftime(new_end, new_start, units = "days")) + 1)
+
+cam_summary_2020<-cam_deploy%>%
+  group_by(SiteID)%>%
+  summarise(n_days = sum(new_n_days))%>%
+  ungroup()%>%
+  summarise(n_cams = n_distinct(SiteID),
+            total_n = sum(n_days),
+            mean_n = mean(n_days),
+            sd_n = sd(n_days),
+            min_n = min(n_days),
+            max_n = max(n_days))
+write.csv(cam_summary_2020, file.path(output_directory, "camera_operability_summary_2020.csv"),
+          row.names = FALSE)
+
+
+
+#Ok thats cool
+#Lets take a look at how site names are formatted in each of the detection file, camera location, deployment files
+unique(deer_2020$Location)
+unique(cam_deploy$SiteID)
+unique(camloc$SiteID)
+
+#Ok so in this case, the detection files site names are just not capitalized, but other than that it looks good
+#Recall that "a" at the end of sites indicates it was moved. But since this is the first year of data I dont think we have any that moved. Lets capitalize the detection file (AND RENAME IT SiteID)
+deer_2020<-deer_2020%>%
+  mutate(SiteID = str_to_title(Location))
+unique(deer_2020$SiteID)
+
+#Ok lets check something, are the 2018 sites from the detection file in the deployment files? Nope, some are missing.
+unique(deer_2020$SiteID) %in% camloc$SiteID
+unique(deer_2020$SiteID) %in% cam_deploy$SiteID
+
+#Who is NOT in the camloc or the deployment file?
+deer_2020%>%
+  filter(!SiteID %in% unique(camloc$SiteID))%>%
+  group_by(SiteID)%>%
+  dplyr::select(SiteID)%>%
+  slice(1)
+
+#Ahhhh that old chestnut, Sites 1-9 need a zero in front of them!
+deer_2020<-deer_2020%>%
+  mutate(SiteID = case_when(SiteID == "Site1" ~ "Site01",
+                            SiteID == "Site2" ~ "Site02",
+                            SiteID == "Site3" ~ "Site03",
+                            SiteID == "Site4" ~ "Site04",
+                            SiteID == "Site5" ~ "Site05",
+                            SiteID == "Site6" ~ "Site06",
+                            SiteID == "Site7" ~ "Site07",
+                            SiteID == "Site8" ~ "Site08",
+                            SiteID == "Site9" ~ "Site09",
+                            SiteID != "Site1" ~  SiteID)) #This is a default setting, case_when needs this
+
+#And now if we check, everything looks good! So this means all my detections have sites locations and were deployed. 
+unique(deer_2020$SiteID) %in% camloc$SiteID
+unique(deer_2020$SiteID) %in% cam_deploy$SiteID
+
+#Who is not in the deployment file?
+deer_2020%>%
+  filter(!SiteID %in% unique(cam_deploy$SiteID))%>%
+  group_by(SiteID)%>%
+  dplyr::select(SiteID)%>%
+  slice(1)
+
+#Ok well according to the deployment data all the detections at site 8 should be site 8a after 2020-10-16
+deer_2020<-deer_2020%>%
+  mutate(SiteID = case_when(SiteID == "Site08" & datetime >= ymd("2020-10-16") ~ "Site08a",
+                            SiteID != "Site08a" ~ SiteID))
+#And then the rest of the observations are from september so we can remove them
+ggplot(deer_2020%>%
+         filter(SiteID == "Site08"), aes(x = datetime))+
+  geom_histogram()
+deer_2020<-deer_2020%>%
+  filter(SiteID != "Site08")
+
+#Now it looks like Site 13a observations are all within the right time period, but according to the deployment data they should be Site13 and not 13a. Simple renaming/
+ggplot(deer_2020%>%
+         filter(SiteID == "Site13a"), aes(x = datetime))+
+  geom_histogram()
+deer_2020<-deer_2020%>%
+  mutate(SiteID = str_replace(SiteID, "Site13a", "Site13"))
+
+#Site 13b falls outside the window, just going to remove
+ggplot(deer_2020%>%
+         filter(SiteID == "Site13b"), aes(x = datetime))+
+  geom_histogram()
+deer_2020<-deer_2020%>%
+  filter(SiteID != "Site13b")
+
+#Site 22 falls outside the window, just going to remove
+ggplot(deer_2020%>%
+         filter(SiteID == "Site22"), aes(x = datetime))+
+  geom_histogram()
+deer_2020<-deer_2020%>%
+  filter(SiteID != "Site22")
+
+
+#Site 25 falls outside the window, just going to remove
+ggplot(deer_2020%>%
+         filter(SiteID == "Site25"), aes(x = datetime))+
+  geom_histogram()
+deer_2020<-deer_2020%>%
+  filter(SiteID != "Site25")
+
+
+
+#Now does everything line up? Yes!
+unique(deer_2020$SiteID) %in% camloc$SiteID
+unique(deer_2020$SiteID) %in% cam_deploy$SiteID
+
+
+
+```
+
+
+Lets first work on making the camera operation matrix
+```{r}
+
+#First we need to create a date sequence for the min and max camera deploy dates, we will use this to fill in "blanks". E.g. right now all the rows of data are for active cameras, but we want to fill in the zeros where they were not!
+first_camera_date<-min(cam_deploy$start_date)
+last_camera_date<-max(cam_deploy$end_date)
+date.sequence<-seq(first_camera_date, last_camera_date, by = "day")
+
+#This creates a dataframe that shows all the days that a site was active
+#Its a long frame that will add a row for each day the camera was active, based on the start and end date of each deployment
+cam_deploy<-cam_deploy%>%
+  rowwise()%>%
+  do(data.frame(SiteID = .$SiteID, Date = seq(.$start_date, .$end_date, by = "day")))%>%
+  mutate(active = 1)
+
+#remove duplicated rows (caused by overlap when checking cameras)
+#E.g. last date is for check 1 is august 25, but camera was replaced on the same day so start date of the next is also Aug 25
+cam_deploy<-cam_deploy %>%
+  group_by(SiteID,Date) %>%
+  filter(row_number(active) ==1)
+
+#Retroactively - could have used group_by with .drop = FALSE, but 20/20 hindsight
+
+#So what this is doing is making a dataframe that includes every combination of
+#Site ID and our Date Sequence. Which we will use below to indicate if the camera was active or not
+date_site_expanded<-expand.grid(Date = date.sequence, SiteID = unique(cam_deploy$SiteID))
+#And then we merge those two, where NA's indicate that the camera was not active on that day
+cam_deploy<-merge(date_site_expanded,cam_deploy,all.x = T)
+
+#Convert that dataframe to a more friendly matrix form
+#select the date range we want
+#And replace all the NAs with zeros to indicate it was not active on that day
+cam_deploy<-cam_deploy %>%
+  tidyr::spread(Date, value = active)%>%
+  select(c(1,`2020-10-08`:`2020-11-11`))%>%
+  replace(is.na(.), 0)
+
+
+#ok and last thing, add the coordinates in for each site and then this is good to go I think
+cam_deploy<-merge(cam_deploy, camloc, by  = "SiteID")
+cam_deploy<-cam_deploy%>%
+  relocate(c(SiteID, easting, northing))
+  
+#Write that file to the outputs folder
+write.csv(cam_deploy, file.path(output_directory, "operation_matrix_fall_2020.csv"), row.names = FALSE)
+
+```
+
+A bit more data checking, continuing to clean up the deer detection data file
+```{r}
+
+#A quick look at the detection and deployment files
+n_distinct(deer_2020$SiteID) #35 sites (looks like one site had zero detections, strange, asked Sandra)
+n_distinct(cam_deploy$SiteID) #36 sites
+
+#Remove rows where date is outside of the 2020 Fall window
+deer_2020<-deer_2020 %>%
+  #filter(datetime >= "2018-09-01" & datetime < "2018-10-01")
+  filter(date(datetime) >= "2020-10-08" & date(datetime) < "2020-11-11")
+
+colnames(deer_2020)
+
+
+#Ok this datafile is simply too expansive to work with. Because it was amalgamated through multiple years
+#and multiple columns for a single detection of deer, I need to go through and get rid of some of the 
+#usless/redundant informaiton. Getting rid of:
+#1. Anything to do with descriptive markings, M.A. Young already used this info to get IDs
+#2. Any columns that are just blank or NAs, why do we we even have these?
+#3. Any default Timelapse outputs (imagequality, delete flag, etc.)
+deer_2020<-deer_2020%>%
+  select(-c(#AdultCount, #Just NAs
+           # FawnCount,  #Just NAs
+           # EarTag_Number, #Just a blank column with "" value
+           # MarkedComments,#Just a blank column with "" value
+            #Collar_Colour,
+            #EarTag_Colour,
+            #CollarTop,
+           # CollarBottom, 
+            df_year,
+           # ImageQuality, 
+         #   DeleteFlag,
+            Fawn,
+            Comments,
+            ControlCollar_Colour,
+            ControlCollar_Tag,
+            ICCollar_Colour,
+            EarTagNumber_2019,
+            EarTagNumber_2020,
+            EarTagColour_2019,
+            EarTagColour2020,
+            #Collar_Colour1,
+            #Collar_Tag1,
+           # Collar_Colour2,
+            #Collar_Tag2,
+           # NonControlDoe, #Just NAs
+            #Doe_UnknownCollar, #Just NAs
+           # UnknownSex_UnknownCollar, #Just NAs
+           # UnknownAgeGroup_UnknownCollar, #Just NAs
+           # TopTag, #Just blank...
+           # BottomTag, #Just blank...
+           # Wildlife_Health_ID, #Just blank...
+            #Tag_Comments_SF,
+           # Collar_Colour_markedcomments,
+           # Ear_Tag_Colour_markedcomments,
+            #Ear_Tag_Colour_multi_marked_comments2,
+            #Ear_Tag_No_markedcomments,
+            #Collar_Colour_multi_marked_comments,
+            #Collar_Symbol_comments, 
+           # Collar_Colour_comments,
+            #Ear_Tag_Colour_comments,
+           # Ear_Tag_No_comments,
+          #  Ear_Tag_Colour_markedcomments2,
+           # Ear_Tag_Colour_multi_marked_comments,
+            #Ear_Tag_No_multi_marked_comments,
+         Location))
+         #Unnamed..32,
+         #DateTime))
+
+##I am curious here about the unknown marked and partially marked deer here
+deer_2020%>%
+  group_by(UnknownAgeGroup)%>%
+  summarise(n())
+
+#Ok so next, because it looks like there are blank rows where no deer were actually in the images, we want to only keep rows that has at least something identifiable in it. Importantly here, we are not counting Fawns or unknown if marked/unmarked individuals in here!
+colnames(deer_2020)
+
+#NO UNKNOWN STUFF
+#QUERY #################################Do we want bucks? Shouldn't this all be females?
+#deer_2018<-deer_2018%>%
+ # rowwise()%>%
+#  filter((sum(Buck, UnmarkedDoe, ICDoe, ControlDoe, MarkedDoe, ICDoe_2019, ICDoe_2020,  na.rm = T) > 0))
+
+deer_2020<-deer_2020%>%
+  rowwise()%>%
+  filter((sum(Buck, UnmarkedDoe,
+              # ICDoe, 
+              #ControlDoe, 
+              MarkedDoe, ICDoe_2019, ICDoe_2020,  na.rm = T) > 0))
+
+
+#These are the IDs included in the dataset
+unique(deer_2020$WHID_all)
+
+#We are just going to make the assumption that marked individuals have been identified
+#With a WHID number
+#So first lets filter out the marked/known individuals
+deer_2020_marked<-deer_2020%>%
+  filter(WHID_all != "")
+
+#So we want blank IDs as that indicates an unmarked individual
+#But also UnmarkedDoes > 0 since there might be unmarked in the same frame as marked individuals. So a WHID would show up, not be blank, but there is still an unmarked individual in the frame. Will deal with this later. 
+deer_2020_unmarked<-deer_2020%>%
+  filter(WHID_all == "" | UnmarkedDoe > 0 ) 
+
+################################################################
+#Now for unmarked individuals!!!
+#So first things, we have some rows of data that have marked individuals in it
+#But these detections also include unmarked individuals. Since I relegated these marked individuals to a different dataframe, we can just replace the ID with blanks
+unique(deer_2020_unmarked$WHID_all)
+deer_2020_unmarked<-deer_2020_unmarked%>%
+  mutate(WHID_all = "")
+
+```
+
+Create independent detections of marked individuals
+```{r}
+#MARKED INDIVIDUALS#######################################################################################
+#Arrange the marked individuals by site, datetime, and ID. Required for the upcoming loops
+#as we want to work sequentially in time through detections
+deer_2020_marked<-deer_2020_marked %>%
+  arrange(SiteID, datetime, WHID_all) %>% 
+  group_by(SiteID, WHID_all) %>%
+  mutate(duration = as.numeric(difftime(datetime,lag(datetime),units = "mins")))%>%
+  select(SiteID, datetime, WHID_all, duration)
+
+deer_2020_marked$Event.ID <- 9999
+mins <- 30
+#QUESTION - I see this is used to assign event IDs, but why the fanciness? Why not just make seq 10,000 or?
+#Looks like this is just a weird way to produce a number that is a power of 10
+#In this case, zero.
+seq <- as.numeric(paste0(nrow(deer_2020_marked),0))
+seq <- round(seq,-(nchar(seq)))
+
+for (i in 2:nrow(deer_2020_marked)) {
+  #Starting at the first row, assign an event ID that is (E+seq)
+  deer_2020_marked$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F)) 
+  #And then if the next row is an NA (indicating a new individual)
+  #Or if the next row is more than 30 mins past the previous row
+  #Increase sequence by 1 (so that we now move on to a new Event ID)
+  if(is.na(deer_2020_marked$duration[i]) | abs(deer_2020_marked$duration[i]) > mins){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(deer_2020_marked$duration[nrow(deer_2020_marked)] < mins| 
+   is.na(deer_2020_marked$duration[nrow(deer_2020_marked)])){
+  deer_2020_marked$Event.ID[nrow(deer_2020_marked)] <- deer_2020_marked$Event.ID[nrow(deer_2020_marked)-1] 
+} else{
+  deer_2020_marked$Event.ID[nrow(deer_2020_marked)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#And lastly, we are just going to rip out a single row from each independent event
+#(The first row)
+deer_2020_marked<-deer_2020_marked %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)
+
+```
+
+Independent detections for unmarked deer
+```{r}
+#########################################################33
+#And then for the 2018 unmarked deer
+deer_2020_unmarked = deer_2020_unmarked%>%
+  arrange(SiteID, datetime) %>%
+  group_by(SiteID) %>%
+  mutate(duration = as.numeric(difftime(datetime,lag(datetime),units = "mins")))%>%
+  select(SiteID, datetime, duration)
+
+# loop that assign group ID   
+deer_2020_unmarked$Event.ID <- 9999
+mins <- 30   # THIS IS THE DETECTION EVENT BREAK-POINT YOU CAN CHANGE
+seq <- as.numeric(paste0(nrow(deer_2020_unmarked),0))
+seq <- round(seq,-(nchar(seq)))
+
+for (i in 2:nrow(deer_2020_unmarked)) {
+  deer_2020_unmarked$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F))
+  if(is.na(deer_2020_unmarked$duration[i]) | abs(deer_2020_unmarked$duration[i]) > mins){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(deer_2020_unmarked$duration[nrow(deer_2020_unmarked)] < mins| 
+   is.na(deer_2020_unmarked$duration[nrow(deer_2020_unmarked)])){
+  deer_2020_unmarked$Event.ID[nrow(deer_2020_unmarked)] <- deer_2020_unmarked$Event.ID[nrow(deer_2020_unmarked)-1] 
+} else{
+  deer_2020_unmarked$Event.ID[nrow(deer_2020_unmarked)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#subset to just top rows to get independent detections
+deer_2020_unmarked<-deer_2020_unmarked %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)%>%
+  ungroup(Event.ID)
+```
+
+Formatting the marked independent detections for export
+Need a dataframe with 4 columns: Session, Deer ID, Date, Trap ID
+Repeats are fine. The doubles will be read as multiple detections in SECR
+```{r}
+head(deer_2020_marked)
+
+#rename and select the four columns we need
+deer_2020_marked<-deer_2020_marked%>%
+  ungroup()%>%
+  mutate(session = "Oakbay2020",         
+         date = date(datetime))%>%
+  select(session, WHID_all, date, SiteID)%>%
+  arrange(SiteID, date, WHID_all)
+
+#So now this is basically what we need. SECR will need the site names, IDs, and dates re-categorized to different formats, but I am leaving it "raw" just incase we want to do any multi-session type stuff. E.g. the same trap or individuals sighted in multiple years.
+
+#Write the file of marked detections
+write.csv(deer_2020_marked, file.path(output_directory, "marked_detections_fall_2020.csv"), row.names = FALSE)
+
+```
+
+Unmarked individuals are slightly different. We need to create a matrix of counts on each day for each site
+```{r}
+head(deer_2020_unmarked)
+
+#Do a couple renaming things here
+deer_2020_unmarked<-deer_2020_unmarked%>%
+  ungroup()%>%
+  mutate(occassion = date(datetime))%>%
+  select(trap.id = SiteID, occassion )
+
+#And created counts of independent unmarked events
+deer_2020_unmarked<-deer_2020_unmarked%>%
+  group_by(trap.id, occassion)%>%
+  summarise(n = n())
+  
+
+#And here we will take the previously spread out operation matrix
+#And bring it it back into long format so that we can merge it with the unmarked detections
+A<-cam_deploy%>%
+  select(-c(easting, northing))%>%
+  rename(trap.id = SiteID)%>%
+  gather(key = "occassion", value = "active", 2:36)
+
+#A<-gather(data = B, key = "occassion", value = "active", 2:31)
+
+#And now we need to merge the detections into the long camera dataframe
+A<-A%>%
+  arrange(trap.id, occassion)%>%
+  mutate(occassion = ymd(occassion))
+
+A<-merge(A, deer_2020_unmarked, by = c("trap.id", "occassion"), all.x = TRUE)
+
+#And just to check, there should not be any rows where active = NA, and n != NA
+#AMAZING! exactly as we suspected
+to_remove<-A%>%
+  filter(n >= 1 & active == 0)
+
+#At this point I cannot reconcile these observations at Site 4 with the deployment data, so I am going to remove them, assuming they are typos of some sort. 
+A<-A%>%
+  anti_join(to_remove)
+
+#Just replace the NAs with zeros, and then we can re-spread it back into a matrix
+deer_2020_unmarked<-A%>%
+  replace(is.na(.), 0)
+
+#Lets make sure only one observation per site per day
+deer_2020_unmarked<-deer_2020_unmarked%>%
+  select(-c(active))%>%
+  group_by(trap.id, occassion)%>%
+  slice(1)%>%
+  ungroup()%>%
+  spread(occassion, n)%>%
+  #Have to add this bit in to accomodate removing those four observations from site 4
+    replace(is.na(.), 0)
+  
+
+#Write the unmarked matrix
+write.csv(deer_2020_unmarked, file.path(output_directory, "unmarked_matrix_fall_2020.csv"), row.names = FALSE)
+```
+
+
+Fin.
