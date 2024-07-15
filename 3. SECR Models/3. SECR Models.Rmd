@@ -14,6 +14,7 @@ library(secr)         #the actual model engine
 #Set the working directories to read in the files we need
 input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
 output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/outputs"), create = TRUE)
+shapefile_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/shapefiles2"), create = TRUE)
 
 
 
