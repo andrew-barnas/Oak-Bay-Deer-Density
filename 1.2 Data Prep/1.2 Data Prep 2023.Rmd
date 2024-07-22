@@ -26,6 +26,7 @@ library(ggplot2)      #data visualization
 input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/inputs"), create = TRUE)
 output_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
 figure_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/figures"), create = TRUE)
+fawn_data_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/inputs"), create = TRUE)
 
 
 #Data input
@@ -326,6 +327,10 @@ deer_2023<-deer_2023 %>%
   filter(date(datetime) >= "2023-09-01" & date(datetime) < "2023-10-01")
 
 colnames(deer_2023)
+
+
+#Ok at this point, I want to output the current dataframe to a seperate dataframe, because here I remove fawns
+write.csv(deer_2023, file.path(fawn_data_directory, "deer_2023_with_fawns.csv"))
 
 
 #Ok this datafile is simply too expansive to work with. Because it was amalgamated through multiple years

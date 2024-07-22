@@ -22,6 +22,7 @@ library(ggplot2)      #data visualization
 input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/inputs"), create = TRUE)
 output_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
 figure_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/figures"), create = TRUE)
+fawn_data_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/inputs"), create = TRUE)
 
 
 #Data input
@@ -65,12 +66,12 @@ camloc <- camloc %>%
 #Deer Detections
 #Just want to remove a bunch of cluttery columns (hopefully I dont need them, they look useless)
 #I ALSO ONLY WANT STUFF FROM 2018 HERE
-deer_2018<-deer_2018%>%
-  select(-c(X, Unnamed..0, File, ImageQuality, Classifier, CommentsImages, Malfunction, DeleteFlag, RelativePath, Folder, Image.quality, Image.quality.1, Delete, Unnamed..31,))%>%
-  filter(df_year == "2018")
+#deer_2018<-deer_2018%>%
+ # select(-c(X, Unnamed..0, File, ImageQuality, Classifier, CommentsImages, Malfunction, DeleteFlag, RelativePath, Folder, Image.quality, Image.quality.1, Delete, Unnamed..31,))%>%
+  #filter(df_year == "2018")
 
 #What if i just want 2018 stuff
-deer_2018<-test%>%
+deer_2018<-deer_2018%>%
    select(-c(X, File, ImageQuality, Classifier,  Malfunction, DeleteFlag, RelativePath, Folder))%>%
   filter(df_year == "2018")
 #What is not in the original
@@ -332,6 +333,10 @@ deer_2018<-deer_2018 %>%
 
 
 colnames(deer_2018)
+
+#Ok at this point, I want to output the current dataframe to a seperate dataframe, because here I remove fawns
+write.csv(deer_2018, file.path(fawn_data_directory, "deer_2018_with_fawns.csv"))
+
 
 
 #Ok this datafile is simply too expansive to work with. Because it was amalgamated through multiple years

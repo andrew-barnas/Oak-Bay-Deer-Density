@@ -22,6 +22,7 @@ library(ggplot2)      #data visualization
 input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/inputs"), create = TRUE)
 output_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
 figure_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/figures"), create = TRUE)
+fawn_data_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/inputs"), create = TRUE)
 
 
 #Data input
@@ -372,6 +373,8 @@ deer_2019<-deer_2019 %>%
 
 colnames(deer_2019)
 
+#Ok at this point, I want to output the current dataframe to a seperate dataframe, because here I remove fawns
+write.csv(deer_2019, file.path(fawn_data_directory, "deer_2019_with_fawns.csv"))
 
 #Ok this datafile is simply too expansive to work with. Because it was amalgamated through multiple years
 #and multiple columns for a single detection of deer, I need to go through and get rid of some of the 

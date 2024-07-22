@@ -1,0 +1,514 @@
+
+
+```{r}
+#Clear everything out and start fresh ;)
+rm(list=ls())
+
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(lubridate)    #datetime manipulation
+library(tidyr)        #more data manipulation
+library(stringr)      #detecting character strings
+library(ggplot2)      #data visualization
+
+#This just sets up files for inputs (already created, must contain your files), and outputs
+input_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/inputs"), create = TRUE)
+
+output_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/outputs"), create = TRUE)
+
+figure_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/figures"), create = TRUE)
+
+
+#Read in our data
+fawn_2018<-read.csv(file.path(input_directory, "deer_2018_with_fawns.csv"))
+fawn_2019<-read.csv(file.path(input_directory, "deer_2019_with_fawns.csv"))
+fawn_2020<-read.csv(file.path(input_directory, "deer_2020_with_fawns.csv"))
+fawn_2021<-read.csv(file.path(input_directory, "deer_2021_with_fawns.csv"))
+fawn_2022<-read.csv(file.path(input_directory, "deer_2022_with_fawns.csv"))
+fawn_2023<-read.csv(file.path(input_directory, "deer_2023_with_fawns.csv"))
+
+
+#Which column is missing in 2018 - its year
+colnames(fawn_2019) %in% colnames(fawn_2018)
+#Add a dummy column into 2018, its getting dropped later anyways
+fawn_2018<-fawn_2018%>%
+  mutate(year = 2018)
+
+#Who is missing from 2020?
+colnames(fawn_2019) %in% colnames(fawn_2021)
+#Add a dummy column into 2021, its getting dropped later anyways
+fawn_2021<-fawn_2021%>%
+  mutate(year = 2021)
+
+#Who is missing from 2022?
+colnames(fawn_2022) %in% colnames(fawn_2022)
+#Add a dummy column into 2022, its getting dropped later anyways
+fawn_2022<-fawn_2022%>%
+  mutate(year = 2022)
+
+#Who is missing from 2023?
+colnames(fawn_2023) %in% colnames(fawn_2023)
+#Add a dummy column into 2022, its getting dropped later anyways
+fawn_2023<-fawn_2023%>%
+  mutate(year = 2023)
+
+#bind those data together
+fawn_data<-rbind(fawn_2018, fawn_2019, fawn_2020, fawn_2021, fawn_2022, fawn_2023)
+
+```
+
+In the initial data prep files, a bit more work was done, but that was done in the absence of fawn data. I am going to have to repeat a bit of that here, but we just want to clean up this file to set up for estimating indepenent detections of deer
+```{r}
+
+#First thing, the file is a bit large an unweidly, so lets remove some columns
+colnames(fawn_data)
+fawn_data<-fawn_data%>%
+  select(-c(X, 
+            Date,
+            Time,
+            Comments,
+            df_year,
+            Comments,
+            ControlCollar_Colour,
+            ControlCollar_Tag,
+            ICCollar_Colour,
+            EarTagNumber_2019,
+            EarTagNumber_2020,
+            EarTagColour_2019,
+            EarTagColour2020,
+         Location,
+         Multi_Marked_Comments, 
+         WHID_all,
+         df_year,
+         year))%>%
+  #And shuffle these to the front for clarity
+  relocate(SiteID, datetime)
+
+#Next, fill in all the NAs with zeros
+fawn_data<-fawn_data%>%
+  replace(is.na(.), 0)
+
+#Ok, so this is a very large dataframe. There are many rows of just zeros, which indicate images that just had nothing in them, so lets only keep rows that had at least some deer in them
+fawn_data<-fawn_data%>%
+  rowwise()%>%
+  filter((sum(Buck, MarkedDoe, UnmarkedDoe, Doe_UnknownifMarked, Fawn, UnknownSex, Unknown_UnknownifMarked, UnknownAgeGroup, TotalAdult, TotalFawn, ICDoe_2019, ICDoe_2020, TotalMarked, na.rm = T) > 0))
+
+#And now, I want to summarise across the adult columns and the Fawn columns. But first lets see the summary for these
+summary(fawn_data)
+  
+#There is some inconsistency in the number of animals recorded, but I don't necessarily care about that. I am just more concerned about whether adults or fawns were PRESENT. So lets do it
+fawn_data<-fawn_data%>%
+  mutate(adults = Buck + MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex +                       Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                                 + ICDoe_2020 + TotalMarked,
+         fawns = Fawn + TotalFawn)
+  
+#Now at this point there should be no cases of zero adults and zero fawns, lets check
+#Good. We will check again later.
+fawn_data%>%
+  group_by(adults, fawns)%>%
+  summarise(n())
+
+#So now, I just want to convert those numbers to presence absence.
+fawn_data<-fawn_data%>%
+  mutate(adults_present = case_when(adults > 0 ~ 1,
+                                    adults == 0 ~ 0),
+         fawns_present = case_when(fawns > 0 ~ 1,
+                                   fawns == 0 ~ 0))
+
+#And lets check. Good!
+fawn_data%>%
+  group_by(adults_present, fawns_present)%>%
+  summarise(n())
+
+
+```
+
+Independent detection loop
+```{r}
+#So now we can identify the independent detections, and then for each event we will summarise if it was just adult, or just fawn, or fawn and adult.
+
+#Need to make suredatetimes are read in correctly first
+fawn_data<-fawn_data%>%
+  mutate(datetime = ymd_hms(datetime))
+str(fawn_data$datetime)
+
+
+#Set up the dataframe for the independence loop
+A<-fawn_data%>%
+  arrange(SiteID, datetime) %>%
+  group_by(SiteID) %>%
+  mutate(duration = as.numeric(difftime(datetime,lag(datetime),units = "mins")))%>%
+  select(SiteID, adults_present, fawns_present, datetime, duration,)
+
+# loop that assign group ID   
+A$Event.ID <- 9999
+mins <- 30   # THIS IS THE DETECTION EVENT BREAK-POINT YOU CAN CHANGE
+seq <- as.numeric(paste0(nrow(A),0))
+seq <- round(seq,-(nchar(seq)))
+
+for (i in 2:nrow(A)) {
+  A$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F))
+  if(is.na(A$duration[i]) | abs(A$duration[i]) > mins){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(A$duration[nrow(A)] < mins| 
+   is.na(A$duration[nrow(A)])){
+  A$Event.ID[nrow(A)] <- A$Event.ID[nrow(A)-1] 
+} else{
+  A$Event.ID[nrow(A)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#Ok so now here is the logic. All rows of data have an event ID, but within a single event adults and fawns may come in an out of the picture. So we want to know, for each event, what the highest value of adult and fawn was. Basically, was there an adult or fawn sighted within an event?
+A%>%
+  group_by(year(datetime))%>%
+  summarise(n = n_distinct(Event.ID))
+
+n_distinct(A$Event.ID)
+A<-A%>%
+  #For each event
+  group_by(Event.ID)%>%
+  #What was the max observed adult and fawn count?
+  summarise(SiteID = SiteID, #Need to make sure site and datetime come along for the ride
+            datetime = datetime,
+            max_adult = max(adults_present),
+            max_fawn = max(fawns_present))%>%
+  #And now since the event should have the same values for max adults and fawns, just take the     first observation
+  group_by(Event.ID)%>%
+  slice(1)%>%
+  #oh and add a year column
+  mutate(year = year(datetime))
+  
+
+#And lastly, I think we want to boil this down to events of "fawn present" or just "adults present"
+
+A<-A%>%
+  mutate(detection_type = case_when(max_adult == 1 & max_fawn == 0 ~ "adult_only",
+                                    max_adult == 1 & max_fawn == 1 ~ "fawns_present",
+                                    max_adult == 0 & max_fawn == 1 ~ "fawns_present"))
+
+
+
+```
+
+Now some summary statistics and plots!
+```{r}
+
+#First, how many 
+
+#What overall proportion for each site?
+proportion_summary<-A%>%
+  group_by(year, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(year)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)
+
+#Color pallete info: https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
+
+#And lets plot that
+proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
+  geom_bar(position = "stack", stat = "identity")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+ggsave(filename = "proportion_detections.jpeg", #name of file
+       plot = proportion_detections,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+
+
+
+
+```
+
+What about a plot of detections per trapping effort?
+```{r}
+#First we need to read in the operation matrices for each year to calculate the number of days each camera was operational
+camop_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
+
+camop_2018<-read.csv(file.path(camop_directory, "operation_matrix_sept_2018.csv"))
+
+camop_2018<-camop_2018%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2018)
+
+camop_2019<-read.csv(file.path(camop_directory, "operation_matrix_fall_2019.csv"))
+
+camop_2019<-camop_2019%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:38)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2019)
+
+camop_2020<-read.csv(file.path(camop_directory, "operation_matrix_fall_2020.csv"))
+
+camop_2020<-camop_2020%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:38)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2020)
+
+camop_2021<-read.csv(file.path(camop_directory, "operation_matrix_sept_2021.csv"))
+
+camop_2021<-camop_2021%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2021)
+
+camop_2022<-read.csv(file.path(camop_directory, "operation_matrix_sept_2022.csv"))
+
+camop_2022<-camop_2022%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2022)
+
+camop_2023<-read.csv(file.path(camop_directory, "operation_matrix_sept_2023.csv"))
+
+camop_2023<-camop_2023%>%
+  rowwise()%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
+  select(SiteID, cam_days)%>%
+  mutate(year = 2023)
+
+#bind them together
+camop<-rbind(camop_2018, camop_2019, camop_2020, camop_2021, camop_2022, camop_2023)
+
+
+#Ok now the number of detections of each for each year and site
+dets_per_site_year<-A%>%
+  group_by(year, SiteID, detection_type)%>%
+  summarise(n_dets = n())
+
+# Count occurrences of each detection_type per SiteID and year
+counted_df <- A %>%
+  count(year, SiteID, detection_type)
+
+# Create a complete data frame to account for zeros
+complete_df <- counted_df %>%
+  complete(year, SiteID, detection_type, fill = list(n = 0))
+
+# Spread the data into a wider format
+final_df <- complete_df %>%
+  spread(key = detection_type, value = n, fill = 0)
+
+
+#Oops actually I think I need this in long format for easier calculations
+A<-final_df%>%
+  pivot_longer(4:5, names_to = "detection_type")%>%
+  ungroup()%>%
+  select(year, SiteID, detection_type, value)%>%
+  group_by(year, SiteID, detection_type)%>%
+  summarise(n_dets = sum(value))
+
+#And now merge in the camop information
+detections<-merge(A, camop, by = c("year", "SiteID"))
+
+
+#How many detections per camera days
+detections<-detections%>%
+  mutate(dets_per_effort = n_dets / cam_days)
+
+#Base plot with outliers, this will be put in the supplemental
+relative_abundance_with_outliers<-ggplot(detections, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
+  ggtitle("With Outliers")+
+  geom_violin() +
+  geom_jitter(aes(group = detection_type), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 1), alpha = 0.6, shape = 21, stroke = 0.5, color = "black") +
+ scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  scale_color_manual(values = c("adult_only" = "#66A61E", "fawns_present" = "#E6AB02"),
+                     guide = "none")+
+   xlab("Year")+
+  ylab("Detections per\nCamera Trapping Effort")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+ggsave(filename = "relative_abundance_with_outliers.jpeg", #name of file
+       plot = relative_abundance_with_outliers,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+#Ok now I want to remove the outliers seperately for each group
+# Function to filter out outliers
+remove_outliers <- function(detections) {
+  detections %>%
+    group_by(detection_type) %>%
+    mutate(
+      Q1 = quantile(dets_per_effort, 0.25),
+      Q3 = quantile(dets_per_effort, 0.75),
+      IQR = Q3 - Q1,
+      Lower_Bound = Q1 - 1.5 * IQR,
+      Upper_Bound = Q3 + 1.5 * IQR
+    ) %>%
+    filter(dets_per_effort >= Lower_Bound & dets_per_effort <= Upper_Bound) %>%
+    select(-Q1, -Q3, -IQR, -Lower_Bound, -Upper_Bound)
+}
+
+detections_no_outliers<-remove_outliers(detections)
+
+
+#And a plot removing the outliers
+relative_abundance_no_outliers<-ggplot(detections_no_outliers, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
+  geom_violin() +
+  geom_jitter(aes(group = detection_type), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 1), alpha = 0.6, shape = 21, stroke = 0.5, color = "black") +
+ scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  scale_color_manual(values = c("adult_only" = "#66A61E", "fawns_present" = "#E6AB02"),
+                     guide = "none")+
+   xlab("Year")+
+  ylab("Detections per\nCamera Trapping Effort")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+#export those plots
+ggsave(filename = "relative_abundance_no_outliers.jpeg", #name of file
+       plot = relative_abundance_no_outliers,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+#########################################################################################################
+#Lets modify these slightly for stacking the figures together
+proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
+  geom_bar(position = "stack", stat = "identity")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 18),
+        legend.title = element_text(size = 20),
+        legend.position = "top")
+
+relative_abundance_no_outliers<-ggplot(detections_no_outliers, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
+  geom_violin() +
+  geom_jitter(aes(group = detection_type), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 1), alpha = 0.6, shape = 21, stroke = 0.5, color = "black") +
+ scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"),
+                   guide = "none")+
+  scale_color_manual(values = c("adult_only" = "#66A61E", "fawns_present" = "#E6AB02"),
+                     guide = "none")+
+   xlab("Year")+
+  ylab("Detections per\nCamera Trapping Effort")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+
+
+#Maybe I should put these together?
+stacked_figure<-ggpubr::ggarrange(proportion_detections, relative_abundance_no_outliers,
+                  nrow = 2,
+                  labels = c("A", "B"),
+                  font.label = list(size = 25))
+
+#export those plots
+ggsave(filename = "stacked_figure.jpeg", #name of file
+       plot = stacked_figure,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 4000,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+```
+
+Summary stats - here is where I will export everhting
+```{r}
+
+mean_detection_summary<-detections_no_outliers%>%
+  group_by(year, detection_type)%>%
+  summarise(mean_dets = mean(dets_per_effort),
+            sd_dets = sd(dets_per_effort))
+
+write.csv(mean_detection_summary, file.path(output_directory, "mean_detection_summary.csv"))
+
+#Proportion summary
+write.csv(proportion_summary, file.path(output_directory, "proportion_summary.csv"))
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

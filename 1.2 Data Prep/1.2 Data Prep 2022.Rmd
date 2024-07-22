@@ -25,6 +25,7 @@ library(ggplot2)      #data visualization
 input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/inputs"), create = TRUE)
 output_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
 figure_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/figures"), create = TRUE)
+fawn_data_directory<-reproducible::checkPath(file.path(getwd(), "1.3 Relative Abundance/inputs"), create = TRUE)
 
 
 #Data input
@@ -372,6 +373,8 @@ deer_2022%>%
   summarise(n())
 
 
+#Ok at this point, I want to output the current dataframe to a seperate dataframe, because here I remove fawns
+write.csv(deer_2022, file.path(fawn_data_directory, "deer_2022_with_fawns.csv"))
 
 
 
