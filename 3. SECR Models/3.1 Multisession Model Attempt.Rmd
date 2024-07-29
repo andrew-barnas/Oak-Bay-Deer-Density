@@ -1,0 +1,141 @@
+ATTEMPT AT A MULTISESSION MODEL
+
+
+```{r}
+
+#Clear everything out, its probably messy from the data prep file
+rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(ggplot2)      #data visualization
+library(ggpubr)       #Arranging figures
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+library(ggtext)       #Superscript on ggplot axis title
+library(sf)           #Spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs/multisession"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
+figure_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
+shapefiles_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/shapefiles"), create = TRUE)
+
+
+
+```
+
+
+Ok so the goal here is to fit a multisession model using the 2020 and the 2021 data. These files have been prepared, accounting for the different sampling times and then making sure trap names and whid all consistent
+```{r}
+
+#read in camera trap files - order matters here!
+camera_names = c(file.path(input_directory, "deer_cameras_2018.txt"),
+                 file.path(input_directory, "deer_cameras_2019.txt"),
+                 file.path(input_directory, "deer_cameras_2020.txt"),
+                 file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"),
+                 file.path(input_directory, "deer_cameras_2023.txt"))
+
+
+#Prepare the capthist object
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_multi.txt"), 
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_directory, "unmarked_multi.txt"), skip = 1)
+
+#HERE IS WHERE YOU LOAD IN THE MASKS
+
+
+start_time<-Sys.time()
+#Fit the model
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           #mask = oakbay_masks,
+                           details = list(autoini = 3), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
+browseURL("https://www.youtube.com/watch?v=VQ1a4SuXIiw&t=195s")
+
+
+#Inspect results
+summary(multisession_fit)
+
+#Extract estimate (deer/ha) for each session and convert to deer per km2
+mean_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["estimate"]][[1]]*100
+mean_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["estimate"]][[1]]*100
+mean_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["estimate"]][[1]]*100
+mean_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
+mean_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
+mean_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["estimate"]][[1]]*100
+
+#extract confidence intervals for each year
+upper_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["ucl"]][[1]]*100
+lower_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["lcl"]][[1]]*100
+
+upper_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["ucl"]][[1]]*100
+lower_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["lcl"]][[1]]*100
+
+upper_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["ucl"]][[1]]*100
+lower_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["lcl"]][[1]]*100
+
+upper_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
+lower_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
+
+upper_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
+lower_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
+
+upper_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["ucl"]][[1]]*100
+lower_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["lcl"]][[1]]*100
+
+#Wrap that into a dataframe and plot
+density_estimates<-data.frame(
+    year = c(2018, 2019, 2020, 2021, 2022, 2023),
+    mean_density = c(mean_2018, mean_2019, mean_2020, mean_2021, mean_2022, mean_2023),
+    upper_cl = c(upper_2018, upper_2019, upper_2020, upper_2021, upper_2022, upper_2023),
+    lower_cl = c(lower_2018, lower_2019, lower_2020, lower_2021, lower_2022, lower_2023)
+)
+
+ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
+  geom_point()+
+  geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
+  ylab("Mean Density\u00B1 95% CI")+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.text.x = element_text(size = 10),
+        axis.title.x = element_text(size = 12))+
+  ggtitle("Single Multisession Model Output")
+
+
+fsave(multisession_fit, file = file.path(output_directory, "multisession2.RData"))
+
+```
+
+
+```{r}
+session_covariate <- data.frame(
+  session = rep(1:6, each = 3),
+  alive = c(1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0)
+)
+
+```
+
+```{r}
+load(file.path(output_directory, "multisession2.RData"))
+
+
+```
+
+```
