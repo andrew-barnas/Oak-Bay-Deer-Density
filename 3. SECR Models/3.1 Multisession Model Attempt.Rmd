@@ -1,7 +1,9 @@
-ATTEMPT AT A MULTISESSION MODEL
+ATTEMPT AT A MULTISESSION MODEL - on tiny machine - July 29 2024
 
 
 ```{r}
+start_time<-Sys.time()
+
 
 #Clear everything out, its probably messy from the data prep file
 rm(list = ls())
@@ -10,7 +12,7 @@ rm(list = ls())
 library(reproducible) #setting up directories for data management
 library(dplyr)        #data wranglin'
 library(ggplot2)      #data visualization
-library(ggpubr)       #Arranging figures
+#library(ggpubr)       #Arranging figures
 library(stringr)      #reading information on strings
 library(secr)         #the actual model engine
 library(ggtext)       #Superscript on ggplot axis title
@@ -54,19 +56,17 @@ deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_di
 #HERE IS WHERE YOU LOAD IN THE MASKS
 
 
-start_time<-Sys.time()
-#Fit the model
+
+#Fit the model - trying it at autoini = 5 now
 multisession_fit<-secr.fit(deer_multisession, 
                            model = D ~ session, #lowercase "session" to fit a value for each level of session
                            #mask = oakbay_masks,
-                           details = list(autoini = 3), #Was having getting started unless I specify
+                           details = list(autoini = 5), #Was having getting started unless I specify
                            buffer = 1000,
                            trace = TRUE,
                            detectfn = "HN", #Half normal detection function
                             binomN = 0)  #counts modelled as poisson )
-#I just like to know how long this takes
-end_time<-Sys.time()
-end_time - start_time
+
 browseURL("https://www.youtube.com/watch?v=VQ1a4SuXIiw&t=195s")
 
 
@@ -118,24 +118,13 @@ ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
         axis.title.x = element_text(size = 12))+
   ggtitle("Single Multisession Model Output")
 
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
 
-fsave(multisession_fit, file = file.path(output_directory, "multisession2.RData"))
 
-```
-
-
-```{r}
-session_covariate <- data.frame(
-  session = rep(1:6, each = 3),
-  alive = c(1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0)
-)
+save(multisession_fit, file = file.path(output_directory, "multisession_autoini5.RData"))
 
 ```
 
-```{r}
-load(file.path(output_directory, "multisession2.RData"))
 
-
-```
-
-```
