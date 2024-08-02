@@ -50,25 +50,163 @@ deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_mul
               verify = TRUE)
 summary(deer_multisession, terse = TRUE)
 
+#This shows a plot of detections for individuals
+#Good to inspect that you dont have an individual located on traps on completely different 
+#sides of the study area (unlikely, would indicate an error likely - unless the move A LOT)
+#Just have to write a quick loop to go through the figures seperately for each session, outputting them all at once is painful.
+for(i in session(deer_multisession)){
+  print(i)
+  
+  #Set the file name
+  file_name<-paste(i, "tracks.jpeg", sep = "_")
+  
+  #Extract the data and save each plot with the updated file name
+  session_data<-subset(deer_multisession, session = i)
+  png(file.path(figure_directory, file_name), width = 400, height = 600)
+  plot(session_data, tracks = TRUE)
+  dev.off()
+}
+
 #Ok now try to add the unmarked sightings as you would normally? 
 deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_directory, "unmarked_multi.txt"), skip = 1)
 
 #HERE IS WHERE YOU LOAD IN THE MASKS
+#I NEED TO UPDATE THIS WITH A MASK THAT USES ALL OF THE CAMERA SITES, BUT THIS SHOULD BE FINE FOR NOW!!!!!
+#I am just going to temporarily use the 2018 mask with a large buffer
+#Next, read in the habitat mask we will be using, with an initial 1000m buffer
+oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
+#Use that shape file to create a habitat mask for the initial model
+mask_2018<-make.mask(traps(deer_multisession), 
+                type = "trapbuffer", 
+                buffer = 1000, 
+                poly = oak_bay_clipped_2018) #UPDATE THIS
 
 
 
 #Fit the model - trying it at autoini = 5 now
 multisession_fit<-secr.fit(deer_multisession, 
                            model = D ~ session, #lowercase "session" to fit a value for each level of session
-                           #mask = oakbay_masks,
+                           mask = mask_2018,
                            details = list(autoini = 5), #Was having getting started unless I specify
                            buffer = 1000,
                            trace = TRUE,
                            detectfn = "HN", #Half normal detection function
                             binomN = 0)  #counts modelled as poisson )
 
-browseURL("https://www.youtube.com/watch?v=VQ1a4SuXIiw&t=195s")
+#Inspect those initial results
+summary(multisession_fit)
 
+```
+
+After the initial model has been fit, we can perform some diagnostics and refit 
+```{r}
+
+#Loading the data in for inspection
+load(file = file.path(output_directory, "multisession_autoini5.RData"))
+
+#Inspect the mask!Just need a visual of one session to show that we are actually eliminating the ocean habitat
+par(mar = c(1,1,1,1))
+plot(multisession_fit$mask$Oakbay2018, dots = FALSE, mesh = "grey", col = "white")
+plot(traps(deer_multisession), detpar = list(pch = 16, cex = 1), add = TRUE)
+
+#Perform Retrospective buffer checks
+#Pilot estimate for buffer width. 4* this value is a suggested buffer risk
+#This does not seem to be working...something with the multisession model
+#RPSV_multisession<-4*RPSV(multisession_fit, CC= TRUE)
+
+#What is the suggested buffer from the initial fitted model?
+suggested_buffers_multisession<-suggest.buffer(multisession_fit)
+suggested_buffers_multisession<-data.frame(year = c(2018, 2019, 2020, 2021, 2022, 2023),
+           suggested_buffer = suggested_buffers_multisession)
+
+#Save the esa plot to a dataframe for plotting
+A<-esa.plot(multisession_fit, ylim = c(0,10))
+
+#Here is the full plot
+esa_plot_multisession<-ggplot(A, aes(x = buffer, y = density))+
+  geom_line()+
+  geom_vline(data = suggested_buffers_multisession, aes(xintercept = suggested_buffer, color =    as.factor(year)), linetype = "longdash")+
+  scale_color_discrete(name = "Year")+
+   ylab("Predicted change in density")+
+  xlab("Buffer width (m)")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+         plot.title = element_text(size = 15, hjust = 0.5))
+
+#And then the same plot but zoomed in for clarity
+esa_plot_multisession_zoomed<-ggplot(A, aes(x = buffer, y = density))+
+  geom_line()+
+  geom_vline(data = suggested_buffers_multisession, aes(xintercept = suggested_buffer, color =    as.factor(year)), linetype = "longdash", size = 1.1)+
+  xlim(c(1000, 1100))+
+  scale_color_discrete(name = "Year")+
+   ylab("Predicted change in density")+
+  xlab("Buffer width (m)")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+         plot.title = element_text(size = 15, hjust = 0.5))
+
+#Arrange the two plots
+esa_plots<-ggpubr::ggarrange(esa_plot_multisession, esa_plot_multisession_zoomed,
+                  nrow = 1,
+                  labels = c("A", "B"),
+                  font.label = list(size = 16))
+
+
+ggsave(filename = "esa_plots.jpeg", #name of file
+       plot = esa_plots,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 5000,                       #how wide
+       height = 1500,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+#Based ont he recommendations of the guidebook, the penalty for using an over wie buffer is that fitting will be slower for a given mask spacing, it is usually smart to accept this penalty rather than search for the narrowest acceptabel buffer. 
+suggested_buffer<-max(suggest.buffer(multisession_fit))
+
+#Create a new mask based on this
+updated_mask<-make.mask(traps(deer_multisession), 
+                type = "trapbuffer", 
+                buffer = suggested_buffer, #Using the new suggested buffer
+                poly = oak_bay_clipped_2018) #NEED TO UPDATE THIS
+
+```
+
+Refitting the new model and extracting estimates
+```{r}
+#What about overdispersion??
+#1. fit the model ASSUMING NO OVERDISPERSION
+#2. Estimate the overdispersion by simulating at the initial estimates
+#3. Re-fit the model using an overdispersion-adjusted pseudo-likelioo
+multisession_fit_suggested_buffer <- secr.fit(deer_multisession, 
+                                       mask = updated_mask,
+                                       #buffer = 1000, 
+                                       trace = FALSE, 
+                                        detectfn = "HN", #Half normal detection function
+                                        binomN = 0,      #Specify detections as a Poisson process
+                                       #start = multisession_fit, #this lines repeats the model specification from fit1
+                       details = list(nsim = 10000)) #this line gives the previous model fit1 as a starting point, calls nsim simulations to estimated overdispersion (c-hat)
+
+
+
+#CHECK FOR OVERDISPERSION....THIS IS ALL FROM CHATGPT SO PROCEED WITH CAUTION
+#iNCLUDE THIS BIT HERE.
+
+```
+
+
+
+
+
+
+
+```{r}
 
 #Inspect results
 summary(multisession_fit)
