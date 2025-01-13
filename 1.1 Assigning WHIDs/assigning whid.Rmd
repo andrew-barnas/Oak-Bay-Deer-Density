@@ -1,7 +1,7 @@
-The purpose of this script is to produce wildlife health IDs for the October detection data for 2019 and 2020. The reason this is being done seperately is in these two years, deer were being continually marked and added to the population, so we elected to produce density results for the month of October instead of September (as was done for the other study years). The original analyst who processed the other years of data is unavailable for more data processing, so this step is being done seperately using his code to the best of my ability.
+The purpose of this script is to produce wildlife health IDs for the October detection data for 2019 and 2020. The reason this is being done seperately is in these two years, deer were being continually marked and added to the population, so we elected to produce density results for the month of October instead of September (as was done for the other study years). The original analyst who processed the other years of data is unavailable for more data processing, so this step is being done separately using his code to the best of my ability.
 
 The outputs from this script should be two large dataframes:
-1) one with septermber data from 2018 -2023: this will be used for fawning analyses
+1) one with September data from 2018 -2023: this will be used for fawning analyses
 2) one with sep data from 2018, 2021-23, and oct data from 2019 and 2020: this will be used for density analyses
 -Andrew Barnas
 andrew.f.barnas@gmail.com
