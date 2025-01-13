@@ -1,3 +1,4 @@
+This is a mimic of 1.3 relative abundance calculations but modified so I can look at the number of detections with and without fawns for control deer and IC deer
 
 ```{r}
 #Clear everything out and start fresh ;)
@@ -488,18 +489,6 @@ write.csv(proportion_summary, file.path(output_directory, "proportion_summary.cs
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
