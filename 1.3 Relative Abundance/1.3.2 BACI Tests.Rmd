@@ -57,7 +57,8 @@ fawn_data<-rbind(fawn_2018, fawn_2019, fawn_2020, fawn_2021, fawn_2022, fawn_202
 
 ```
 
-In the initial data prep files, a bit more work was done, but that was done in the absence of fawn data. I am going to have to repeat a bit of that here, but we just want to clean up this file to set up for estimating indepenent detections of deer
+
+In the initial data prep files, a bit more work was done, but that was done in the absence of fawn data. I am going to have to repeat a bit of that here, but we just want to clean up this file to set up for estimating independent detections of deer
 ```{r}
 
 #First thing, the file is a bit large an unweidly, so lets remove some columns
@@ -78,7 +79,7 @@ fawn_data<-fawn_data%>%
             EarTagColour2020,
          Location,
          Multi_Marked_Comments, 
-         WHID_all,
+        # WHID_all,
          df_year,
          year))%>%
   #And shuffle these to the front for clarity
@@ -93,9 +94,30 @@ fawn_data<-fawn_data%>%
   rowwise()%>%
   filter((sum(Buck, MarkedDoe, UnmarkedDoe, Doe_UnknownifMarked, Fawn, UnknownSex, Unknown_UnknownifMarked, UnknownAgeGroup, TotalAdult, TotalFawn, ICDoe_2019, ICDoe_2020, TotalMarked, na.rm = T) > 0))
 
-#And now, I want to summarise across the adult columns and the Fawn columns. But first lets see the summary for these
-summary(fawn_data)
-  
+
+#I also want to add an identifier for the group each marked deer belonged too
+fawn_data<-fawn_data%>%
+  mutate(group = case_when(
+    str_detect(WHID_all, "18-") ~ "control_2018",
+    str_detect(WHID_all, "19-") ~ "IC_2019",
+    str_detect(WHID_all, "20-") ~ "IC_2020"
+  ))
+
+#You know what, we should indicate if it was an unmarked as well
+fawn_data<-fawn_data%>%
+  mutate(group = ifelse(is.na(group), "unmarked", group))
+
+```
+
+
+Here I want to do some summarizing
+
+```{r}
+fawn_data%>%
+  group_by(group)%>%
+  summarise(n())
+
+#And now, I want to summarise across the adult columns and the Fawn columns. 
 #There is some inconsistency in the number of animals recorded, but I don't necessarily care about that. I am just more concerned about whether adults or fawns were PRESENT. So lets do it
 fawn_data<-fawn_data%>%
   mutate(adults = Buck + MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex +                       Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                                 + ICDoe_2020 + TotalMarked,
@@ -134,10 +156,10 @@ str(fawn_data$datetime)
 
 #Set up the dataframe for the independence loop
 A<-fawn_data%>%
-  arrange(SiteID, datetime) %>%
-  group_by(SiteID) %>%
+  arrange(SiteID, group, datetime) %>%
+  group_by(SiteID, year(datetime), group) %>%
   mutate(duration = as.numeric(difftime(datetime,lag(datetime),units = "mins")))%>%
-  select(SiteID, adults_present, fawns_present, datetime, duration,)
+  select(SiteID, group, adults_present, fawns_present, datetime, duration)
 
 # loop that assign group ID   
 A$Event.ID <- 9999
@@ -172,6 +194,7 @@ A<-A%>%
   group_by(Event.ID)%>%
   #What was the max observed adult and fawn count?
   summarise(SiteID = SiteID, #Need to make sure site and datetime come along for the ride
+            group = group, #same with group id
             datetime = datetime,
             max_adult = max(adults_present),
             max_fawn = max(fawns_present))%>%
@@ -193,10 +216,245 @@ A<-A%>%
 
 ```
 
+```{r}
+#Lets see if I get the same results for the 2018 control deers, nice we do. 
+A%>%
+  filter(group == "control_2018")%>%
+  mutate(new_year = case_when(
+    year == 2018 ~ "treatment",
+    year > 2018 ~ "after"
+    ))%>%
+group_by(new_year, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(new_year)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)
+
+#Ok lets proceed, I might need to build these frames separately 
+#2018 CONTROL DEERS
+control_2018<-A%>%
+  filter(group == "control_2018")%>%
+  mutate(year_group = case_when(
+    year == 2018 ~ "treatment",
+    year > 2018 ~ "post"
+  ))%>%
+  group_by(year_group, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(year_group)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)%>%
+  mutate(group = "control_2018")
+
+#2019 TREATMENT DEERS
+IC_2019<-A%>%
+  filter(group == "IC_2019")%>%
+  #Remove 2018 from the dataframe
+  filter(year > 2018)%>%
+  mutate(year_group = case_when(
+    year == 2019 ~ "treatment", #define initial treatment year
+    year > 2019 ~ "post" #and everything past that
+  ))%>%
+  group_by(year_group, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(year_group)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)%>%
+  mutate(group = "IC_2019")
+
+#2020 TREATMENT DEERS
+IC_2020<-A%>%
+  filter(group == "IC_2020")%>%
+  #Remove 2018 from the dataframe
+  filter(year > 2019)%>%
+  mutate(year_group = case_when(
+    year == 2020 ~ "treatment", #define initial treatment year
+    year > 2020 ~ "post" #and everything past that
+  ))%>%
+  group_by(year_group, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(year_group)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)%>%
+  mutate(group = "IC_2020")
+
+#Unmarked deer!
+unmarked<-A%>%
+  filter(group == "unmarked")%>%
+  mutate(year_group = "all_years")%>%
+  group_by(detection_type)%>%
+  summarise(n_dets = n())%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)%>%
+  mutate(group = "unmarked")
+#Merge those into the same frame and lets build some plots
+df<-rbind(control_2018, IC_2019, IC_2020, unmarked)
+
+#Make a dummy variable for plotting
+df<-df%>%
+  mutate(group2 = paste(group, year_group, sep = "_"))
+#Need something to fix up the unmarked individuals with a conditional mutate
+df<-df%>%
+  mutate(group2 = ifelse(is.na(group2), "unmarked", as.character(group2)))
+#Holy shit need to re-order the factor
+df$group2<-factor(df$group2, levels = c("control_2018_treatment",
+                                           "control_2018_post",
+                                           "IC_2019_treatment",
+                                           "IC_2019_post",
+                                           "IC_2020_treatment",
+                                           "IC_2020_post",
+                                        "unmarked"))
+
+
+  
+
+ggplot(df, aes(x = group2, y = proportion, fill = detection_type)) +
+  geom_bar(position = "stack", stat = "identity")+
+  geom_text(aes(label = round(proportion, digits = 2)), 
+            position = position_stack(vjust = 0.9), 
+            size = 4, color = "white")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  scale_x_discrete(labels = c("Control Deer\n2018",
+                              "Control Deer\n2019-2023",
+                              "2019 IC Deer\nInitial Year (2019)",
+                              "2019 IC Deer\nPost Years (2020-2023)",
+                              "2020 IC Deer\nInitial Year (2020)",
+                              "2020 IC Deer\nPost Years (2021-2023)",
+                              "Unmarked Deer\n2018-2023"))+
+  ggtitle("Separate Treatment Categories",)+
+  theme_classic()+
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+
+######################################################################
+#Ok lets do something slightly different and reorganize the treatment deer into the same bin
+treated_deer<-rbind(IC_2019, IC_2020)%>%
+  group_by(year_group, detection_type)%>%
+  summarise(n_dets = sum(n_dets))%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)%>%
+  mutate(group = "IC_treated_deer")
+
+#Ok now bind that all together again
+df2<-rbind(control_2018, treated_deer, unmarked)
+
+#Ahhh shit need a dummy variable
+df2<-df2%>%
+  mutate(group2 = paste(group, year_group, sep = "_"))
+
+
+#Re-order the factor
+df2$group2<-factor(df2$group2, levels = c("control_2018_treatment",
+                                          "control_2018_post",
+                                          "IC_treated_deer_treatment",
+                                          "IC_treated_deer_post",
+                                          "unmarked_NA"))
+
+ggplot(df2, aes(x = group2, y = proportion, fill = detection_type))+
+  geom_bar(position = "stack", stat = "identity")+
+  geom_text(aes(label = round(proportion, digits = 2)), 
+            position = position_stack(vjust = 0.9), 
+            size = 4, color = "white")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  scale_x_discrete(labels = c("Control Deer\n2018",
+                              "Control Deer\n2019-2023",
+                              "IC Deer: Initial Treatment\nYears (2019/2020)",
+                              "IC Deer: Post Treatment\nYears (2020/21-2023)",
+                              "Unmarked Deer: 2018-2023"))+
+  ggtitle("Binned Treatment Categories",
+          subtitle = "Combining 2019 and 2020 Treated Deer")+
+  theme_classic()+
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
+
+
+###########################################################################
+#What about all unmarked deeer for all years?
+unmarked_all<-A%>%
+  filter(group == "unmarked")%>%
+  mutate(year = year(datetime))%>%
+  group_by(year, detection_type)%>%
+  summarise(n_dets = n())%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)
+
+  ggplot(unmarked_all,
+         aes(x = as.factor(year), y = proportion, fill = detection_type))+
+  geom_bar(position = "stack", stat = "identity")+
+  geom_text(aes(label = round(proportion, digits = 2)), 
+            position = position_stack(vjust = 0.9), 
+            size = 4, color = "white")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#1B9E77",
+                                 "fawns_present" = "#D95F02"))+
+    ggtitle("Unmarked Deer - All Years")+
+    theme_classic()+
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+  
+ 
+
+
+```
+
+
 Now some summary statistics and plots!
 ```{r}
 
-#First, how many 
+#First we want to look at just 2018, and then all other years combined
+proportion_summary<-A%>%
+  mutate(new_year = case_when(
+    year == 2018 ~ "treatment",
+    year > 2018 ~ "after"
+    ))%>%
+group_by(new_year, detection_type)%>%
+  summarise(n_dets = n())%>%
+  group_by(new_year)%>%
+  mutate(total_dets = sum(n_dets),
+         proportion = n_dets / total_dets)
+
+ggplot(proportion_summary, aes(x = as.factor(new_year), y = proportion, fill = detection_type))+
+  geom_bar(position = "stack", stat = "identity")+
+  geom_text(aes(label = round(proportion, digits = 2)), 
+            position = position_stack(vjust = 0.9), 
+            size = 4, color = "white")+
+  ylab("Proportion of\nDetection Types")+
+  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
+                      name = "Detection Type",
+                      values = c("adult_only" = "#66A61E",
+                                 "fawns_present" = "#E6AB02"))+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 13))
+
 
 #What overall proportion for each site?
 proportion_summary<-A%>%
