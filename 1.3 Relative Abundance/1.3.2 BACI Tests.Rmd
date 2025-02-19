@@ -304,14 +304,15 @@ df$group2<-factor(df$group2, levels = c("control_2018_treatment",
                                            "IC_2020_post",
                                         "unmarked"))
 
+#I should remake this dataframe into a summary table
 
   
 
-ggplot(df, aes(x = group2, y = proportion, fill = detection_type)) +
+treatment_categories_plot<-ggplot(df, aes(x = group2, y = proportion, fill = detection_type)) +
   geom_bar(position = "stack", stat = "identity")+
   geom_text(aes(label = round(proportion, digits = 2)), 
             position = position_stack(vjust = 0.9), 
-            size = 4, color = "white")+
+            size = 6, color = "white")+
   ylab("Proportion of\nDetection Types")+
   scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
                       name = "Detection Type",
@@ -324,14 +325,22 @@ ggplot(df, aes(x = group2, y = proportion, fill = detection_type)) +
                               "2020 IC Deer\nInitial Year (2020)",
                               "2020 IC Deer\nPost Years (2021-2023)",
                               "Unmarked Deer\n2018-2023"))+
-  ggtitle("Separate Treatment Categories",)+
   theme_classic()+
   theme(axis.title.x = element_blank(),
         axis.title.y = element_text(size = 15),
-        axis.text.x = element_text(size = 9),
+        axis.text.x = element_text(size = 13),
         axis.text.y = element_text(size = 12),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 13))
+
+
+ggsave(filename = "treatment_categories_plot.jpeg", #name of file
+       plot = treatment_categories_plot,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 5000,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
 
 
 ######################################################################
@@ -395,27 +404,33 @@ unmarked_all<-A%>%
   mutate(total_dets = sum(n_dets),
          proportion = n_dets / total_dets)
 
-  ggplot(unmarked_all,
+  unmarked_plot<-ggplot(unmarked_all,
          aes(x = as.factor(year), y = proportion, fill = detection_type))+
   geom_bar(position = "stack", stat = "identity")+
   geom_text(aes(label = round(proportion, digits = 2)), 
             position = position_stack(vjust = 0.9), 
-            size = 4, color = "white")+
+            size = 6, color = "white")+
   ylab("Proportion of\nDetection Types")+
   scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
                       name = "Detection Type",
                       values = c("adult_only" = "#1B9E77",
                                  "fawns_present" = "#D95F02"))+
-    ggtitle("Unmarked Deer - All Years")+
     theme_classic()+
   theme(axis.title.x = element_blank(),
         axis.title.y = element_text(size = 15),
-        axis.text.x = element_text(size = 9),
+        axis.text.x = element_text(size = 13),
         axis.text.y = element_text(size = 12),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 13))
   
  
+ggsave(filename = "unmarked_plot.jpeg", #name of file
+       plot = unmarked_plot,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 5000,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
 
 
 ```
