@@ -1,10 +1,12 @@
+I am cleaning and preparing the data for each year seperately, as each year has its own unique issues to be addressed. While somewhat redundant, this is ultimately easier.
+
 The purpose of this script is to prepare the 2018 deer detection data for density estimation using secr. The main ouputs of this script are:
 1. a file of the marked detections in 2018
 2. a file of the unmarked detections in 2018
 3. a camera operability matrix for september 2018
 
-Andrew Barnas - April 2024
-andrew.f.barnas@gmail.com
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 1. Load packages, setup directories, and read in the files we need
 ```{r}

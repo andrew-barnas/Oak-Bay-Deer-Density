@@ -185,33 +185,33 @@ B<-merge(date_deer_expanded, B, by = c("WHID_all", "date"), all.x = TRUE)%>%
 #Ok and so now, I think I can just make the matrices for each year
 markocc_2018<-B%>%
   filter(date >= ymd("2018-09-01") & date <= ymd("2018-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+  #select(-WHID_all)
 
 markocc_2019<-B%>%
   filter(date >= ymd("2019-10-08") & date <= ymd("2019-11-06"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+  #select(-WHID_all)
 
 markocc_2020<-B%>%
   filter(date >= ymd("2020-10-08") & date <= ymd("2020-11-06"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+  #select(-WHID_all)
 
 markocc_2021<-B%>%
   filter(date >= ymd("2021-09-01") & date <= ymd("2021-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+ # select(-WHID_all)
 
 markocc_2022<-B%>%
   filter(date >= ymd("2022-09-01") & date <= ymd("2022-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+ # select(-WHID_all)
 
 markocc_2023<-B%>%
   filter(date >= ymd("2023-09-01") & date <= ymd("2023-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
+  tidyr::spread(date, value = available)
+  #select(-WHID_all)
 
 
 
@@ -854,10 +854,181 @@ write.table(markocc_2023, file.path(output_directory, "markocc_2023.txt"), sep =
 
 ```
 
-
-Messing around with known individual deaths and whatnot
+#####################################################################################################
+Extra bit here for outputting the files for individual year analysis
 ```{r}
+#Ok first, we can write the main detection file for 2018
+write.table(deer_2018, file.path(output_directory, "deer_2018.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2018, file.path(output_directory, "unmarked_2018.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(deer_2019, file.path(output_directory, "deer_2019.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2019, file.path(output_directory, "unmarked_2019.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(deer_2020, file.path(output_directory, "deer_2020.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2020, file.path(output_directory, "unmarked_2020.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(deer_2021, file.path(output_directory, "deer_2021.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2021, file.path(output_directory, "unmarked_2021.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(deer_2022, file.path(output_directory, "deer_2022.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2022, file.path(output_directory, "unmarked_2022.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(deer_2023, file.path(output_directory, "deer_2023.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+write.table(unmarked_2023, file.path(output_directory, "unmarked_2023.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
 
 
+#Next, lets find a way to add the unsighted individuals. So we have this dataframe, which tells us whether all the individuals in the study were available for deteciton or not on our specified dates. 
+markocc_2018
+
+#So in this dataframe, we only want to keep individuals that were available, 
+markocc_2018<-markocc_2018 %>%
+  filter(if_any(2:31, ~ . == 1))
+
+#Ok now match the names
+known<-merge(markocc_2018, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))
+
+#Ok, NOW, which of these deer were NOT seen in the capture file? 
+known<-known%>%
+  filter(!id %in% unique(deer_2018$id))
+
+#So now we append them to the deer_2019 file? And give them dummy variables?
+known<-known%>%
+  select(id)%>%
+  mutate(session = "Oakbay2018",
+         occassion = 0,
+         trap.id = 1) #Arbitrary trap location
+
+deer_2018_known<-rbind(deer_2018, known)
+
+#Write this and lets try it
+write.table(deer_2018_known, file.path(output_directory, "deer_2018_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+
+#Ok lets do it for the rest of the years now
+markocc_2019<-markocc_2019%>%
+  filter(if_any(2:31, ~ . == 1))
+
+known<-merge(markocc_2019, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))%>%
+  filter(!id %in% unique(deer_2019$id))%>%
+  select(id)%>%
+  mutate(session = "Oakbay2019",
+         occassion = 0,
+         trap.id = 2) #Arbitrary trap location
+
+deer_2019_known<-rbind(deer_2019, known)
+################################################
+markocc_2020<-markocc_2020%>%
+  filter(if_any(2:31, ~ . == 1))
+
+known<-merge(markocc_2020, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))%>%
+  filter(!id %in% unique(deer_2020$id))%>%
+  select(id)%>%
+  mutate(session = "Oakbay2020",
+         occassion = 0,
+         trap.id = 1) #Arbitrary trap location
+
+deer_2020_known<-rbind(deer_2020, known)
+################################################
+markocc_2021<-markocc_2021%>%
+  filter(if_any(2:31, ~ . == 1))
+
+known<-merge(markocc_2021, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))%>%
+  filter(!id %in% unique(deer_2021$id))%>%
+  select(id)%>%
+  mutate(session = "Oakbay2021",
+         occassion = 0,
+         trap.id = 1) #Arbitrary trap location
+
+deer_2021_known<-rbind(deer_2021, known)
+################################################
+markocc_2022<-markocc_2022%>%
+  filter(if_any(2:31, ~ . == 1))
+
+known<-merge(markocc_2022, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))%>%
+  filter(!id %in% unique(deer_2022$id))%>%
+  select(id)%>%
+  mutate(session = "Oakbay2022",
+         occassion = 0,
+         trap.id = 1) #Arbitrary trap location
+
+deer_2022_known<-rbind(deer_2022, known)
+################################################
+markocc_2023<-markocc_2023%>%
+  filter(if_any(2:31, ~ . == 1))
+
+known<-merge(markocc_2023, id_names, by = c("WHID_all"))%>%
+  relocate(id_number)%>%
+  rename(id = id_number)%>%
+  select(-c(WHID_all))%>%
+  filter(!id %in% unique(deer_2023$id))%>%
+  select(id)%>%
+  mutate(session = "Oakbay2023",
+         occassion = 0,
+         trap.id = 1) #Arbitrary trap location
+
+deer_2023_known<-rbind(deer_2023, known)
+
+write.table(deer_2019_known, file.path(output_directory, "deer_2019_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(deer_2020_known, file.path(output_directory, "deer_2020_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(deer_2021_known, file.path(output_directory, "deer_2021_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(deer_2022_known, file.path(output_directory, "deer_2022_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(deer_2023_known, file.path(output_directory, "deer_2023_known.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
 
 ```

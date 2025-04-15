@@ -42,12 +42,23 @@ camera_names = c(file.path(input_directory, "deer_cameras_2018.txt"),
                  file.path(input_directory, "deer_cameras_2022.txt"),
                  file.path(input_directory, "deer_cameras_2023.txt"))
 
+#Read in the markocc files, order also matters here!
+markocc_files = list(file.path(input_directory, "markocc_2018.txt"),
+                 file.path(input_directory, "markocc_2019.txt"),
+                 file.path(input_directory, "markocc_2020.txt"),
+                 file.path(input_directory, "markocc_2021.txt"),
+                 file.path(input_directory, "markocc_2022.txt"),
+                 file.path(input_directory, "markocc_2023.txt"))
+
+markocc_list <- lapply(markocc_files, function(file) {
+  as.matrix(read.table(file, header = FALSE))
+})
 
 #Prepare the capthist object
 deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_multi.txt"), 
-              trapfile = camera_names,
+              trapfile = camera_names, #A list of files of camera locations for each year
               detector = "count",
-              markocc = rep(0,30),
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
               skip = 1,
               verify = TRUE)
 summary(deer_multisession, terse = TRUE)
