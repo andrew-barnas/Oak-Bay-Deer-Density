@@ -1,0 +1,634 @@
+The purpose of this script is to finalize the data preparation for density analysis in the secr package. To do this I will take the previously processed data from each year, and shape it into the specialized format required by secr. One important thing to do here is to make sure the data is prepared in a format for a multi-session model. 
+
+The main outputs of this script are:
+1) a text file of detections of known marked individuals each year
+2) a text file matrix of unmarked counts each year
+
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
+
+Load packages and data we need
+```{r}
+#Clear everything out, its probably messy from the data prep file
+rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(tidyr)
+library(lubridate)    #datetime data
+library(ggplot2)      #data visualization
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+library(sf)        #dealing with spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
+
+#Detection files
+deer_2018<-read.csv(file.path(input_directory,"marked_detections_sept_2018.csv"))
+deer_2019<-read.csv(file.path(input_directory,"marked_detections_fall_2019.csv"))
+deer_2020<-read.csv(file.path(input_directory,"marked_detections_fall_2020.csv"))
+deer_2021<-read.csv(file.path(input_directory,"marked_detections_sept_2021.csv"))
+deer_2022<-read.csv(file.path(input_directory,"marked_detections_sept_2022.csv"))
+deer_2023<-read.csv(file.path(input_directory,"marked_detections_sept_2023.csv"))
+
+#Matrix of unmarked detection counts
+unmarked_2018<-read.csv(file.path(input_directory,"unmarked_matrix_sept_2018.csv"))
+unmarked_2019<-read.csv(file.path(input_directory,"unmarked_matrix_fall_2019.csv"))
+unmarked_2020<-read.csv(file.path(input_directory,"unmarked_matrix_fall_2020.csv"))
+unmarked_2021<-read.csv(file.path(input_directory,"unmarked_matrix_sept_2021.csv"))
+unmarked_2022<-read.csv(file.path(input_directory,"unmarked_matrix_sept_2022.csv"))
+unmarked_2023<-read.csv(file.path(input_directory,"unmarked_matrix_sept_2023.csv"))
+
+#Camera operation matrix
+usage_2018<-read.csv(file.path(input_directory,"operation_matrix_sept_2018.csv"))
+usage_2019<-read.csv(file.path(input_directory,"operation_matrix_fall_2019.csv"))
+usage_2020<-read.csv(file.path(input_directory,"operation_matrix_fall_2020.csv"))
+usage_2021<-read.csv(file.path(input_directory,"operation_matrix_sept_2021.csv"))
+usage_2022<-read.csv(file.path(input_directory,"operation_matrix_sept_2022.csv"))
+usage_2023<-read.csv(file.path(input_directory,"operation_matrix_sept_2023.csv"))
+
+
+```
+
+Formatting trap names and IDs for the multisession model. We need a giant list of trap names and IDs so the model recognizes repeats throughout the year. 
+```{r}
+#So I think the first thing we need to do is create a giant thing of all the trap names
+trap_names <- data.frame(SiteID = (c(unique(usage_2018$SiteID),
+                                     unique(usage_2019$SiteID),
+                                     unique(usage_2020$SiteID), 
+                                     unique(usage_2021$SiteID),
+                                     unique(usage_2022$SiteID),
+                                     unique(usage_2023$SiteID))))%>%
+  group_by(SiteID)%>%
+  slice(1)
+
+trap_names<-data.frame(trap_names,
+           trap_id_number = seq(from = 1, to = n_distinct(trap_names$SiteID), by = 1))
+
+
+#And same with Wildlife Health ID numbers - this is everyone in the study
+id_names<-data.frame(WHID_all = c(unique(deer_2018$WHID_all),
+                                  unique(deer_2019$WHID_all),
+                                  unique(deer_2020$WHID_all), 
+                                  unique(deer_2021$WHID_all),
+                                  unique(deer_2022$WHID_all),
+                                  unique(deer_2023$WHID_all)))%>%
+  group_by(WHID_all)%>%
+  slice(1)
+
+id_names<-data.frame(id_names, 
+                     id_number = seq(from = 1, to = n_distinct(id_names$WHID_all)))
+
+
+```
+
+Now in the following I will process each of the years of data seperately. I am doing this to make it easier to track down year-specific errors. For each of these sections I format the capture files (information on detections), then the camera location files, and then information on unmarked counts. 
+
+
+FORMATTING 2018 CAPTURE FILES
+```{r}
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2018<-data.frame(occassion = seq(ymd("2018-09-01"), ymd("2018-09-30"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+#Make sure occassion is read in as a date
+deer_2018<-deer_2018%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+
+deer_2018<-merge(deer_2018, sequence_2018, by = "occassion")
+deer_2018<-merge(deer_2018, trap_names, by = "SiteID")
+deer_2018<-merge(deer_2018, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2018<-deer_2018%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+        trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2018<-usage_2018%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2018<-merge(cams_2018, trap_names, by = "SiteID")
+cams_2018<-cams_2018%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+x<-st_as_sf(cams_2018, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2018$trap.id)
+
+#And merge the new coordinates back into the cam dataframe
+cams_2018<-merge(cams_2018, coordinates, by = "trap.id")
+cams_2018<-cams_2018%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2018
+#Just need to collapse across all the occassions 
+cams_2018$usage<-apply( usage_2018[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2018$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2018
+unmarked_2018
+#Need to clean it up a bit
+unmarked_2018<-unmarked_2018%>%
+  mutate(session = "Oakbay2018")%>%
+  dplyr::select(session, 2:ncol(unmarked_2018))
+
+#Fix the column names
+colnames(unmarked_2018)<-c("session", 1:30)
+
+```
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+FORMATTING 2019 CAPTURE FILES
+```{r}
+#2019 has dates going from October 8 to November 11th, so I am going to process this as normal and then chop it down to 30 occassions afterwards
+
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2019<-data.frame(occassion = seq(ymd("2019-10-08"), ymd("2019-11-06"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+unique(deer_2019$SiteID)
+
+#Make sure occassion is read in as a date
+deer_2019<-deer_2019%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+unique(deer_2019$SiteID)
+
+#create a frame of trap names from the usage file (remember detections might not have all the traps!)
+#trap_names_2019<- data.frame(SiteID= usage_2019$SiteID,
+ #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2019$SiteID), by = 1))
+
+#Create a frame of wildlife ID numbers
+#wildlife_ids_2019<-data.frame(WHID_all = unique(deer_2019$WHID_all),
+ #                        id_number = seq(from = 1, to = n_distinct(deer_2019$WHID_all), by = 1))
+
+deer_2019<-merge(deer_2019, sequence_2019, by = "occassion")
+deer_2019<-merge(deer_2019, trap_names, by = "SiteID")
+deer_2019<-merge(deer_2019, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2019<-deer_2019%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+         trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2019<-usage_2019%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2019<-merge(cams_2019, trap_names, by = "SiteID")
+cams_2019<-cams_2019%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+#library(sf)
+x<-st_as_sf(cams_2019, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2019$trap.id)
+
+
+
+#And merge the new coordinates back into the cam dataframe
+cams_2019<-merge(cams_2019, coordinates, by = "trap.id")
+cams_2019<-cams_2019%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2019
+#Just need to collapse across all the occassions 
+cams_2019$usage<-apply( usage_2019[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2019$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2019
+unmarked_2019
+#Need to clean it up a bit
+unmarked_2019<-unmarked_2019%>%
+  mutate(session = "Oakbay2019")%>%
+  dplyr::select(session, 2:ncol(unmarked_2019))
+
+#Fix the column names
+colnames(unmarked_2019)<-c("session", 1:30)
+
+```
+
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+
+FORMATTING 2020 CAPTURE FILES
+```{r}
+#2020 has dates going from October 8 to November 11th, so I am going to process this as normal and then chop it down to 30 occassions afterwards
+
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2020<-data.frame(occassion = seq(ymd("2020-10-08"), ymd("2020-11-06"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+unique(deer_2020$SiteID)
+
+#Make sure occassion is read in as a date
+deer_2020<-deer_2020%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+unique(deer_2020$SiteID)
+
+#create a frame of trap names from the usage file (remember detections might not have all the traps!)
+#trap_names_2020<- data.frame(SiteID= usage_2020$SiteID,
+ #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2020$SiteID), by = 1))
+
+#Create a frame of wildlife ID numbers
+#wildlife_ids_2020<-data.frame(WHID_all = unique(deer_2020$WHID_all),
+ #                        id_number = seq(from = 1, to = n_distinct(deer_2020$WHID_all), by = 1))
+
+deer_2020<-merge(deer_2020, sequence_2020, by = "occassion")
+deer_2020<-merge(deer_2020, trap_names, by = "SiteID")
+deer_2020<-merge(deer_2020, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2020<-deer_2020%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+         trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2020<-usage_2020%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2020<-merge(cams_2020, trap_names, by = "SiteID")
+cams_2020<-cams_2020%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+#library(sf)
+x<-st_as_sf(cams_2020, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2020$trap.id)
+
+
+
+#And merge the new coordinates back into the cam dataframe
+cams_2020<-merge(cams_2020, coordinates, by = "trap.id")
+cams_2020<-cams_2020%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2020
+#Just need to collapse across all the occassions 
+cams_2020$usage<-apply( usage_2020[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2020$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2020
+unmarked_2020
+#Need to clean it up a bit
+unmarked_2020<-unmarked_2020%>%
+  mutate(session = "Oakbay2020")%>%
+  dplyr::select(session, 2:ncol(unmarked_2020))
+
+#Fix the column names
+colnames(unmarked_2020)<-c("session", 1:30)
+
+```
+
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+FORMATTING 2021 CAPTURE FILES
+```{r}
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2021<-data.frame(occassion = seq(ymd("2021-09-01"), ymd("2021-09-30"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+#Make sure occassion is read in as a date
+deer_2021<-deer_2021%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+
+deer_2021<-merge(deer_2021, sequence_2021, by = "occassion")
+deer_2021<-merge(deer_2021, trap_names, by = "SiteID")
+deer_2021<-merge(deer_2021, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2021<-deer_2021%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+        trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2021<-usage_2021%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2021<-merge(cams_2021, trap_names, by = "SiteID")
+cams_2021<-cams_2021%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+x<-st_as_sf(cams_2021, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2021$trap.id)
+
+#And merge the new coordinates back into the cam dataframe
+cams_2021<-merge(cams_2021, coordinates, by = "trap.id")
+cams_2021<-cams_2021%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2021
+#Just need to collapse across all the occassions 
+cams_2021$usage<-apply( usage_2021[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2021$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2018
+unmarked_2021
+#Need to clean it up a bit
+unmarked_2021<-unmarked_2021%>%
+  mutate(session = "Oakbay2021")%>%
+  dplyr::select(session, 2:ncol(unmarked_2021))
+
+#Fix the column names
+colnames(unmarked_2021)<-c("session", 1:30)
+
+```
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+
+
+FORMATTING 2022 CAPTURE FILES
+```{r}
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2022<-data.frame(occassion = seq(ymd("2022-09-01"), ymd("2022-09-30"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+#Make sure occassion is read in as a date
+deer_2022<-deer_2022%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+
+deer_2022<-merge(deer_2022, sequence_2022, by = "occassion")
+deer_2022<-merge(deer_2022, trap_names, by = "SiteID")
+deer_2022<-merge(deer_2022, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2022<-deer_2022%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+        trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2022<-usage_2022%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2022<-merge(cams_2022, trap_names, by = "SiteID")
+cams_2022<-cams_2022%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+x<-st_as_sf(cams_2022, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2022$trap.id)
+
+#And merge the new coordinates back into the cam dataframe
+cams_2022<-merge(cams_2022, coordinates, by = "trap.id")
+cams_2022<-cams_2022%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2022
+#Just need to collapse across all the occassions 
+cams_2022$usage<-apply( usage_2022[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2022$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2018
+unmarked_2022
+#Need to clean it up a bit
+unmarked_2022<-unmarked_2022%>%
+  mutate(session = "Oakbay2022")%>%
+  dplyr::select(session, 2:ncol(unmarked_2022))
+
+#Fix the column names
+colnames(unmarked_2022)<-c("session", 1:30)
+
+```
+
+
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+FORMATTING 2023 CAPTURE FILES
+```{r}
+#First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
+sequence_2023<-data.frame(occassion = seq(ymd("2023-09-01"), ymd("2023-09-30"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
+
+#Make sure occassion is read in as a date
+deer_2023<-deer_2023%>%
+  rename(occassion = date)%>%
+  mutate(occassion = ymd(occassion))
+
+
+deer_2023<-merge(deer_2023, sequence_2023, by = "occassion")
+deer_2023<-merge(deer_2023, trap_names, by = "SiteID")
+deer_2023<-merge(deer_2023, id_names, by = "WHID_all")
+
+#And then finally subset the numbered columns we want, and order them properly
+deer_2023<-deer_2023%>%
+  dplyr::select(session, 
+         id = id_number, 
+         occassion = occassion_number, 
+        trap.id = trap_id_number)
+```
+
+Formatting the trap files
+```{r}
+#Clean up the location file
+cams_2023<-usage_2023%>%
+  dplyr::select(c(SiteID, 
+           x = easting, y = northing))
+cams_2023<-merge(cams_2023, trap_names, by = "SiteID")
+cams_2023<-cams_2023%>%
+  dplyr::select(trap.id = trap_id_number, x, y)
+
+x<-st_as_sf(cams_2023, coords = c("y", "x"), crs = 4326)
+# Transform the coordinates to UTM zone 10
+x_utm <- st_transform(x, crs = "+proj=utm +zone=10 +datum=WGS84 +units=m")
+# Extract the coordinates and add trap IDs
+coordinates <- st_coordinates(x_utm)
+coordinates <- as.data.frame(coordinates)
+coordinates <- coordinates %>%
+  mutate(trap.id = cams_2023$trap.id)
+
+#And merge the new coordinates back into the cam dataframe
+cams_2023<-merge(cams_2023, coordinates, by = "trap.id")
+cams_2023<-cams_2023%>%
+  dplyr::select(-c(x, y))%>%
+  dplyr::select(trap.id, x = X, y= Y) #I dont know WHY, but the x and y come out backwards...
+
+#Now need a usage column - this is a series of 1's and 0's which tells secr whether
+#the camera was on each day. We can use the usage matrix for this
+usage_2023
+#Just need to collapse across all the occassions 
+cams_2023$usage<-apply( usage_2023[, 4:33], 1, paste, collapse = "")
+#Check to make sure that everyone is the same length
+str_length(cams_2023$usage)
+
+
+```
+
+Unmarked matrix
+```{r}
+#TU - unmarked matrix 2018
+unmarked_2023
+#Need to clean it up a bit
+unmarked_2023<-unmarked_2023%>%
+  mutate(session = "Oakbay2023")%>%
+  dplyr::select(session, 2:ncol(unmarked_2023))
+
+#Fix the column names
+colnames(unmarked_2023)<-c("session", 1:30)
+
+```
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+
+And now combining the files so that they can be exported for a multisession model
+```{r}
+
+#For the capture files, we just create a single file
+deer_multi<-rbind(deer_2018, deer_2019, deer_2020, deer_2021, deer_2022, deer_2023)
+
+write.table(deer_multi, file.path(output_directory, "deer_multi.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+#Same with the unmarked matrices
+unmarked_multi<-rbind(unmarked_2018, unmarked_2019, unmarked_2020, unmarked_2021, unmarked_2022, unmarked_2023)
+
+write.table(unmarked_multi, file.path(output_directory, "unmarked_multi.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+#And then the trap files are exported as normal
+write.table(cams_2018, file.path(output_directory, "deer_cameras_2018.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(cams_2019, file.path(output_directory, "deer_cameras_2019.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(cams_2020, file.path(output_directory, "deer_cameras_2020.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(cams_2021, file.path(output_directory, "deer_cameras_2021.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(cams_2022, file.path(output_directory, "deer_cameras_2022.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+write.table(cams_2023, file.path(output_directory, "deer_cameras_2023.txt"), sep = " ", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+
+
+```
+
+
+Fin. 
