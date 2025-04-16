@@ -1,3 +1,12 @@
+The purpose of this script is to calculate summary statistics on the detections of adults and adults with fawns. The inputs for this script are the main detectiond dataframes from each year, prior to the removal of the fawn data (as fawns were removed for further processing for density estimates).
+
+The main outputs of this script are:
+1) a summary file of the proportion detections for each group 
+2) a summary file of the number of detections for each group (could have done this together but c'est la vie)
+3) a main figure showing these values together
+
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 
 ```{r}
@@ -98,7 +107,7 @@ summary(fawn_data)
   
 #There is some inconsistency in the number of animals recorded, but I don't necessarily care about that. I am just more concerned about whether adults or fawns were PRESENT. So lets do it
 fawn_data<-fawn_data%>%
-  mutate(adults = Buck + MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex +                       Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                                 + ICDoe_2020 + TotalMarked,
+  mutate(adults = Buck + MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex + Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                       + ICDoe_2020 + TotalMarked,
          fawns = Fawn + TotalFawn)
   
 #Now at this point there should be no cases of zero adults and zero fawns, lets check
@@ -196,7 +205,7 @@ A<-A%>%
 Now some summary statistics and plots!
 ```{r}
 
-#First, how many 
+#I think at this point I want to remove outliers. 
 
 #What overall proportion for each site?
 proportion_summary<-A%>%
@@ -209,6 +218,7 @@ proportion_summary<-A%>%
 #Color pallete info: https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
 
 #And lets plot that
+set.seed(420)
 proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
   geom_bar(position = "stack", stat = "identity")+
   geom_text(aes(label = round(proportion, digits = 2)), 
@@ -260,7 +270,7 @@ camop_2019<-read.csv(file.path(camop_directory, "operation_matrix_fall_2019.csv"
 
 camop_2019<-camop_2019%>%
   rowwise()%>%
-  mutate(cam_days = sum(c_across(4:38)))%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
   select(SiteID, cam_days)%>%
   mutate(year = 2019)
 
@@ -268,7 +278,7 @@ camop_2020<-read.csv(file.path(camop_directory, "operation_matrix_fall_2020.csv"
 
 camop_2020<-camop_2020%>%
   rowwise()%>%
-  mutate(cam_days = sum(c_across(4:38)))%>%
+  mutate(cam_days = sum(c_across(4:33)))%>%
   select(SiteID, cam_days)%>%
   mutate(year = 2020)
 
@@ -335,6 +345,7 @@ detections<-detections%>%
   mutate(dets_per_effort = n_dets / cam_days)
 
 #Base plot with outliers, this will be put in the supplemental
+set.seed(420)
 relative_abundance_with_outliers<-ggplot(detections, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
   ggtitle("With Outliers")+
   geom_violin() +
@@ -384,6 +395,7 @@ detections_no_outliers<-remove_outliers(detections)
 
 
 #And a plot removing the outliers
+set.seed(420)
 relative_abundance_no_outliers<-ggplot(detections_no_outliers, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
   geom_violin() +
   geom_jitter(aes(group = detection_type), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 1), alpha = 0.6, shape = 21, stroke = 0.5, color = "black") +
@@ -414,6 +426,7 @@ ggsave(filename = "relative_abundance_no_outliers.jpeg", #name of file
 
 #########################################################################################################
 #Lets modify these slightly for stacking the figures together
+set.seed(420)
 proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
   geom_bar(position = "stack", stat = "identity")+
   geom_text(aes(label = round(proportion, digits = 2)), 
