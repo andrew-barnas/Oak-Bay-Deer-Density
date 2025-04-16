@@ -5,8 +5,8 @@ The purpose of this script is to prepare the 2021 deer detection data for popula
 2. a file of the unmarked detections in 2021
 3. a camera operability matrix for september 2021
 
-Andrew Barnas - May 2024
-andrew.f.barnas@gmail.com
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 1. Load packages and set up directories
 ```{r}
@@ -260,7 +260,7 @@ deer_2021<-deer_2021%>%
 unique(deer_2021$SiteID) %in% camloc$SiteID
 unique(deer_2021$SiteID) %in% cam_deploy$SiteID
 
-#What the fuck who is still missing??
+#What the heck who is still missing??
 deer_2021%>%
   filter(!SiteID %in% unique(cam_deploy$SiteID))%>%
   group_by(SiteID)%>%

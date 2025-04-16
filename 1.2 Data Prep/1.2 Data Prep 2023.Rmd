@@ -4,8 +4,8 @@ The purpose of this script is to prepare the 2023 deer detection data for popula
 2. a file of the unmarked detections in 2023
 3. a camera operability matrix for september 2023
 
-Andrew Barnas - May2024
-andrew.f.barnas@gmail.com
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 
 

@@ -1,12 +1,12 @@
-The purpose of this script is to prepare the 2021 deer detection data for population density estimation in SECR. To do this I will use three input files on deer detections, camera locations, and camera deployment. This script involves general error checking, and the manipulation of data into a required format.
+The purpose of this script is to prepare the 2022 deer detection data for population density estimation in SECR. To do this I will use three input files on deer detections, camera locations, and camera deployment. This script involves general error checking, and the manipulation of data into a required format.
 
 
-1. a file of the marked detections in 2021
-2. a file of the unmarked detections in 2021
-3. a camera operability matrix for september 2021
+1. a file of the marked detections in 2022
+2. a file of the unmarked detections in 2022
+3. a camera operability matrix for september 2022
 
-Andrew Barnas - May 2024
-andrew.f.barnas@gmail.com
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 1. Load packages and set up directories
 ```{r}

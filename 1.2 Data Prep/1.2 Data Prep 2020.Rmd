@@ -3,8 +3,8 @@ The purpose of this script is to prepare the 2020 deer detection data for densit
 2. a file of the unmarked detections in 2020
 3. a camera operability matrix for October 2020
 
-Andrew Barnas - April 2024
-andrew.f.barnas@gmail.com
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 1. Load packages, setup directories, and read in the files we need
 ```{r}
@@ -126,7 +126,7 @@ max(deer_2020$datetime)
 #and at this point I only want to deal with cameras deployed from OCTOBER to November
 #So to do this I want to figure out if the start-end interval exists within the september interval
 #First create an interval for September 2018
-october_november_interval <-lubridate::interval(start = "2020-10-08", end = "2020-11-11")
+october_november_interval <-lubridate::interval(start = "2020-10-08", end = "2020-11-06")
 #And then figure out if the start-end date interval overlaps September
 #This is the list of cameras that we could possibly have a detection in September 2021
 cam_deploy<-cam_deploy%>%
@@ -142,13 +142,13 @@ cam_deploy<-cam_deploy%>%
 camop_2020_figure<-ggplot(cam_deploy%>%
   mutate(new_start = case_when(start_date <= ymd("2020-10-08") ~ ymd("2020-10-08"),
                                start_date > ymd("2020-10-08") ~ start_date),
-         new_end = case_when(end_date > ymd("2020-11-11") ~ ymd("2020-11-11"),
-                               end_date < ymd("2020-11-11") ~ end_date)), 
+         new_end = case_when(end_date >= ymd("2020-11-06") ~ ymd("2020-11-06"),
+                               end_date < ymd("2020-11-06") ~ end_date)), 
   aes(y = SiteID))+
   geom_segment(aes(x = new_start, xend = new_end,
                    y = SiteID, yend=SiteID))+
   geom_vline(xintercept = ymd("2020-10-08"), linetype = "dashed", color = "red", linewidth = 1)+
-  geom_vline(xintercept = ymd("2020-11-11"), linetype = "dashed", color = "red", linewidth = 1)+
+  geom_vline(xintercept = ymd("2020-11-06"), linetype = "dashed", color = "red", linewidth = 1)+
   xlab("Date")+
   ylab("Site ID")+
   ggtitle("Fall 2020")
@@ -171,8 +171,8 @@ ggsave(filename = "camera_operability_matrix_2020.jpeg", #name of file
 A<-cam_deploy%>%
   mutate(new_start = case_when(start_date <= ymd("2020-10-08") ~ ymd("2020-10-08"),
                                start_date > ymd("2020-10-08")  ~ start_date),
-         new_end = case_when(end_date <= ymd("2020-11-11") ~ end_date,
-                               end_date > ymd("2020-11-11")  ~ ymd("2020-11-11")),
+         new_end = case_when(end_date <= ymd("2020-11-06") ~ end_date,
+                               end_date > ymd("2020-11-06")  ~ ymd("2020-11-06")),
          original_n_days = as.numeric(difftime(new_end, new_start, units = "days") + 1))
 
 #Quick loop to fix this?
@@ -366,7 +366,7 @@ cam_deploy<-merge(date_site_expanded,cam_deploy,all.x = T)
 #And replace all the NAs with zeros to indicate it was not active on that day
 cam_deploy<-cam_deploy %>%
   tidyr::spread(Date, value = active)%>%
-  select(c(1,`2020-10-08`:`2020-11-11`))%>%
+  select(c(1,`2020-10-08`:`2020-11-06`))%>%
   replace(is.na(.), 0)
 
 
@@ -390,7 +390,7 @@ n_distinct(cam_deploy$SiteID) #36 sites
 #Remove rows where date is outside of the 2020 Fall window
 deer_2020<-deer_2020 %>%
   #filter(datetime >= "2018-09-01" & datetime < "2018-10-01")
-  filter(date(datetime) >= "2020-10-08" & date(datetime) < "2020-11-11")
+  filter(date(datetime) >= "2020-10-08" & date(datetime) < "2020-11-07")
 
 colnames(deer_2020)
 
@@ -628,7 +628,7 @@ deer_2020_unmarked<-deer_2020_unmarked%>%
 A<-cam_deploy%>%
   select(-c(easting, northing))%>%
   rename(trap.id = SiteID)%>%
-  gather(key = "occassion", value = "active", 2:36)
+  gather(key = "occassion", value = "active", 2:31)
 
 #A<-gather(data = B, key = "occassion", value = "active", 2:31)
 
