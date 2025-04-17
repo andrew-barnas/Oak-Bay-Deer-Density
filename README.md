@@ -69,13 +69,23 @@ This folder contains scripts to process raw camera data into summarized detectio
 * <span style = "color: #7B0F17;">**operation_matrix_september/fall_XXXX.csv**</span>: A year specific matrix of camera operability for each of the 30 sampling occassions. Note differences from september vs fall files, fall indicates the sampling span from October 8th to November 6th.
 * <span style = "color: #7B0F17;">**unmarked_matrix_fall_XXXX.csv**</span>: A year specific matrix of the counts of unmarked deer for each of the 30 sampling occassions. Note differences from september vs fall files, fall indicates the sampling span from October 8th to November 6th.
 
-**_outputs_**
+**_figures_**
 * <span style = "color: #7B0F17;">**camera_operability_matrix_XXXX.jpeg**</span>: A year specific figure visually representing the camera operability for each camera
 <hr>
 
-WHAT IS GOING ON IN EACH FOLDER
-1. DATA PREP - preparing data seperately for each year
+**1.3 Relative Abundance Calculations** 
+This folder contains scripts to process detection data to obtain relative abundance of fawns and adults. The inputs for this script are the main detectiond dataframes from each year, prior to the removal of the fawn data (as fawns were removed for further processing for density estimates).
 
-FILE STRUCTURE/INVENTORY
+**_inputs_**
+* <span style = "color: #7B0F17;">**deer_XXX_with_fanwscsv**</span>: a year specific dataframe of deer detection data which still contains fawns
 
-1. DATA PREP 
+**_outputs_**
+* <span style = "color: #7B0F17;">**mean_detection_summary.csv**</span>: a summarized csv of the proportion of detetctions per camera of just adult deer and then adult deer with fawns for each year
+* <span style = "color: #7B0F17;">**proportion_summary.csv**</span>: a summarized csv of the number proportion of detetctions overall of just adult deer and then adult deer with fawns for each year
+
+**_figures_**
+* <span style = "color: #7B0F17;">**proportion_detections.jpeg**</span>: The overall proportion of detections containing lone adults and adults with fawns from 2018-2023
+* <span style = "color: #7B0F17;">**relative_abundance_no_outliers.jpeg**</span>: Proportion of detections of lone adults with and without fawns for each camera from 2018-2023. Outliers removed.
+* <span style = "color: #7B0F17;">**relative_abundance_with_outliers.jpeg**</span>: Proportion of detections of lone adults with and without fawns for each camera from 2018-2023. Outliers retained.
+* <span style = "color: #7B0F17;">**stacked_figure.jpeg**</span>: A multipanel plot of proportion_detections and relative_abundance_no_outliers. Figure 3 in the main maunscript.
+<hr>
