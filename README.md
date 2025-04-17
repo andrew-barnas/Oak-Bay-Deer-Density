@@ -27,6 +27,20 @@ Details for the Oak Bay urban deer program can be found on the Urban Wildlife St
 
 ### DATA & FILE OVERVIEW
 This repository works on a linear pipeline format, whereby the initial data files are processed in 1.1 Assigning WHIDs and the outputs of that section are then used as the inputs for 1.2 Data Prep, and so on. For each step, the relevant R markdown files are located within main folder. However there is a singular master script at the start which will run all of the relevant project scripts. This was done to avoid having to go into the project and manually run every script if someone wanted to run the project from top to bottom. 
+
+*File and Folder list*
+* <span style = "color: #7B0F17;">**Master_script.RMD**</span>: Markdown file for running all code in the project top to bottom
+* <span style = "color: #7B0F17;">**1.1-Assigning-WHID.HTML**</span>: HTML file for 1.1 Assigning WHID
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2018.HTML**</span>: HTML file for 1.2 Data Prep 2018
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2019.HTML**</span>: HTML file for 1.2 Data Prep 2019
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2020.HTML**</span>: HTML file for 1.2 Data Prep 2020
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2021.HTML**</span>: HTML file for 1.2 Data Prep 2021
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2022.HTML**</span>: HTML file for 1.2 Data Prep 2022
+* <span style = "color: #7B0F17;">**1.2-Data-Prep-2023.HTML**</span>: HTML file for 1.2 Data Prep 2023
+* <span style = "color: #7B0F17;">**1.3-Relative-Abundance-Calculations.HTML**</span>: HTML file for 1.3 Relative Abundance Calculations
+* <span style = "color: #7B0F17;">**2.1-Multisession-Data-Prep.HTML**</span>: HTML file for 2.1 Multisession Data Prep
+* <span style = "color: #7B0F17;">**3.1-Multisession-Model.HTML**</span>: HTML file for 3.1 Multisession Model
+
 <hr>
 
 **1.1 Assigning WHIDs** 
