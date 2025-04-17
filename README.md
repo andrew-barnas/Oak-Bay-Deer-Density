@@ -96,18 +96,6 @@ This folder contains scripts to process detection data to obtain relative abunda
 **2. SECR Prep** 
 This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
 
-**_outputs_**
-* <span style = "color: #7B0F17;">**deer_cameras_XXXX.txt**</span>: a year specific text file showing the operability (1/0) on each sampling occassion
-* <span style = "color: #7B0F17;">**deer_multi.txt**</span>: a text file of detections of marked deer at cameras from 2018-2023. Specially formatted for multisession analysis.
-* <span style = "color: #7B0F17;">**unmarked_multi.txt**</span>: a text file of counts of unmarked deer detections at cameras from 2018 -2023. Specially formatted for multisession analysis.
-
-**_archvied_scripts_**
-This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
-<hr>
-
-**2. SECR Prep** 
-This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
-
 *File and Folder list*
 * <span style = "color: #7B0F17;">**2.1 Multisession Data Prep.RMD**</span>: Markdown file for further processing data into specialized format needed for SECR.
 
@@ -120,9 +108,31 @@ This folder contains script to take the previously processed detection data and 
 This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
 <hr>
 
-**2. SECR Prep** 
-This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
+**3. SECR Models** 
+This folder contains the script to run the multisession spatial mark resight model that produces density estimates from 2018-2013. The inputs for this section are the outputs from 2.1 SECR Prep, but also uses other manually created inputs for habitat masks. 
 
 *File and Folder list*
-* <span style = "color: #7B0F17;">**2.1 Multisession Data Prep.RMD**</span>: Markdown file for further processing data into specialized format needed for SECR.
+* <span style = "color: #7B0F17;">**3.1 Multisession Model.RMD**</span>: Markdown file for running the multisession model.
+
+**_shapefiles_**
+Too exhaustive to list everything. Sufficient to say these are the shapefiles exported from ArcMap of the camera locations for each study year (2018-2023)
+
+  **_outputs_**
+* <span style = "color: #7B0F17;">**density_estimates.csv**</span>: a csv of density estimates for each study year 2018-2023
+* <span style = "color: #7B0F17;">**deer_multisession.RData**</span>: the initial multisession R object calculated prior to adjustments from diagnostics
+* <span style = "color: #7B0F17;">**multisession_fit_suggested_buffer**</span>: the subsequent multisession R object calculated based off the initial estimate, adjusted for a better buffer and overdispersion. Density estimates obtained from this object. 
+
+**_figures_**
+* <span style = "color: #7B0F17;">**OakbayXXX_tracks.jpeg**</span>: a summary image of detections of marked individuals at each camera
+* <span style = "color: #7B0F17;">**esa_plots.jpeg**</span>: a diagnostic plot from the secr package showing the recommended buffer size to use
+* <span style = "color: #7B0F17;">**density_figure.jpeg**</span>: Estimated density and confidence intervals for each year 2018-2023. This is Figure 3 in the manuscript.
+<hr>
+
+Fin.
+
+**_archvied_scripts_**
+This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
+<hr>
+
+
 
