@@ -33,11 +33,17 @@ This repository works on a linear pipeline format, whereby the initial data file
 This folder contains code to assign Wildlife Health IDs to the raw detection data featuring information on deer collar and ear tags. This is primarily being done for the October detection data for 2019 and 2020. The reason this is being done separately is in these two years, deer were being continually marked and added to the population, so we elected to produce density results for the month of October instead of September (as was done for the other study years). The original analyst who processed the other years of data is unavailable for more data processing, so this step is being done separately using his code to the best of my ability (Barnas). The main outputs of this is a single large dataframe with WHIDs that will be used in the next step.  
 *File and Folder list*
 * <span style = "color: #7B0F17;">**1.1 Assigning WHID.RMD**</span>: Markdown file for assigning Wildlife Health IDs
+  
 **_inputs_**
-* <span style = "color: #7B0F17;">**Control_Markings.csv**</span>: Large file of raw camera data from 2018 to 2023 (to be updated with october data for 2019 and 2020- May 1/24
+* <span style = "color: #7B0F17;">**Control_Markings.csv**</span>: Manually constructed csv of WHIDs for the control group tagged in 2018
+* <span style = "color: #7B0F17;">**IC_Markings.csv**</span>: Manually constructed csv of WHIDs for the IC treated deer from 2019-2020.
+* <span style = "color: #7B0F17;">**October2019.csv**</span>: Raw camera detection data from October 2019. This was tagged seperately due to logistic constraints on sampling (see main manuscript)
+* <span style = "color: #7B0F17;">**October2020.csv**</span>: Raw camera detection data from October 2020. This was tagged seperately due to logistic constraints on sampling (see main manuscript)
+* <span style = "color: #7B0F17;">**September18-23_with_whid.csv**</span>: the main large dataframe of raw detection data from 2018-2023 without assigned WHIDs for 2019 and 2020. Note that the detection data from 2019 and 2020 is present in this frame, but we needed a different timeframe so we replace it with the October datasets described above.
+* <span style = "color: #7B0F17;">**urban_deer_mortalities.csv**</span>: Manually constructed csv of known moralities of marked deer from 2018-2023. Note this is not used in any of the current analyses but provides good metadata. 
 
 **_outputs_**
-* <span style = "color: #7B0F17;">**main_dataframe_with_whid.csv**</span>: Descriptive statistics on the number of cameras and days of operability from 2018
+* <span style = "color: #7B0F17;">**main_dataframe_with_whid.csv**</span>: The main large dataframe of detection data from 2018-2023 with assigned WHIDs. This is a very large dataframe with many columns, which are described within the code
 <hr>
 
 **2. SECR Prep** 
