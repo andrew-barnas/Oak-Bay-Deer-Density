@@ -1,0 +1,28 @@
+The purpose of this script is to run all of the data processing and modeling scripts from one place. This way if someone wanted to go in an run the analysis from top to bottom, it would save the user having to go into each sub-folder and run each script manually. 
+
+
+Run the scripts.
+```{r}
+library(rmarkdown)
+
+#Because we are obviously curious to see how long this whole thing would take!
+start_time<-Sys.time()
+
+render("1.1 Assigning WHIDs/1.1 Assigning WHID.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2018.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2019.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2020.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2021.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2022.Rmd")
+render("1.2 Data Prep/1.2 Data Prep 2023.Rmd")
+render("1.3 Relative Abundance/1.3 Relative Abundance Calculations.Rmd")
+render("2.1 SECR Prep/2.1 Multisession Data Prep.Rmd")
+render("3.1 SECR Models/3.1 Multisession Model.Rmd")
+
+
+end_time<-Sys.time()
+
+
+#How long did it take??
+print(paste("Everything completed in", round(difftime(end_time, start_time, units = "mins"), digits = 1), "minutes"))
+```
