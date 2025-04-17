@@ -76,8 +76,11 @@ This folder contains scripts to process raw camera data into summarized detectio
 **1.3 Relative Abundance Calculations** 
 This folder contains scripts to process detection data to obtain relative abundance of fawns and adults. The inputs for this script are the main detectiond dataframes from each year, prior to the removal of the fawn data (as fawns were removed for further processing for density estimates).
 
+*File and Folder list*
+* <span style = "color: #7B0F17;">**1.3 Relative Abundance Calculations.RMD**</span>: Markdown file for combining and processing each years data to estimate the relative abundance of lone adults and adults with fawns.
+  
 **_inputs_**
-* <span style = "color: #7B0F17;">**deer_XXX_with_fanwscsv**</span>: a year specific dataframe of deer detection data which still contains fawns
+* <span style = "color: #7B0F17;">**deer_XXX_with_fanws.csv**</span>: a year specific dataframe of deer detection data which still contains fawns
 
 **_outputs_**
 * <span style = "color: #7B0F17;">**mean_detection_summary.csv**</span>: a summarized csv of the proportion of detetctions per camera of just adult deer and then adult deer with fawns for each year
@@ -89,3 +92,37 @@ This folder contains scripts to process detection data to obtain relative abunda
 * <span style = "color: #7B0F17;">**relative_abundance_with_outliers.jpeg**</span>: Proportion of detections of lone adults with and without fawns for each camera from 2018-2023. Outliers retained.
 * <span style = "color: #7B0F17;">**stacked_figure.jpeg**</span>: A multipanel plot of proportion_detections and relative_abundance_no_outliers. Figure 3 in the main maunscript.
 <hr>
+
+**2. SECR Prep** 
+This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
+
+**_outputs_**
+* <span style = "color: #7B0F17;">**deer_cameras_XXXX.txt**</span>: a year specific text file showing the operability (1/0) on each sampling occassion
+* <span style = "color: #7B0F17;">**deer_multi.txt**</span>: a text file of detections of marked deer at cameras from 2018-2023. Specially formatted for multisession analysis.
+* <span style = "color: #7B0F17;">**unmarked_multi.txt**</span>: a text file of counts of unmarked deer detections at cameras from 2018 -2023. Specially formatted for multisession analysis.
+
+**_archvied_scripts_**
+This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
+<hr>
+
+**2. SECR Prep** 
+This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
+
+*File and Folder list*
+* <span style = "color: #7B0F17;">**2.1 Multisession Data Prep.RMD**</span>: Markdown file for further processing data into specialized format needed for SECR.
+
+**_outputs_**
+* <span style = "color: #7B0F17;">**deer_cameras_XXXX.txt**</span>: a year specific text file showing the operability (1/0) on each sampling occassion
+* <span style = "color: #7B0F17;">**deer_multi.txt**</span>: a text file of detections of marked deer at cameras from 2018-2023. Specially formatted for multisession analysis.
+* <span style = "color: #7B0F17;">**unmarked_multi.txt**</span>: a text file of counts of unmarked deer detections at cameras from 2018 -2023. Specially formatted for multisession analysis.
+
+**_archvied_scripts_**
+This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
+<hr>
+
+**2. SECR Prep** 
+This folder contains script to take the previously processed detection data and further process it into a specialized format for the SECR package in R. This combines the data from each year and produces text files formatted for a multisession model. The inputs for this folder are the outputs from 1.2 Data Prep. 
+
+*File and Folder list*
+* <span style = "color: #7B0F17;">**2.1 Multisession Data Prep.RMD**</span>: Markdown file for further processing data into specialized format needed for SECR.
+
