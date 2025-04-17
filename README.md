@@ -114,6 +114,9 @@ This folder contains the script to run the multisession spatial mark resight mod
 *File and Folder list*
 * <span style = "color: #7B0F17;">**3.1 Multisession Model.RMD**</span>: Markdown file for running the multisession model.
 
+**_archvied_scripts_**
+This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
+
 **_shapefiles_**
 Too exhaustive to list everything. Sufficient to say these are the shapefiles exported from ArcMap of the camera locations for each study year (2018-2023)
 
@@ -130,9 +133,7 @@ Too exhaustive to list everything. Sufficient to say these are the shapefiles ex
 
 Fin.
 
-**_archvied_scripts_**
-This folder contains several old scripts for processing the data during initial development. I have retained these as they may come in handy in the future for different versions of SMR models if needed. 
-<hr>
+
 
 
 
