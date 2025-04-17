@@ -27,47 +27,17 @@ Details for the Oak Bay urban deer program can be found on the Urban Wildlife St
 
 ### DATA & FILE OVERVIEW
 This repository works on a linear pipeline format, whereby the initial data files are processed in 1.1 Assigning WHIDs and the outputs of that section are then used as the inputs for 1.2 Data Prep, and so on. For each step, the relevant R markdown files are located within main folder. However there is a singular master script at the start which will run all of the relevant project scripts. This was done to avoid having to go into the project and manually run every script if someone wanted to run the project from top to bottom. 
+<hr>
 
-
-**1. Data Prep** 
-This folder contains scripts to process raw camera data into summarized detections of marked and unmarked individuals, as well as details on camera operability. Data for each year is processed seperately in scripts named, "1. Data Prep XXXX". Minor differences in data collection each year, along with differences in review, neccesitate seperate processing just to make life easier. The outputs from each year are produced seperately, to be combined in future steps
-
-
+**1.1 Assigning WHIDs** 
+This folder contains code to assign Wildlife Health IDs to the raw detection data featuring information on deer collar and ear tags. This is primarily being done for the October detection data for 2019 and 2020. The reason this is being done separately is in these two years, deer were being continually marked and added to the population, so we elected to produce density results for the month of October instead of September (as was done for the other study years). The original analyst who processed the other years of data is unavailable for more data processing, so this step is being done separately using his code to the best of my ability (Barnas). The main outputs of this is a single large dataframe with WHIDs that will be used in the next step.  
 *File and Folder list*
-* <span style = "color: #7B0F17;">**1. Data Prep 2018.RMD**</span>: Markdown file for processing 2018 data
-* <span style = "color: #7B0F17;">**1. Data Prep 2019.RMD**</span>: Markdown file for processing 2019 data
-* <span style = "color: #7B0F17;">**1. Data Prep 2020.RMD**</span>: Markdown file for processing 2020 data
-* <span style = "color: #7B0F17;">**1. Data Prep 2021.RMD**</span>: Markdown file for processing 2021 data
-* <span style = "color: #7B0F17;">**1. Data Prep 2022.RMD**</span>: Markdown file for processing 2022 data
-* <span style = "color: #7B0F17;">**1. Data Prep 2023.RMD**</span>: Markdown file for processing 2023 data
-
+* <span style = "color: #7B0F17;">**1.1 Assigning WHID.RMD**</span>: Markdown file for assigning Wildlife Health IDs
 **_inputs_**
-* <span style = "color: #7B0F17;">**September18-23_with_whid.csv**</span>: Large file of raw camera data from 2018 to 2023 (to be updated with october data for 2019 and 2020- May 1/24)
-* <span style = "color: #7B0F17;">**UWSS_Deployment_Data_updatedJuly27-2023.csv**</span>: File of deployment data for individual cameras. Contains information on start and end dates for cameras, and changes to camera locations indicated by site_name_a, site_name_b, etc.
-* <span style = "color: #7B0F17;">**UWSS_StationCovariates_updatedMay2023.csv**</span>: File of location and other metadata surrounding invidual camera sites
-* <span style = "color: #7B0F17;">**metada**</span>: Folder of ncillary data relevant to the project and data organization, but not used directly within R code
-  * *ActiveCameras_Sep2018-2022_updated_July26-2023* - List of active cameras within each month. This is a summarized list based off field notes and knowledge of the system. Note the different months (September vs October) for each year
-  * *UWSS_StudyDeer-Markings-Mortalities_updatedMay2023* - Folder of information on captures and known mortalities of individuals. May be used in future versions of models to inform known removals from population. 
-
-* <span style = "color: #7B0F17;">**archived**</span>: Older versions of data that are no longer used. May have contained errors that needed manual adjustments.
-  * Not listing the individual files here as they are plentiful and not to be used. 
+* <span style = "color: #7B0F17;">**Control_Markings.csv**</span>: Large file of raw camera data from 2018 to 2023 (to be updated with october data for 2019 and 2020- May 1/24
 
 **_outputs_**
-* <span style = "color: #7B0F17;">**camera_operability_summary_2018.csv**</span>: Descriptive statistics on the number of cameras and days of operability from 2018
-* <span style = "color: #7B0F17;">**camera_operability_summary_2019.csv**</span>: Descriptive statistics on the number of cameras and days of operability from 2019
-
-* <span style = "color: #7B0F17;">**operation_matrix_sept_2018.csv**</span>: Camera operability matrix for Sep 1 - 30, 2018
-* <span style = "color: #7B0F17;">**operation_matrix_oct_2019.csv**</span>: Camera operability matrix for Oct 1 - 31, 2019
-
-* <span style = "color: #7B0F17;">**unmarked_matrix_sept_2018.csv**</span>: Matrix of counts of independent detections of unmarked individuals at each camera for Sep 1 - 30, 2018
-  
-* <span style = "color: #7B0F17;">**marked_detections_sept_2018.csv**</span>: List of independent detections of marked indviduals at each camera for Sep 1 - 30, 2018
-
-
-**_figures_**
-* <span style = "color: #7B0F17;">**camera_operability_matrix_2018.jpeg**</span>: camera operability figure for September 2018
-* <span style = "color: #7B0F17;">**camera_operability_matrix_2019.jpeg**</span>: camera operability figure for October 2019
-
+* <span style = "color: #7B0F17;">**main_dataframe_with_whid.csv**</span>: Descriptive statistics on the number of cameras and days of operability from 2018
 <hr>
 
 **2. SECR Prep** 
@@ -83,7 +53,7 @@ JAKE
 SANDRA
 ANDREW
 MACG?
-
+This folder contains scripts to process raw camera data into summarized detections of marked and unmarked individuals, as well as details on camera operability. Data for each year is processed seperately in scripts named, "1. Data Prep XXXX". Minor differences in data collection each year, along with differences in review, neccesitate seperate processing just to make life easier. The outputs from each year are produced seperately, to be combined in future steps
 
 WHAT IS GOING ON IN EACH FOLDER
 1. DATA PREP - preparing data seperately for each year
