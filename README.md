@@ -5,7 +5,7 @@ Data analysis repository for the Oak Bay black-tailed deer density project. The 
 
 ### GENERAL INFORMATION
 **Project Information**
-Details for the Oak Bay urban deer program can be found on the Urban Wildlife Stewardship Society [website](https://uwss.ca/)
+Details for the Oak Bay urban deer program can be found on the Urban Wildlife Stewardship Society [website](https://uwss.ca/) and on the ACME lab [website](http://www.acmelab.ca/esquimaltdeer.html)
 
  **Principal Investigator Contact Information**  
  Name: Jason T. Fisher, PhD   
@@ -23,9 +23,11 @@ Details for the Oak Bay urban deer program can be found on the Urban Wildlife St
  Name: Andrew Barnas, PhD  
  Institution: University of Victoria  
  Address: 3800 Finnerty Rd, Victoria, BC V8P 5C2  
- Email: [andrew.f.barnas@gmail.com](mailto:andrew.f.barnas@gmail.com) 
+ Email: [andrewbarnas@uvic.ca](mailto:andrewbarnas@uvic.ca) 
 
 ### DATA & FILE OVERVIEW
+This repository works on a linear pipeline format, whereby the initial data files are processed in 1.1 Assigning WHIDs and the outputs of that section are then used as the inputs for 1.2 Data Prep, and so on. For each step, the relevant R markdown files are located within main folder. However there is a singular master script at the start which will run all of the relevant project scripts. This was done to avoid having to go into the project and manually run every script if someone wanted to run the project from top to bottom. 
+
 
 **1. Data Prep** 
 This folder contains scripts to process raw camera data into summarized detections of marked and unmarked individuals, as well as details on camera operability. Data for each year is processed seperately in scripts named, "1. Data Prep XXXX". Minor differences in data collection each year, along with differences in review, neccesitate seperate processing just to make life easier. The outputs from each year are produced seperately, to be combined in future steps
