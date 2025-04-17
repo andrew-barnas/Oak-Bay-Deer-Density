@@ -1,6 +1,11 @@
-TEST DATA PREP FOR MULTI SESSION 
+The purpose of this script is to finalize the data preparation for density analysis in the secr package. To do this I will take the previously processed data from each year, and shape it into the specialized format required by secr. One important thing to do here is to make sure the data is prepared in a format for a multi-session model. 
 
-TESTING WITH 2020 AND 2021 BECAUSE THEY HAVE DIFFERING NUMBER OF DAYS AND I NEED TO FIGURE OUT HOW TO RECONCILE
+The main outputs of this script are:
+1) a text file of detections of known marked individuals each year
+2) a text file matrix of unmarked counts each year
+
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 Load packages and data we need
 ```{r}
@@ -19,8 +24,7 @@ library(sf)        #dealing with spatial data
 
 #Set the working directories to read in the files we need
 input_directory<-reproducible::checkPath(file.path(getwd(), "1.2 Data Prep/outputs"), create = TRUE)
-output_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs/multisession"), create = TRUE)
-mortality_data<-reproducible::checkPath(file.path(getwd(), "1.1 Assigning WHIDs/inputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
 
 #Detection files
 deer_2018<-read.csv(file.path(input_directory,"marked_detections_sept_2018.csv"))
@@ -46,12 +50,10 @@ usage_2021<-read.csv(file.path(input_directory,"operation_matrix_sept_2021.csv")
 usage_2022<-read.csv(file.path(input_directory,"operation_matrix_sept_2022.csv"))
 usage_2023<-read.csv(file.path(input_directory,"operation_matrix_sept_2023.csv"))
 
-#Mortality Data
-mortality<-read.csv(file.path(mortality_data, "ubran_deer_mortalities.csv"), header = TRUE)
 
 ```
 
-FORMATTING TRAP NAMES FOR ALL
+Formatting trap names and IDs for the multisession model. We need a giant list of trap names and IDs so the model recognizes repeats throughout the year. 
 ```{r}
 #So I think the first thing we need to do is create a giant thing of all the trap names
 trap_names <- data.frame(SiteID = (c(unique(usage_2018$SiteID),
@@ -83,145 +85,8 @@ id_names<-data.frame(id_names,
 
 ```
 
-Prepping the mortality data- There are two things that need to be done here. For every individual in the study, I need to indicate the year they were first available to be detected, and then a cutoff date for when they were no longer available. This will involve making a matrix for each session/year, with a row of data for each ordered individual id, and a column for each occassion (1 to 30). 
-```{r}
-#First, I can just clean up the mortality data a little
-mortality<-mortality%>%
-  dplyr::select(WHID_all = WHID,
-                mortality_date = Mortality.Date)%>%
-  group_by(WHID_all)%>%
-  summarise(mortality_date = max(mortality_date))
+Now in the following I will process each of the years of data seperately. I am doing this to make it easier to track down year-specific errors. For each of these sections I format the capture files (information on detections), then the camera location files, and then information on unmarked counts. 
 
-#No doubles? Good. 
-mortality%>%
-  group_by(WHID_all)%>%
-  summarise(n_obs = n())%>%
-  filter(n_obs > 1)
-
-
-  
-
-#Removing that one observation that has no date, I can't use this.
-mortality<-mortality%>%
-  mutate(mortality_date = case_when(str_detect(mortality_date, "not dead") ~ "",
-                                    TRUE ~ mortality_date))
-
-
-#One quick thing here, the replacements have capital Rs, but should fix that
-mortality<-mortality%>%
-  mutate(WHID_all = str_replace(WHID_all, pattern = "R", replacement = "r"))
-
-#First we need to rename the WHID_all category
-mortality<-mortality%>%
-  mutate(WHID_all = str_c("['", WHID_all, "']"))
-
-#####################################################################
-#Ok now that its cleaned
-#First, who do we have detection data for that we have not included in the mortality data?
-id_names%>%
-  filter(!WHID_all %in% unique(mortality$WHID_all))
-
-#Alright diving back into the original files, it looks like these two where originally a different collar so I can rename them
-id_names<-id_names%>%
-  mutate(WHID_all = case_when(str_detect(WHID_all, pattern = "20-0129") ~ "['18-11402']",
-                              str_detect(WHID_all, pattern = "20-0134") ~ "['18-12479']",
-                              TRUE ~ WHID_all))
-
-#Are there any mortality names that are not in the id_names? yes obviously, they were not detected.
-mortality%>%
-  filter(!WHID_all %in% unique(id_names$WHID_all))
-
-#Ok here is what I am going to do, lets quickly make a new id names file. This is based off of everyone.
-id_names<-data.frame(mortality, 
-                     id_number = seq(from = 1, to = n_distinct(mortality$WHID_all)))%>%
-  select(WHID_all, id_number)
-#######################################################################################################
-#So now we can start making the matrices for each year
-
-#Ok so now what I need is a sort of start date for everyone.
-#I guess what I can do is make the start date Jan 1st for each year indicated by the number?
-mortality<-mortality%>%
-  mutate(first_date = case_when(str_detect(WHID_all, "18-") ~ "01-Jan-2018",
-                                str_detect(WHID_all, "19-") ~ "01-Jan-2019",
-                                str_detect(WHID_all, "20-") ~ "01-Jan-2020"))%>%
-  relocate(WHID_all, first_date, mortality_date)
-  #If there is no confirmed death date, we assume they are in the population forever
-mortality[mortality ==""]<-"01-Jan-2025"
-
-####################################################################################################
-#Ok so now for each year what I need to do is figure out what days of the sampling period these deer were available for detection
-#read in the date times
-#Need to do this step ahead of time because of that one NA that wont go away
-A<-mortality%>%
-  mutate(mortality_date = case_when(WHID_all == "['20-0133']" ~ "2025-01-01",
-                                    TRUE ~ mortality_date))
-
-#And now we can parse in the dates
-A<-A%>%
-  mutate(first_date = dmy(first_date),
-         mortality_date = ymd(parse_date_time(mortality_date, orders = c("dmy", "ymd"))))
-
-#Lets replace that one that didn't parse - just make it the latest date
-#I hate doing this manually but
-
-
-#Ok, this makes a sequence of dates for the whole study period. We want to use this sequence of dates, alongside the sequence of dates that each deer was available to be sighted, and indicate whether a deer could have been sighted within the sequence of dates
-earliest_date<-min(A$first_date)
-latest_date<-max(A$mortality_date)
-date.sequence<-seq(earliest_date, latest_date, by = "day")
-
-#Now lets create a sequence of dates for each deer
-B<-A%>%
-  rowwise()%>%
-  do(data.frame(WHID_all = .$WHID_all, date = seq(.$first_date, .$mortality_date, by = "day")))%>%
-  mutate(available = 1)
-
-#And now we make a dataframe that includes every combination of the possible days, and the days the deer were available. 
-date_deer_expanded<-expand.grid(date = date.sequence, WHID_all = unique(A$WHID_all))
-#And now merge them, add in zeros for not being available
-B<-merge(date_deer_expanded, B, by = c("WHID_all", "date"), all.x = TRUE)%>%
-  replace(is.na(.), 0)
-
-#Ok and so now, I think I can just make the matrices for each year
-markocc_2018<-B%>%
-  filter(date >= ymd("2018-09-01") & date <= ymd("2018-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-markocc_2019<-B%>%
-  filter(date >= ymd("2019-10-08") & date <= ymd("2019-11-06"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-markocc_2020<-B%>%
-  filter(date >= ymd("2020-10-08") & date <= ymd("2020-11-06"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-markocc_2021<-B%>%
-  filter(date >= ymd("2021-09-01") & date <= ymd("2021-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-markocc_2022<-B%>%
-  filter(date >= ymd("2022-09-01") & date <= ymd("2022-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-markocc_2023<-B%>%
-  filter(date >= ymd("2023-09-01") & date <= ymd("2023-09-30"))%>%
-  tidyr::spread(date, value = available)%>%
-  select(-WHID_all)
-
-
-
-```
-
-
-
-#######################################################################################
-#######################################################################################
-#######################################################################################
 
 FORMATTING 2018 CAPTURE FILES
 ```{r}
@@ -234,13 +99,6 @@ deer_2018<-deer_2018%>%
   rename(occassion = date)%>%
   mutate(occassion = ymd(occassion))
 
-#create a frame of trap names from the usage file (remember detections might not have all the traps!)
-#trap_names_2018<- data.frame(SiteID= usage_2018$SiteID,
- #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2018$SiteID), by = 1))
-
-#Create a frame of wildlife ID numbers
-#wildlife_ids_2018<-data.frame(WHID_all = unique(deer_2018$WHID_all),
- #                        id_number = seq(from = 1, to = n_distinct(deer_2018$WHID_all), by = 1))
 
 deer_2018<-merge(deer_2018, sequence_2018, by = "occassion")
 deer_2018<-merge(deer_2018, trap_names, by = "SiteID")
@@ -312,8 +170,8 @@ FORMATTING 2019 CAPTURE FILES
 #2019 has dates going from October 8 to November 11th, so I am going to process this as normal and then chop it down to 30 occassions afterwards
 
 #First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
-sequence_2019<-data.frame(occassion = seq(ymd("2019-10-08"), ymd("2019-11-11"), by = "day"), #These are the days included in the file
-                     occassion_number = seq(1:35))#These are the number we want to replace them with
+sequence_2019<-data.frame(occassion = seq(ymd("2019-10-08"), ymd("2019-11-06"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
 
 unique(deer_2019$SiteID)
 
@@ -376,7 +234,7 @@ cams_2019<-cams_2019%>%
 #the camera was on each day. We can use the usage matrix for this
 usage_2019
 #Just need to collapse across all the occassions 
-cams_2019$usage<-apply( usage_2019[, 4:38], 1, paste, collapse = "")
+cams_2019$usage<-apply( usage_2019[, 4:33], 1, paste, collapse = "")
 #Check to make sure that everyone is the same length
 str_length(cams_2019$usage)
 
@@ -393,26 +251,7 @@ unmarked_2019<-unmarked_2019%>%
   dplyr::select(session, 2:ncol(unmarked_2019))
 
 #Fix the column names
-colnames(unmarked_2019)<-c("session", 1:35)
-
-```
-
-Modifying the files for the Multisession input
-```{r}
-#Ok because 2019 was a weird year and we went from October 8th to November 11th, we have 35 occassions. But to make this play nice with the other years where we have 30 occassions, I need to modify the prepped files
-
-#remove any occassions above 30 for the capture file
-deer_2019<-deer_2019%>%
-  filter(occassion <= 30)
-
-#Remove occassions from the trap file, will just have to trim the string
-cams_2019<-cams_2019%>%
-  mutate(usage = str_sub(usage, start = 1, end = 30))
-
-#And then for the unmarked matrix we just remove the columns named 31-35
-unmarked_2019<-unmarked_2019%>%
-  dplyr::select(-c("31", "32", "33", "34", "35"))
-
+colnames(unmarked_2019)<-c("session", 1:30)
 
 ```
 
@@ -426,8 +265,8 @@ FORMATTING 2020 CAPTURE FILES
 #2020 has dates going from October 8 to November 11th, so I am going to process this as normal and then chop it down to 30 occassions afterwards
 
 #First we need to fix the occassions so that they are just 1 to 30 (30 days has september)
-sequence_2020<-data.frame(occassion = seq(ymd("2020-10-08"), ymd("2020-11-11"), by = "day"), #These are the days included in the file
-                     occassion_number = seq(1:35))#These are the number we want to replace them with
+sequence_2020<-data.frame(occassion = seq(ymd("2020-10-08"), ymd("2020-11-06"), by = "day"), #These are the days included in the file
+                     occassion_number = seq(1:30))#These are the number we want to replace them with
 
 unique(deer_2020$SiteID)
 
@@ -490,7 +329,7 @@ cams_2020<-cams_2020%>%
 #the camera was on each day. We can use the usage matrix for this
 usage_2020
 #Just need to collapse across all the occassions 
-cams_2020$usage<-apply( usage_2020[, 4:38], 1, paste, collapse = "")
+cams_2020$usage<-apply( usage_2020[, 4:33], 1, paste, collapse = "")
 #Check to make sure that everyone is the same length
 str_length(cams_2020$usage)
 
@@ -507,29 +346,9 @@ unmarked_2020<-unmarked_2020%>%
   dplyr::select(session, 2:ncol(unmarked_2020))
 
 #Fix the column names
-colnames(unmarked_2020)<-c("session", 1:35)
+colnames(unmarked_2020)<-c("session", 1:30)
 
 ```
-
-Modifying the files for the Multisession input
-```{r}
-#Ok because 2020 was a weird year and we went from October 8th to November 11th, we have 35 occassions. But to make this play nice with the other years where we have 30 occassions, I need to modify the prepped files
-
-#remove any occassions above 30 for the capture file
-deer_2020<-deer_2020%>%
-  filter(occassion <= 30)
-
-#Remove occassions from the trap file, will just have to trim the string
-cams_2020<-cams_2020%>%
-  mutate(usage = str_sub(usage, start = 1, end = 30))
-
-#And then for the unmarked matrix we just remove the columns named 31-35
-unmarked_2020<-unmarked_2020%>%
-  dplyr::select(-c("31", "32", "33", "34", "35"))
-
-
-```
-
 
 #######################################################################################
 #######################################################################################
@@ -546,13 +365,6 @@ deer_2021<-deer_2021%>%
   rename(occassion = date)%>%
   mutate(occassion = ymd(occassion))
 
-#create a frame of trap names from the usage file (remember detections might not have all the traps!)
-#trap_names_2021<- data.frame(SiteID= usage_2021$SiteID,
- #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2021$SiteID), by = 1))
-
-#Create a frame of wildlife ID numbers
-#wildlife_ids_2021<-data.frame(WHID_all = unique(deer_2021$WHID_all),
- #                        id_number = seq(from = 1, to = n_distinct(deer_2021$WHID_all), by = 1))
 
 deer_2021<-merge(deer_2021, sequence_2021, by = "occassion")
 deer_2021<-merge(deer_2021, trap_names, by = "SiteID")
@@ -632,13 +444,6 @@ deer_2022<-deer_2022%>%
   rename(occassion = date)%>%
   mutate(occassion = ymd(occassion))
 
-#create a frame of trap names from the usage file (remember detections might not have all the traps!)
-#trap_names_2021<- data.frame(SiteID= usage_2021$SiteID,
- #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2021$SiteID), by = 1))
-
-#Create a frame of wildlife ID numbers
-#wildlife_ids_2021<-data.frame(WHID_all = unique(deer_2021$WHID_all),
- #                        id_number = seq(from = 1, to = n_distinct(deer_2021$WHID_all), by = 1))
 
 deer_2022<-merge(deer_2022, sequence_2022, by = "occassion")
 deer_2022<-merge(deer_2022, trap_names, by = "SiteID")
@@ -701,9 +506,7 @@ unmarked_2022<-unmarked_2022%>%
 colnames(unmarked_2022)<-c("session", 1:30)
 
 ```
-#######################################################################################
-#######################################################################################
-#######################################################################################
+
 
 #######################################################################################
 #######################################################################################
@@ -720,13 +523,6 @@ deer_2023<-deer_2023%>%
   rename(occassion = date)%>%
   mutate(occassion = ymd(occassion))
 
-#create a frame of trap names from the usage file (remember detections might not have all the traps!)
-#trap_names_2023<- data.frame(SiteID= usage_2021$SiteID,
- #                       trap.id_number = seq(from = 1, to = n_distinct(usage_2021$SiteID), by = 1))
-
-#Create a frame of wildlife ID numbers
-#wildlife_ids_2021<-data.frame(WHID_all = unique(deer_2021$WHID_all),
- #                        id_number = seq(from = 1, to = n_distinct(deer_2021$WHID_all), by = 1))
 
 deer_2023<-merge(deer_2023, sequence_2023, by = "occassion")
 deer_2023<-merge(deer_2023, trap_names, by = "SiteID")
@@ -831,33 +627,8 @@ write.table(cams_2023, file.path(output_directory, "deer_cameras_2023.txt"), sep
             quote = FALSE,     #no quotes allowed!
             row.names = FALSE) #prevent including row IDs
 
-#Write the availability files
-write.table(markocc_2018, file.path(output_directory, "markocc_2018.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-write.table(markocc_2019, file.path(output_directory, "markocc_2019.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-write.table(markocc_2020, file.path(output_directory, "markocc_2020.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-write.table(markocc_2021, file.path(output_directory, "markocc_2021.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-write.table(markocc_2022, file.path(output_directory, "markocc_2022.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-write.table(markocc_2023, file.path(output_directory, "markocc_2023.txt"), sep = " ", 
-            quote = FALSE,     #no quotes allowed!
-            row.names = FALSE) #prevent including row IDs
-
 
 ```
 
 
-Messing around with known individual deaths and whatnot
-```{r}
-
-
-
-```
+Fin. 

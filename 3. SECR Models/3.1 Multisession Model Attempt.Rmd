@@ -1,29 +1,35 @@
-This script provides a multisession model of deer density estimates from 2018 to 2023.
+The purpose of this script is to run a multisession spatial mark-resight model in package secr to estimate adult urban deer density. To do this, we will make use of the previously prepared secr formatted files form 2018-2023. The main outputs of this script are a mean density estimate with 95% confidence intervals for each study year. 
+
+Andrew Barnas - April 2025
+andrewbarnas@uvic.ca
 
 
 Setting up packages and directories
 ```{r}
-#Just incase I wanted to know the run time of the whole thing!
-start_time<-Sys.time()
 
 
 #Clear everything out, its probably messy from the data prep file
 rm(list = ls())
 
+#And since we want to know how long this thing takes to run!
+start_time<-Sys.time()
+
 #Packages we will need
 library(reproducible) #setting up directories for data management
 library(dplyr)        #data wranglin'
 library(ggplot2)      #data visualization
-#library(ggpubr)       #Arranging figures
+library(ggpubr)       #Arranging figures
 library(stringr)      #reading information on strings
 library(secr)         #the actual model engine
 library(ggtext)       #Superscript on ggplot axis title
 library(sf)           #Spatial data
 
 #Set the working directories to read in the files we need
-input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs/multisession"), create = TRUE)
-output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
-figure_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
+input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/outputs"), create = TRUE)
+figure_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/figures"), create = TRUE)
+
+#This contains shapefiles previously processed in ArcGIS - used to create the habitat mask!
 shapefiles_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/shapefiles"), create = TRUE)
 
 
@@ -31,7 +37,7 @@ shapefiles_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models
 ```
 
 
-Ok so the goal here is to fit a multisession model using the 2018, 2019, 2020, 2021, 2022, and 2023 data. These files have been prepared, accounting for the different sampling times and then making sure trap names and whid all consistent
+Ok so the goal here is to fit a multisession model using the 2018, 2019, 2020, 2021, 2022, and 2023 data. These files have been prepared, accounting for the different sampling times and then making sure trap names and WHID all consistent
 ```{r}
 
 #read in camera trap files - order matters here!
@@ -42,25 +48,14 @@ camera_names = c(file.path(input_directory, "deer_cameras_2018.txt"),
                  file.path(input_directory, "deer_cameras_2022.txt"),
                  file.path(input_directory, "deer_cameras_2023.txt"))
 
-#Read in the markocc files, order also matters here!
-markocc_files = list(file.path(input_directory, "markocc_2018.txt"),
-                 file.path(input_directory, "markocc_2019.txt"),
-                 file.path(input_directory, "markocc_2020.txt"),
-                 file.path(input_directory, "markocc_2021.txt"),
-                 file.path(input_directory, "markocc_2022.txt"),
-                 file.path(input_directory, "markocc_2023.txt"))
-
-markocc_list <- lapply(markocc_files, function(file) {
-  as.matrix(read.table(file, header = FALSE))
-})
-
 #Prepare the capthist object
 deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_multi.txt"), 
               trapfile = camera_names, #A list of files of camera locations for each year
-              detector = "count",
+              detector = "count",   #Specify the detector type 
               markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
-              skip = 1,
+              skip = 1, 
               verify = TRUE)
+#Provide a quick summary overview for each session
 summary(deer_multisession, terse = TRUE)
 
 #This shows a plot of detections for individuals
@@ -89,22 +84,22 @@ deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_di
 #Next, read in the habitat mask we will be using, with an initial 1000m buffer
 
 
-#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. 
+#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. This clipped file makes sure we exclude the ocean habitat. 
 oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
 #Use that shape file to create a habitat mask for the initial model
 mask_2018<-make.mask(traps(deer_multisession), 
                 type = "trapbuffer", 
                 buffer = 1000, 
-                poly = oak_bay_clipped_2018) #UPDATE THIS
+                poly = oak_bay_clipped_2018) #
 
 
 
 #Fit the model - using autoini = 5 for starting values
+#Remember we do not need to specify a buffer within secr.fit since it is already included with the mask. 
 multisession_fit<-secr.fit(deer_multisession, 
                            model = D ~ session, #lowercase "session" to fit a value for each level of session
-                           mask = mask_2018,
-                           details = list(autoini = 5), #Was having getting started unless I specify
-                           buffer = 1000,
+                           mask = mask_2018,    #use the 2018 habitat mask with a large buffer. 
+                           details = list(autoini = 5), #Was having getting started unless I specified
                            trace = TRUE,
                            detectfn = "HN", #Half normal detection function
                             binomN = 0)  #counts modelled as poisson )
@@ -133,6 +128,7 @@ plot(traps(deer_multisession), detpar = list(pch = 16, cex = 1), add = TRUE)
 #RPSV_multisession<-4*RPSV(multisession_fit, CC= TRUE)
 
 #What is the suggested buffer from the initial fitted model?
+set.seed(420)
 suggested_buffers_multisession<-suggest.buffer(multisession_fit)
 suggested_buffers_multisession<-data.frame(year = c(2018, 2019, 2020, 2021, 2022, 2023),
            suggested_buffer = suggested_buffers_multisession)
@@ -157,8 +153,8 @@ esa_plot_multisession<-ggplot(A, aes(x = buffer, y = density))+
 #And then the same plot but zoomed in for clarity
 esa_plot_multisession_zoomed<-ggplot(A, aes(x = buffer, y = density))+
   geom_line()+
-  geom_vline(data = suggested_buffers_multisession, aes(xintercept = suggested_buffer, color =    as.factor(year)), linetype = "longdash", size = 1.1)+
-  xlim(c(1000, 1100))+
+  geom_vline(data = suggested_buffers_multisession, aes(xintercept = suggested_buffer, color =    as.factor(year)), linetype = "longdash", linewidth = 1.1)+
+  xlim(c(950, 1000))+
   scale_color_discrete(name = "Year")+
    ylab("Predicted change in density")+
   xlab("Buffer width (m)")+
@@ -188,13 +184,17 @@ ggsave(filename = "esa_plots.jpeg", #name of file
 #Based ont he recommendations of the guidebook, the penalty for using an over wie buffer is that fitting will be slower for a given mask spacing, it is usually smart to accept this penalty rather than search for the narrowest acceptabel buffer. 
 suggested_buffer<-max(suggest.buffer(multisession_fit))
 
-#Create a new mask based on this
+#Create a new mask based on this 991m buffer
 updated_mask<-make.mask(traps(deer_multisession), 
                 type = "trapbuffer", 
                 buffer = suggested_buffer, #Using the new suggested buffer
-                poly = oak_bay_clipped_2018) #NEED TO UPDATE THIS
+                poly = oak_bay_clipped_2018) 
 
 end_time<-Sys.time()
+
+#And make sure we save that data so we can start with it next time
+save(deer_multisession, file = file.path(output_directory, "deer_multisession.RData"))
+
 
 ```
 
@@ -204,41 +204,15 @@ Refitting the new model and extracting estimates
 #1. fit the model ASSUMING NO OVERDISPERSION
 #2. Estimate the overdispersion by simulating at the initial estimates
 #3. Re-fit the model using an overdispersion-adjusted pseudo-likelioo
-multisession_fit_suggested_buffer2 <- secr.fit(deer_multisession, 
+multisession_fit_suggested_buffer <- secr.fit(deer_multisession, 
                                        model = D ~ session, 
                                        mask = updated_mask,
-                                       #buffer = 1000, 
                                        trace = TRUE, 
                                         detectfn = "HN", #Half normal detection function
                                         binomN = 0,     
                                        start = multisession_fit, 
                                        details = list(nsim = 10000)) #this line gives the previous model fit1 as a starting point, calls nsim simulations to estimated overdispersion (c-hat)
 
-#Trying it with the old mask
-multisession_fit_old_mask <- secr.fit(deer_multisession, 
-                                       model = D ~ session, 
-                                       mask = mask_2018,
-                                       #buffer = 1000, 
-                                       trace = TRUE, 
-                                        detectfn = "HN", #Half normal detection function
-                                        binomN = 0,     
-                                       start = multisession_fit, 
-                                       details = list(nsim = 10000)) #this line gives the previous model fit1 as a starting point, calls nsim simulations to estimated overdispersion (c-hat)
-
-multisession_fit_suggested_buffer<-secr.fit(deer_multisession, 
-                           model = D ~ session, 
-                           mask = updated_mask,
-                           details = list(autoini = 5), 
-                          # buffer = 1000,
-                           trace = TRUE,
-                           detectfn = "HN", #Half normal detection function
-                            binomN = 0,
-                          details = list(nsim = 10000) ) 
-
-
-
-#CHECK FOR OVERDISPERSION....THIS IS ALL FROM CHATGPT SO PROCEED WITH CAUTION
-#iNCLUDE THIS BIT HERE.
 
 ```
 
@@ -246,35 +220,35 @@ multisession_fit_suggested_buffer<-secr.fit(deer_multisession,
 ```{r}
 
 #Inspect results
-summary(multisession_fit_suggested_buffer2)
-save(multisession_fit_suggested_buffer2, file = file.path(output_directory, "multisession_fit_suggested_buffer2.RData"))
+summary(multisession_fit_suggested_buffer)
+save(multisession_fit_suggested_buffer, file = file.path(output_directory, "multisession_fit_suggested_buffer.RData"))
 
 #Extract estimate (deer/ha) for each session and convert to deer per km2
-mean_2018<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2018"]][["estimate"]][[1]]*100
-mean_2019<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2019"]][["estimate"]][[1]]*100
-mean_2020<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2020"]][["estimate"]][[1]]*100
-mean_2021<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
-mean_2022<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
-mean_2023<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2023"]][["estimate"]][[1]]*100
+mean_2018<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2018"]][["estimate"]][[1]]*100
+mean_2019<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2019"]][["estimate"]][[1]]*100
+mean_2020<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2020"]][["estimate"]][[1]]*100
+mean_2021<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
+mean_2022<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
+mean_2023<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2023"]][["estimate"]][[1]]*100
 
 #extract confidence intervals for each year
-upper_2018<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2018"]][["ucl"]][[1]]*100
-lower_2018<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2018"]][["lcl"]][[1]]*100
+upper_2018<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2018"]][["ucl"]][[1]]*100
+lower_2018<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2018"]][["lcl"]][[1]]*100
 
-upper_2019<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2019"]][["ucl"]][[1]]*100
-lower_2019<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2019"]][["lcl"]][[1]]*100
+upper_2019<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2019"]][["ucl"]][[1]]*100
+lower_2019<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2019"]][["lcl"]][[1]]*100
 
-upper_2020<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2020"]][["ucl"]][[1]]*100
-lower_2020<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2020"]][["lcl"]][[1]]*100
+upper_2020<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2020"]][["ucl"]][[1]]*100
+lower_2020<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2020"]][["lcl"]][[1]]*100
 
-upper_2021<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
-lower_2021<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
+upper_2021<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
+lower_2021<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
 
-upper_2022<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
-lower_2022<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
+upper_2022<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
+lower_2022<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
 
-upper_2023<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2023"]][["ucl"]][[1]]*100
-lower_2023<-summary(multisession_fit_suggested_buffer2)[["predicted"]][["session = Oakbay2023"]][["lcl"]][[1]]*100
+upper_2023<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2023"]][["ucl"]][[1]]*100
+lower_2023<-summary(multisession_fit_suggested_buffer)[["predicted"]][["session = Oakbay2023"]][["lcl"]][[1]]*100
 
 #Wrap that into a dataframe and plot
 density_estimates<-data.frame(
@@ -284,21 +258,29 @@ density_estimates<-data.frame(
     lower_cl = c(lower_2018, lower_2019, lower_2020, lower_2021, lower_2022, lower_2023)
 )
 
-ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
+#Plot the estimates
+density_figure<-ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
   geom_point()+
   geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
   ylab("Mean Density\u00B1 95% CI")+
   xlab("Year")+
   theme_classic()+
-  theme(axis.text.x = element_text(size = 10),
-        axis.title.x = element_text(size = 12))
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 16))
 
-#I just like to know how long this takes
-end_time<-Sys.time()
-end_time - start_time
+#Export the figure as well as the main dataframe.
+ggsave(filename = "density_figure.jpeg", #name of file
+       plot = density_figure,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+write.csv(density_estimates, file.path(output_directory, "density_estimates.csv"),
+          row.names = FALSE)
 
 
-save(multisession_fit, file = file.path(output_directory, "multisession_autoini5.RData"))
 
 ```
 

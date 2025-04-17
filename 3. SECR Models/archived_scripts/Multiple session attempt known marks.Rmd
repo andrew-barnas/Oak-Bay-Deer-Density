@@ -1,0 +1,538 @@
+The purpose of this script is to play around with secr models using known information on who is and isn't available in the populaiton
+
+Setting up packages and directories
+```{r}
+#Just incase I wanted to know the run time of the whole thing!
+start_time<-Sys.time()
+
+
+#Clear everything out, its probably messy from the data prep file
+rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(ggplot2)      #data visualization
+#library(ggpubr)       #Arranging figures
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+library(ggtext)       #Superscript on ggplot axis title
+library(sf)           #Spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs/multisession"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
+figure_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/multisession"), create = TRUE)
+shapefiles_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/shapefiles"), create = TRUE)
+
+
+
+```
+
+2018 model specification. So I am going to do a couple things here
+1. fit a regular 2018 model with just the baseline data.
+2. fit a 2018 model with the additional information who is present but not sighted.
+```{r}
+#I will first have to read in some data I think and isolate for each session
+
+
+
+deer_2018<-read.capthist(captfile = file.path(input_directory, "deer_2018.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2018.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2018, terse = TRUE)
+
+#Lets look at the tracks
+plot(deer_2018)
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_2018<-addSightings(deer_2018, unmarked = file.path(input_directory, "unmarked_2018.txt"), skip = 1)
+
+#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. 
+oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
+#Use that shape file to create a habitat mask for the initial model
+mask_2018<-make.mask(traps(deer_2018), 
+                type = "trapbuffer", 
+                buffer = 1000, 
+                poly = oak_bay_clipped_2018) #UPDATE THIS
+
+#Fit the model - using autoini = 5 for starting values
+fit_2018<-secr.fit(deer_2018, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2018,
+                           details = list(autoini = 1), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2018)
+
+#Save and extract results
+mean_2018_unknown<-summary(fit_2018)[["predicted"]][["estimate"]][[1]]*100
+upper_2018_unknown<-summary(fit_2018)[["predicted"]][["ucl"]][[1]]*100
+lower_2018_unknown<-summary(fit_2018)[["predicted"]][["lcl"]][[1]]*100
+
+##########################################################################
+#Ok cool, now we try it with the known marks?
+deer_2018_known<-read.capthist(captfile = file.path(input_directory, "deer_2018_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2018.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2018_known, terse = TRUE)
+
+#Lets look at the tracks
+plot(deer_2018_known)
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_2018_known<-addSightings(deer_2018_known, unmarked = file.path(input_directory, "unmarked_2018.txt"), skip = 1)
+
+#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. 
+oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
+#Use that shape file to create a habitat mask for the initial model
+mask_2018<-make.mask(traps(deer_2018_known), 
+                type = "trapbuffer", 
+                buffer = 1000, 
+                poly = oak_bay_clipped_2018) #UPDATE THIS
+
+#Fit the model - using autoini = 5 for starting values
+#fit_2018_known<-secr.fit(deer_2018_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2018,
+                           details = list(autoini = 1), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+#summary(fit_2018_known)
+
+#mean_2018_known<-summary(fit_2018_known)[["predicted"]][["estimate"]][[1]]*100
+#upper_2018_known<-summary(fit_2018_known)[["predicted"]][["ucl"]][[1]]*100
+#lower_2018_known<-summary(fit_2018_known)[["predicted"]][["lcl"]][[1]]*100
+
+
+######################################
+#Ok now the same thing but with the details argument...
+#Ok cool, now we try it with the known marks?
+
+
+#Fit the model - using autoini = 5 for starting values
+fit_2018_known<-secr.fit(deer_2018_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2018,
+                           details = list(autoini = 1,#Was having getting started unless I specify
+                                          known = TRUE), #Specifying that the known marks are known
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+mean_2018_known<-summary(fit_2018_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2018_known<-summary(fit_2018_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2018_known<-summary(fit_2018_known)[["predicted"]][["lcl"]][[1]]*100
+
+#CONCLUSION - the details(known = true) thing is default and important. 
+
+#Ok lets carry on with the regularly scheduled programming. We need density estimates seperately for each year.
+
+
+
+```
+
+2019 model unknown and knonw
+```{r}
+deer_2019<-read.capthist(captfile = file.path(input_directory, "deer_2019.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2019.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2019, terse = TRUE)
+
+#Lets look at the tracks
+plot(deer_2019)
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_2019<-addSightings(deer_2019, unmarked = file.path(input_directory, "unmarked_2019.txt"), skip = 1)
+
+#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. 
+oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
+#Use that shape file to create a habitat mask for the initial model
+mask_2019<-make.mask(traps(deer_2019), 
+                type = "trapbuffer", 
+                buffer = 1000, 
+                poly = oak_bay_clipped_2018) #UPDATE THIS
+
+#Fit the model - using autoini = 5 for starting values
+fit_2019<-secr.fit(deer_2019, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2019)
+
+#Save and extract results
+mean_2019_unknown<-summary(fit_2019)[["predicted"]][["estimate"]][[1]]*100
+upper_2019_unknown<-summary(fit_2019)[["predicted"]][["ucl"]][[1]]*100
+lower_2019_unknown<-summary(fit_2019)[["predicted"]][["lcl"]][[1]]*100
+
+#Also just checking something here, do we need to specify marks known or unknown?
+#Unknown is default!!!!
+# fit_2019_unknown<-secr.fit(deer_2019, 
+#                           # model = D ~ session, #lowercase "session" to fit a value for each level of session
+#                            mask = mask_2019,
+#                            details = list(autoini = 1,
+#                                           known = FALSE), #Was having getting started unless I specify
+#                            buffer = 1000,
+#                            trace = TRUE,
+#                            detectfn = "HN", #Half normal detection function
+#                             binomN = 0)  #counts modelled as poisson )
+# 
+# mean_2019_unknown<-summary(fit_2019_unknown)[["predicted"]][["estimate"]][[1]]*100
+# upper_2019_unknown<-summary(fit_2019_unknown)[["predicted"]][["ucl"]][[1]]*100
+# lower_2019_unknown<-summary(fit_2019_unknown)[["predicted"]][["lcl"]][[1]]*100
+
+
+#Ok now lets fit with the known
+deer_2019_known<-read.capthist(captfile = file.path(input_directory, "deer_2019_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2019.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2019_known, terse = TRUE)
+
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_2019_known<-addSightings(deer_2019_known, unmarked = file.path(input_directory, "unmarked_2019.txt"), skip = 1)
+
+#I am going to use the original 2018 mask with a sufficiently large buffer, as that should encapsulate all the traps in remaining years despite small adjustments to trap locations. 
+oak_bay_clipped_2018<-st_read(file.path(shapefiles_directory, "cameras_2018_clipped.shp"))
+#Use that shape file to create a habitat mask for the initial model
+mask_2019<-make.mask(traps(deer_2019_known), 
+                type = "trapbuffer", 
+                buffer = 1000, 
+                poly = oak_bay_clipped_2018) #UPDATE THIS
+
+#Fit the model - using autoini = 5 for starting values
+fit_2019_known<-secr.fit(deer_2019_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = TRUE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2019_known)
+
+#Save and extract results
+mean_2019_known<-summary(fit_2019_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2019_known<-summary(fit_2019_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2019_known<-summary(fit_2019_known)[["predicted"]][["lcl"]][[1]]*100
+
+
+```
+
+
+2020 model specifications
+```{r}
+deer_2020<-read.capthist(captfile = file.path(input_directory, "deer_2020.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2020.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2020, terse = TRUE)
+deer_2020<-addSightings(deer_2020, unmarked = file.path(input_directory, "unmarked_2020.txt"), skip = 1)
+#Fit the model - using autoini = 5 for starting values
+fit_2020_unknown<-secr.fit(deer_2020, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 2,
+                                          known = FALSE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Save and extract results
+mean_2020_unknown<-summary(fit_2020_unknown)[["predicted"]][["estimate"]][[1]]*100
+upper_2020_unknown<-summary(fit_2020_unknown)[["predicted"]][["ucl"]][[1]]*100
+lower_2020_unknown<-summary(fit_2020_unknown)[["predicted"]][["lcl"]][[1]]*100
+#########################################################################
+deer_2020_known<-read.capthist(captfile = file.path(input_directory, "deer_2020_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2020.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2020_known, terse = TRUE)
+deer_2020_known<-addSightings(deer_2020_known, unmarked = file.path(input_directory, "unmarked_2020.txt"), skip = 1)
+fit_2020_known<-secr.fit(deer_2020_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(#autoini = 1,
+                                          known = TRUE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+
+
+#Inspect those initial results
+summary(fit_2020_known)
+
+#Save and extract results
+mean_2020_known<-summary(fit_2020_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2020_known<-summary(fit_2020_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2020_known<-summary(fit_2020_known)[["predicted"]][["lcl"]][[1]]*100
+
+```
+
+
+2021 model specification
+```{r}
+deer_2021<-read.capthist(captfile = file.path(input_directory, "deer_2021.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2021.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2021, terse = TRUE)
+deer_2021<-addSightings(deer_2021, unmarked = file.path(input_directory, "unmarked_2021.txt"), skip = 1)
+#Fit the model - using autoini = 5 for starting values
+fit_2021_unknown<-secr.fit(deer_2021, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = FALSE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Save and extract results
+mean_2021_unknown<-summary(fit_2021_unknown)[["predicted"]][["estimate"]][[1]]*100
+upper_2021_unknown<-summary(fit_2021_unknown)[["predicted"]][["ucl"]][[1]]*100
+lower_2021_unknown<-summary(fit_2021_unknown)[["predicted"]][["lcl"]][[1]]*100
+#########################################################################
+deer_2021_known<-read.capthist(captfile = file.path(input_directory, "deer_2021_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2021.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2021_known, terse = TRUE)
+deer_2021_known<-addSightings(deer_2021_known, unmarked = file.path(input_directory, "unmarked_2021.txt"), skip = 1)
+fit_2021_known<-secr.fit(deer_2021_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = TRUE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2021_known)
+
+#Save and extract results
+mean_2021_known<-summary(fit_2021_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2021_known<-summary(fit_2021_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2021_known<-summary(fit_2021_known)[["predicted"]][["lcl"]][[1]]*100
+
+```
+
+
+2022 model specification
+```{r}
+deer_2022<-read.capthist(captfile = file.path(input_directory, "deer_2022.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2022.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2022, terse = TRUE)
+deer_2022<-addSightings(deer_2022, unmarked = file.path(input_directory, "unmarked_2022.txt"), skip = 1)
+#Fit the model - using autoini = 5 for starting values
+fit_2022_unknown<-secr.fit(deer_2022, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = FALSE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Save and extract results
+mean_2022_unknown<-summary(fit_2022_unknown)[["predicted"]][["estimate"]][[1]]*100
+upper_2022_unknown<-summary(fit_2022_unknown)[["predicted"]][["ucl"]][[1]]*100
+lower_2022_unknown<-summary(fit_2022_unknown)[["predicted"]][["lcl"]][[1]]*100
+#########################################################################
+deer_2022_known<-read.capthist(captfile = file.path(input_directory, "deer_2022_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2022.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2022_known, terse = TRUE)
+deer_2022_known<-addSightings(deer_2022_known, unmarked = file.path(input_directory, "unmarked_2022.txt"), skip = 1)
+fit_2022_known<-secr.fit(deer_2022_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = TRUE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2022_known)
+
+#Save and extract results
+mean_2022_known<-summary(fit_2022_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2022_known<-summary(fit_2022_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2022_known<-summary(fit_2022_known)[["predicted"]][["lcl"]][[1]]*100
+
+```
+
+
+2023 model specification
+```{r}
+deer_2023<-read.capthist(captfile = file.path(input_directory, "deer_2023.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2023.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2023, terse = TRUE)
+deer_2023<-addSightings(deer_2023, unmarked = file.path(input_directory, "unmarked_2023.txt"), skip = 1)
+#Fit the model - using autoini = 5 for starting values
+fit_2023_unknown<-secr.fit(deer_2023, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = FALSE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Save and extract results
+mean_2023_unknown<-summary(fit_2023_unknown)[["predicted"]][["estimate"]][[1]]*100
+upper_2023_unknown<-summary(fit_2023_unknown)[["predicted"]][["ucl"]][[1]]*100
+lower_2023_unknown<-summary(fit_2023_unknown)[["predicted"]][["lcl"]][[1]]*100
+#########################################################################
+deer_2023_known<-read.capthist(captfile = file.path(input_directory, "deer_2023_known.txt"), 
+              trapfile = file.path(input_directory, "deer_cameras_2023.txt"), #A list of files of camera locations for each year
+              detector = "count",
+              markocc = rep(0,30), #Specify no marking sessions among the 30 sampling occassions
+              skip = 1,
+              verify = TRUE)
+summary(deer_2023_known, terse = TRUE)
+deer_2023_known<-addSightings(deer_2023_known, unmarked = file.path(input_directory, "unmarked_2023.txt"), skip = 1)
+fit_2023_known<-secr.fit(deer_2023_known, 
+                          # model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2019,
+                           details = list(autoini = 1,
+                                          known = TRUE), #Was having getting started unless I specify
+                           buffer = 1000,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+
+#Inspect those initial results
+summary(fit_2023_known)
+
+#Save and extract results
+mean_2023_known<-summary(fit_2023_known)[["predicted"]][["estimate"]][[1]]*100
+upper_2023_known<-summary(fit_2023_known)[["predicted"]][["ucl"]][[1]]*100
+lower_2023_known<-summary(fit_2023_known)[["predicted"]][["lcl"]][[1]]*100
+
+```
+
+And now a chunk to plot all those results!
+```{r}
+#Wrap that into a dataframe and plot
+density_estimates<-data.frame(
+    year = c(2018, 2019, 2020, 2021, 2022, 2023),
+    mean_density = c(mean_2018, mean_2019, mean_2020, mean_2021, mean_2022, mean_2023),
+    upper_cl = c(upper_2018, upper_2019, upper_2020, upper_2021, upper_2022, upper_2023),
+    lower_cl = c(lower_2018, lower_2019, lower_2020, lower_2021, lower_2022, lower_2023)
+)
+
+density_estimates<-rbind(data.frame(year = c(2018, 2019, 2020, 2021, 2022, 2023),
+                              type = c("unknown","unknown","unknown","unknown","unknown","unknown"),
+                              mean_density = c(mean_2018_unknown,
+                                               mean_2019_unknown,
+                                               mean_2020_unknown,
+                                               mean_2021_unknown,
+                                               mean_2022_unknown,
+                                               mean_2023_unknown),
+                              upper_ci = c(upper_2018_unknown,
+                                           upper_2019_unknown,
+                                           upper_2020_unknown,
+                                           upper_2021_unknown,
+                                           upper_2022_unknown,
+                                           upper_2023_unknown),
+                              lower_ci = c(lower_2018_unknown,
+                                           lower_2019_unknown,
+                                           lower_2020_unknown,
+                                           lower_2021_unknown,
+                                           lower_2022_unknown,
+                                           lower_2023_unknown)),
+data.frame(year = c(2018, 2019, # 2020, 
+                    2021, 2022, 2023),
+                              type = c("known","known","known","known","known"),
+                              mean_density = c(mean_2018_known,
+                                               mean_2019_known,
+                                               #mean_2020_known,
+                                               mean_2021_known,
+                                               mean_2022_known,
+                                               mean_2023_known),
+                              upper_ci = c(upper_2018_known,
+                                           upper_2019_known,
+                                          # upper_2020_known,
+                                           upper_2021_known,
+                                           upper_2022_known,
+                                           upper_2023_known),
+                              lower_ci = c(lower_2018_known,
+                                           lower_2019_known,
+                                          # lower_2020_known,
+                                           lower_2021_known,
+                                           lower_2022_known,
+                                           lower_2023_known)))
+
+ggplot(density_estimates, aes(x = as.factor(year), y = mean_density, group = type)) +
+  geom_point(aes(colour = type), position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, colour = type), 
+                width = 0.2, position = position_dodge(width = 0.5)) +
+  ylab("Mean Density ± 95% CI") +
+  xlab("Year") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 10),
+        axis.title.x = element_text(size = 12))
+                              
+
+
+```

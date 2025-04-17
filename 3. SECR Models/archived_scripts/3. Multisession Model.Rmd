@@ -1,0 +1,620 @@
+```{r}
+#Clear everything out, its probably messy from the data prep file
+#rm(list = ls())
+
+#Packages we will need
+library(reproducible) #setting up directories for data management
+library(dplyr)        #data wranglin'
+library(ggplot2)      #data visualization
+library(stringr)      #reading information on strings
+library(secr)         #the actual model engine
+library(rgdal)        #dealing with spatial data
+
+#Set the working directories to read in the files we need
+input_directory<-reproducible::checkPath(file.path(getwd(), "2. SECR Prep/outputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/outputs"), create = TRUE)
+
+
+
+```
+
+
+```{r}
+
+
+```
+
+Here I am going to try and fit a two year multisession model with the 2021 and 2022 data
+BUT ALSO READ IN THE HABITAT MASKS!!!
+```{r}
+#read in camera trap files - order matters here!
+camera_names = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+#Prepare the capthist object
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_reduced.txt"), 
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+
+#Ok now try to add the unmarked sightings as you would normally? 
+
+deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_directory, "unmarked_matrix.txt"), skip = 1)
+
+#Load in the masks, ORDER MATTERS
+load(file.path(input_directory, "mask_2021.RData"))
+load(file.path(input_directory, "mask_2022.RData"))
+oakbay_masks<-list(mask_2021, mask_2022)
+
+start_time<-Sys.time()
+#Fit the model
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           mask = oakbay_masks,
+                           details = list(autoini = 2), #Was having getting started unless I specify
+                           #buffer = 500,
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
+
+#Inspect results
+summary(multisession_fit)
+
+#Extract estimate (deer/ha) for each session and convert to deer per km2
+mean_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
+mean_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
+
+#extract confidence intervals for each year
+upper_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
+lower_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
+
+upper_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
+lower_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
+
+#Wrap that into a dataframe and plot
+density_estimates<-data.frame(
+    year = c(2021, 2022),
+    mean_density = c(mean_2021, mean_2022),
+    upper_cl = c(upper_2021, upper_2022),
+    lower_cl = c(lower_2021, lower_2022)
+)
+
+ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
+  geom_point()+
+  geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
+  ylab("Mean Density\u00B1 95% CI")+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.text.x = element_text(size = 10),
+        axis.title.x = element_text(size = 12))
+
+```
+
+
+
+STARTING FRESH
+
+Here I am going to try and fit a two year multisession model with the 2021 and 2022 data
+```{r}
+#read in camera trap files - order matters here!
+camera_names = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+#Prepare the capthist object
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_reduced.txt"), 
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+
+#Ok now try to add the unmarked sightings as you would normally? 
+
+deer_multisession<-addSightings(deer_multisession, unmarked = file.path(input_directory, "unmarked_multisession.txt"), skip = 1)
+
+
+
+start_time<-Sys.time()
+#Fit the model
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2), #Was having getting started unless I specify
+                           buffer = 500,
+                           trace = TRUE)
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
+
+#Inspect results
+summary(multisession_fit)
+
+#Extract estimate (deer/ha) for each session and convert to deer per km2
+mean_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
+mean_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
+
+#extract confidence intervals for each year
+upper_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
+lower_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
+
+upper_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
+lower_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
+
+#Wrap that into a dataframe and plot
+density_estimates<-data.frame(
+    year = c(2021, 2022),
+    mean_density = c(mean_2021, mean_2022),
+    upper_cl = c(upper_2021, upper_2022),
+    lower_cl = c(lower_2021, lower_2022)
+)
+
+ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
+  geom_point()+
+  geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
+  ylab("Mean Density\u00B1 95% CI")+
+  xlab("Year")+
+  theme_classic()+
+  theme(axis.text.x = element_text(size = 10),
+        axis.title.x = element_text(size = 12))
+
+```
+
+TRYING IT ALL IN ONE!!!
+
+```{r}
+#read in camera trap files - order matters here!
+camera_names = c(file.path(input_directory, "deer_cameras_2018.txt"),
+                 file.path(input_directory, "deer_cameras_2020.txt"),
+                 file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+#Prepare the capthist object
+deer_multisession_all<-read.capthist(captfile = file.path(input_directory, "deer_multisession.txt"), 
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession_all, terse = TRUE)
+
+#Ok now try to add the unmarked sightings as you would normally? 
+deer_multisession_all<-addSightings(deer_multisession_all, unmarked = file.path(input_directory, "unmarked_multisession.txt"), skip = 1)
+
+start_time<-Sys.time()
+#Fit the model
+multisession_fit_all<-secr.fit(deer_multisession_all, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2), #Was having getting started unless I specify
+                           buffer = 500,
+                           trace = TRUE)
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
+
+#Inspect results
+summary(multisession_fit_all)
+
+
+```
+
+
+
+
+
+
+Perhaps lets mess around with simulating multisession data?
+```{r}
+#What about multiple sessions
+trap<-make.grid(detector = c("multi", rep ("proximity", 4)))
+markocc(trap)<-c(1,0,0,0,0)
+
+
+simMRCH_multi<-sim.capthist(trap, popn = list(D = 20, buffer = 100,
+    Ndist = "poisson"), detectfn = 0, detectpar = list(),
+    noccasions = 5, nsessions = 2, renumber = FALSE)
+
+summary(simMRCH_multi, terse = TRUE)
+
+sim.fit.multi<-secr.fit(simMRCH_multi, buffer = 500,trace = TRUE)
+summary(sim.fit.multi)
+predict(sim.fit.multi)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OLD
+##############################
+
+
+
+Multisession model
+```{r}
+
+#Create a vector of filenames for the traphistory
+camera_names = c(file.path(input_directory, "deer_cameras_2018.txt"),
+                 file.path(input_directory, "deer_cameras_2020.txt"),
+                 file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_multisession.txt"), #This is all of the captures
+              
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+#Summary by session
+summary(deer_multisession)
+#Summarised summary
+summary(deer_multisession, terse = TRUE)
+
+#Creates a series of plots, one for each session
+plot(deer_multisession)
+
+#Lets fit a preliminary model
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 3),
+                           buffer = 1000,trace = TRUE)
+multisession_fit
+coef(multisession_fit)
+
+
+#Lets try something more complicated?!
+library(MASS)
+start_time<-Sys.time()
+multisession_fit2<-secr.fit(deer_multisession, 
+                           model = D~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 3,
+                                          contrasts = list(session = MASS::contr.sdif)),
+                           buffer = 1000,
+                           trace = TRUE)
+end_time<-Sys.time()
+print(end_time - start_time)
+coef(multisession_fit2)
+
+
+#Ok so both of those above are giving me "zero" estimates for densities...lets try reducing the dataframe to two sessions and see what happens
+#Just reduce everything down to 2021 and 2022
+#Create a vector of filenames for the traphistory
+camera_names = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_reduced.txt"), #This is all of the captures
+              
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2),
+                           buffer = 300,
+                           trace = TRUE)
+
+multisession_fit<-secr.fit(deer_multisession, 
+                          # model = D~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2),
+                           buffer = 1000,
+                           trace = TRUE)
+
+multisession_fit2<-secr.fit(deer_multisession, 
+                           model = D~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2,
+                                          contrasts = list(session = MASS::contr.sdif)),
+                           buffer = 1000,
+                           trace = TRUE)
+
+summary(multisession_fit2)
+
+```
+
+
+
+
+Going to try simulating stuff here to see whats happening
+```{r}
+
+grid<-make.grid(detector = c("multi", rep ("proximity", 4)))
+markocc(grid)<-c(1,0,0,0,0)
+g0mr<-c(0.3, 0.1, 0.1, 0.1, 0.1)
+simMRCH<-sim.resight(grid, detectpar = list(g0 = g0mr, sigma = 25),
+                     popn = list(D = 30), pID = 0.7)
+
+summary(simMRCH)
+
+sim.fit<-secr.fit(simMRCH, buffer = 500,trace = TRUE)
+summary(sim.fit)
+
+
+#Lets try to create a traps object
+trap<-make.grid(detector = c("multi", rep ("proximity", 4)))
+markocc(trap)<-c(1,0,0,0,0)
+
+
+simMRCH<-sim.capthist(trap, popn = list(D = 5, buffer = 100,
+    Ndist = "poisson"), detectfn = 0, detectpar = list(),
+    noccasions = 5, nsessions = 1, binomN = NULL, exactN = NULL,
+    p.available = 1, renumber = TRUE, seed = NULL,
+    maxperpoly = 100, chulltol = 0.001, userdist = NULL, 
+    savepopn = FALSE)
+
+summary(simMRCH)
+
+sim.fit<-secr.fit(simMRCH, buffer = 500,trace = TRUE)
+summary(sim.fit)
+
+
+#What about multiple sessions
+trap<-make.grid(detector = c("multi", rep ("proximity", 4)))
+markocc(trap)<-c(1,0,0,0,0)
+
+
+simMRCH_multi<-sim.capthist(trap, popn = list(D = 5, buffer = 100,
+    Ndist = "poisson"), detectfn = 0, detectpar = list(),
+    noccasions = 5, nsessions = 2, binomN = NULL, exactN = NULL,
+    p.available = 1, 
+    renumber = FALSE, #Change this for multisessions
+    seed = NULL,
+    maxperpoly = 100, chulltol = 0.001, userdist = NULL, 
+    savepopn = FALSE)
+
+summary(simMRCH_multi)
+
+sim.fit.multi<-secr.fit(simMRCH_multi, buffer = 500,trace = TRUE)
+summary(sim.fit.multi)
+
+#Ok now try to get two different density estimates, per session
+sim.fit.multi<-secr.fit(simMRCH_multi, buffer = 500,trace = TRUE,
+                        model = D~session)
+summary(sim.fit.multi)
+
+```
+
+So maybe my multi session model is working? I just need to play with different starting values and let it run out?
+```{r}
+camera_names = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_multisession.txt"), #This is all of the captures
+              
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+start_time<-Sys.time()
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2),
+                           buffer = 300,
+                           trace = TRUE)
+end_time<-Sys.time()
+end_time - start_time
+
+summary(multisession_fit)
+predict(multisession_fit)
+
+
+#Now lets try adding a list of unmarked sightings?
+
+unmarked_obs = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+```
+
+Lets try another simulation and see if I can recover those values
+```{r}
+
+grid<-make.grid(detector = c("multi", rep("proximity", 4)))
+markocc(grid)<-c(1,0,0,0,0) #Marking occassions
+g0mr<-c(0.3, 0.1, 0.1, 0.1, 0.1) #different detection rates on marking and sighting
+
+simMRCH<-sim.resight(grid, detectpar=list(g0 = g0mr, sigma= 25),
+                     popn = list(D = 30), pID = 0.7, seed = 42069)
+
+sim.test<-secr.fit(simMRCH)
+summary(sim.test)
+
+
+#An example with sighting only data
+grid<-make.grid(detector = "proximity")
+markocc(grid)<-c(0,0,0,0,0)
+plot(grid)
+
+sim.test2<-sim.resight(grid, detectpar= list(g0 = 0.3, sigma = 25), unsighted = TRUE, #you can specify here that there are all zero capture histories
+            popn = list(D = 30), pID = 1, seed = 123)
+Tm(sim.test2)<-NULL
+summary(sim.test2)
+
+fit0<-secr.fit(sim.test2, fixed = list(pID = 1.0), 
+         details = list(knownmarks = TRUE),
+         trace = TRUE)
+
+summary(fit0)
+
+
+#Lets modify this to a multi session?
+grid<-make.grid(detector = "count")
+markocc(grid)<-c(0,0,0,0,0)
+plot(grid)
+
+sim.test3<-sim.capthist(grid, detectpar= list(g0 = 0.3, sigma = 25),
+                       #nsessions = 1,
+                      # unsighted = TRUE, #you can specify here that there are all zero capture histories
+            popn = list(D = 30), seed = 123)
+Tm(sim.test3)<-NULL
+summary(sim.test3)
+
+sim.test3<-sim.capthist(grid, popn = list(D = 30, buffer = 100, seed = 123),
+             noccasions = 5,
+             nsessions = 1)
+
+
+fit0<-secr.fit(sim.test3, buffer = 100,trace = TRUE)
+
+summary(fit0)
+
+#Lets try to get estimates better
+grid<-make.grid(detector = "count")
+markocc(grid)<-c(rep(0, 10))
+plot(grid)
+
+sim.test4<-sim.capthist(grid, detectpar= list(g0 = 0.3, sigma = 25),
+            popn = list(D = 30), 
+            noccasions = 10,
+            seed = 123)
+summary(sim.test4)
+fit0<-secr.fit(sim.test4, buffer = 500, 
+               trace = TRUE)
+fit4 <- secr.fit(sim.test4, buffer = 500, trace = TRUE, #this lines repeats the model specification from fit1
+                 start = fit0, details = list(nsim = 10000)) #this line gives the previous model fit1 as a starting point, calls nsim simulations to estimated overdispersion (c-hat)
+
+
+fit4<-secr.fit(sim.test4, buffer = 500, start = fit0,
+        # details = list(nsim = 1000),
+         trace = TRUE)
+summary(fit4)
+summary(fit0)
+
+
+#Lets modify this to a multi session?#######
+grid<-make.grid(detector = "count")
+markocc(grid)<-c(1,0,0,0,0)
+plot(grid)
+
+sim.test3<-sim.capthist(grid, detectpar= list(g0 = 0.3, sigma = 25),
+                       nsessions = 2, renumber = FALSE,
+                      # unsighted = TRUE, #you can specify here that there are all zero capture histories
+            popn = list(D = 30), seed = 123)
+Tm(sim.test3)<-NULL
+summary(sim.test3)
+
+
+
+fit0<-secr.fit(sim.test3, 
+               model = D~session,
+               buffer = 500,trace = TRUE)
+
+summary(fit0)
+
+```
+
+
+```{r}
+#Trying it now with just sighting data
+grid<-make.grid(detector = "count")
+markocc(grid)<-c(0,0,0,0,0)
+
+sim.test4<-sim.capthist(grid, detectpar= list(g0 = 0.3, sigma = 25),
+                       nsessions = 2, renumber = FALSE,
+            popn = list(D = 30), seed = 123)
+
+summary(sim.test4)
+
+fit1<-secr.fit(sim.test4, 
+               model = D~session,
+               buffer = 500,trace = TRUE)
+
+summary(fit1)
+
+browseURL("https://www.youtube.com/watch?v=JkrOQasshlY&list=RDJkrOQasshlY&start_radio=1")
+
+############################################################
+#Simulating data with a single marking occassion
+grid<-make.grid(detector = "count")
+markocc(grid)<-c(1,0,0,0,0)
+#
+sim.test3<-sim.capthist(grid, detectpar= list(g0 = 0.3, sigma = 25),
+                       nsessions = 2, renumber = FALSE,
+            popn = list(D = 30), seed = 123)
+
+
+fit0<-secr.fit(sim.test3, 
+               model = D~session,
+               buffer = 500,trace = TRUE)
+
+summary(fit0)
+
+browseURL("https://www.youtube.com/watch?v=JkrOQasshlY&list=RDJkrOQasshlY&start_radio=1")
+
+```
+
+How does sim.resight work?
+```{r}
+?sim.resight()
+
+grid <- make.grid(detector = 'count')
+markocc(grid) <- c(0, 0, 0, 0, 0)
+sim.test5 <- sim.resight(grid, detectpar=list(g0 = 0.3, sigma = 25), 
+                         unsighted = TRUE, popn = list(D = 30), 
+                         pID = 1.0, seed = 123)
+
+summary(sim.test5)
+
+fit5<-secr.fit(sim.test5, 
+               buffer = 500,trace = TRUE)
+
+summary(fit5)
+
+browseURL("https://www.youtube.com/watch?v=JkrOQasshlY&list=RDJkrOQasshlY&start_radio=1")
+
+```
+
+Lets fit my multisession model and see whats going on
+```{r}
+#read in camera trap files - order matters here!
+camera_names = c(file.path(input_directory, "deer_cameras_2021.txt"),
+                 file.path(input_directory, "deer_cameras_2022.txt"))
+
+#Prepare the capthist object
+deer_multisession<-read.capthist(captfile = file.path(input_directory, "deer_reduced.txt"), 
+              trapfile = camera_names,
+              detector = "count",
+              markocc = rep(0,30),
+              skip = 1,
+              verify = TRUE)
+summary(deer_multisession, terse = TRUE)
+
+start_time<-Sys.time()
+#Fit the model
+multisession_fit<-secr.fit(deer_multisession, 
+                           model = D ~ session, #lowercase "session" to fit a value for each level of session
+                           details = list(autoini = 2), #Was having getting started unless I specify
+                           buffer = 500,
+                           trace = TRUE)
+#I just like to know how long this takes
+end_time<-Sys.time()
+end_time - start_time
+
+#Inspect results
+summary(multisession_fit)
+
+
+```
