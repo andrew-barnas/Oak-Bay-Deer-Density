@@ -100,14 +100,16 @@ fawn_data<-fawn_data%>%
 #Ok, so this is a very large dataframe. There are many rows of just zeros, which indicate images that just had nothing in them, so lets only keep rows that had at least some deer in them
 fawn_data<-fawn_data%>%
   rowwise()%>%
-  filter((sum(Buck, MarkedDoe, UnmarkedDoe, Doe_UnknownifMarked, Fawn, UnknownSex, Unknown_UnknownifMarked, UnknownAgeGroup, TotalAdult, TotalFawn, ICDoe_2019, ICDoe_2020, TotalMarked, na.rm = T) > 0))
+  filter((sum(#Buck, 
+              MarkedDoe, UnmarkedDoe, Doe_UnknownifMarked, Fawn, UnknownSex, Unknown_UnknownifMarked, UnknownAgeGroup, TotalAdult, TotalFawn, ICDoe_2019, ICDoe_2020, TotalMarked, na.rm = T) > 0))
 
 #And now, I want to summarise across the adult columns and the Fawn columns. But first lets see the summary for these
 summary(fawn_data)
   
 #There is some inconsistency in the number of animals recorded, but I don't necessarily care about that. I am just more concerned about whether adults or fawns were PRESENT. So lets do it
 fawn_data<-fawn_data%>%
-  mutate(adults = Buck + MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex + Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                       + ICDoe_2020 + TotalMarked,
+  mutate(adults = #Buck + 
+           MarkedDoe + UnmarkedDoe + Doe_UnknownifMarked + UnknownSex + Unknown_UnknownifMarked + UnknownAgeGroup + TotalAdult + ICDoe_2019                       + ICDoe_2020 + TotalMarked,
          fawns = Fawn + TotalFawn)
   
 #Now at this point there should be no cases of zero adults and zero fawns, lets check

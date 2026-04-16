@@ -1,0 +1,126 @@
+test script for running netlogo
+
+
+
+```{r}
+
+rm(list = ls())
+
+library(nlrx)
+library(reproducible)
+
+n_reps<-1
+
+netlogopath <- file.path("C:/Program Files/NetLogo 6.1.1")
+modelpath<-reproducible::checkPath(file.path(getwd(), "5. Agent Based Simulation/5.1 Netlogo Model/urban_deer_movement_simulation.nlogo"), create = TRUE)
+outpath<-reproducible::checkPath(file.path(getwd(), "5. Agent Based Simulation/5.1 Netlogo Model/test"), create = TRUE)
+reproducible::checkPath(file.path(dirname(modelpath), "outputs"), create = TRUE)
+# 2. Setup the experiment
+nl <- nl(nlversion = "6.1.1",
+         nlpath = netlogopath,
+         modelpath = modelpath,
+         jvmmem = 1024)
+
+nl@experiment <- experiment(expname = "deer_density_sweep",
+                            outpath = outpath,
+                            repetition = n_reps,                # Number of repetitions per pop size
+                            tickmetrics = "false",   # We use your CSVs, so no need for R to track ticks
+                            idsetup = "setup",
+                            idgo = "go",
+                            #stopcond = "ticks = 43200",
+                            variables = list(
+                              "number-deer" = list(values = c(200))
+                            ),
+                            constants = list(
+                              "number-cameras" = 36,
+                              "collect-data" = "true",
+                              "rep-id" = 0, # Placeholder, overwritten by nlrx
+                              "absolute-path" = "C:/Users/16043/Desktop/netlogo_crap/" # Pass the R outpath to NetLogo
+                            ))
+
+# Map the R repetition index to your NetLogo rep-id variable
+
+
+set.seed(420)
+# 1. Create a basic design with 1 seed (4 rows)
+nl@simdesign <- simdesign_distinct(nl, nseeds = n_reps)
+
+# 2. Manually duplicate the rows to account for your 2 repetitions
+# This turns 4 rows into 8 rows
+nl@simdesign@siminput <- nl@simdesign@siminput[rep(1:nrow(nl@simdesign@siminput), each = n_reps), ]
+
+# 3. Now assign a truly unique rep-id (1 through 8)
+nl@simdesign@siminput[["rep-id"]] <- 1:nrow(nl@simdesign@siminput)
+
+# 4. Final Check - This should now show 8 rows
+print(nl@simdesign@siminput)
+
+# 5. Run the model
+results <- run_nl_all(nl)
+
+```
+
+
+
+
+
+
+```{r}
+
+library(nlrx)
+# Windows default NetLogo installation path (adjust to your needs!):
+netlogopath <- file.path("C:/Program Files/NetLogo 6.1.1")
+modelpath <- file.path(netlogopath, "app/models/Sample Models/Biology/Wolf Sheep Predation.nlogo")
+outpath <- file.path(getwd())
+# Unix default NetLogo installation path (adjust to your needs!):
+
+nl <- nl(nlversion = "6.1.1",
+         nlpath = netlogopath,
+         modelpath = modelpath,
+         jvmmem = 1024)
+
+
+nl@experiment <- experiment(expname="wolf-sheep",
+                            outpath=outpath,
+                            repetition=1,
+                            tickmetrics="true",
+                            idsetup="setup",
+                            idgo="go",
+                            runtime=10,
+                            evalticks=seq(40,50),
+                            metrics=c("count sheep", "count wolves", "count patches with [pcolor = green]"),
+                            variables = list('initial-number-sheep' = list(min=50, max=150, qfun="qunif"),
+                                             'initial-number-wolves' = list(min=50, max=150, qfun="qunif")),
+                            constants = list("model-version" = "\"sheep-wolves-grass\"",
+                                             "grass-regrowth-time" = 30,
+                                             "sheep-gain-from-food" = 4,
+                                             "wolf-gain-from-food" = 20,
+                                             "sheep-reproduce" = 4,
+                                             "wolf-reproduce" = 5,
+                                             "show-energy?" = "false"))
+
+
+nl@simdesign <- simdesign_lhs(nl=nl,
+                               samples=10,
+                               nseeds=3,
+                               precision=3)
+
+# Evaluate nl object:
+eval_variables_constants(nl)
+print(nl)
+
+# Run all simulations (loop over all siminputrows and simseeds)
+results <- run_nl_all(nl)
+
+# Attach results to nl object:
+setsim(nl, "simoutput") <- results
+
+# Write output to outpath of experiment within nl
+write_simoutput(nl)
+
+# Do further analysis:
+analyze_nl(nl)
+
+
+```
+

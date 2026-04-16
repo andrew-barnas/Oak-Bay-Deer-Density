@@ -104,10 +104,77 @@ multisession_fit<-secr.fit(deer_multisession,
                            detectfn = "HN", #Half normal detection function
                             binomN = 0)  #counts modelled as poisson )
 
+#And make sure we save that data so we can start with it next time
+save(multisession_fit, file = file.path(output_directory, "multisession_fit.RData"))
+
 #Inspect those initial results
 summary(multisession_fit)
 
 ```
+
+I am going to use this chunk to do some comparisons amongst models
+```{r}
+
+#First, density ~ session vs density ~ 1 (null model?)
+multisession_fit_density_stable<-secr.fit(deer_multisession,
+                           model = D ~ 1, #lowercase "session" to fit a value for each level of session
+                           mask = mask_2018,    #use the 2018 habitat mask with a large buffer.
+                           details = list(autoini = 5), #Was having getting started unless I specified
+                           trace = TRUE,
+                           detectfn = "HN", #Half normal detection function
+                            binomN = 0)  #counts modelled as poisson )
+#Next allowing for a linear decrease in baseline detectability in each occassion?
+# multisession_fit_detection_variable<-secr.fit(deer_multisession,
+#                            model = list(D ~ session, g0 ~ T), #lowercase "session" to fit a value for each level of session
+#                            mask = mask_2018,    #use the 2018 habitat mask with a large buffer.
+#                            details = list(autoini = 5), #Was having getting started unless I specified
+#                            trace = TRUE,
+#                            detectfn = "HN", #Half normal detection function
+#                             binomN = 0)
+
+#Next, based on those models we play with the detection function
+#HR - hazard rate, #EX - exponential
+# multisession_fit_hazard_rate<-secr.fit(deer_multisession,
+#                            model = D ~ session, #lowercase "session" to fit a value for each level of session
+#                            mask = mask_2018,    #use the 2018 habitat mask with a large buffer.
+#                            details = list(autoini = 5), #Was having getting started unless I specified
+#                            trace = TRUE,
+#                            detectfn = "HR", #Half normal detection function
+#                             binomN = 0)
+# 
+# multisession_fit_exponential<-secr.fit(deer_multisession,
+#                            model = D ~ session, #lowercase "session" to fit a value for each level of session
+#                            mask = mask_2018,    #use the 2018 habitat mask with a large buffer.
+#                            details = list(autoini = 5), #Was having getting started unless I specified
+#                            trace = TRUE,
+#                            detectfn = "EX", #Half normal detection function
+#                             binomN = 0)
+
+
+save(multisession_fit_density_stable, file = file.path(output_directory, "multisession_fit_density_stable.RData"))
+#save(multisession_fit_detection_variable, file = file.path(output_directory, "multisession_fit_detection_variable.RData"))
+#save(multisession_fit_hazard_rate, file = file.path(output_directory, "multisession_fit_hazard_rate.RData"))
+#save(multisession_fit_exponential, file = file.path(output_directory, "multisession_fit_exponential.RData"))
+
+
+#Quick AIC comparison
+summary(multisession_fit)
+AIC(multisession_fit)
+
+summary(multisession_fit_density_stable)
+AIC(multisession_fit_density_stable)
+#summary(multisession_fit_detection_variable)
+#AIC(multisession_fit_detection_variable)
+
+#summary(multisession_fit_exponential)
+#AIC(multisession_fit_exponential)
+#AIC(multisession_fit_hazard_rate)
+
+
+```
+
+
+START HERE
 
 After the initial model has been fit, we can perform some diagnostics and refit 
 ```{r}
@@ -193,7 +260,7 @@ updated_mask<-make.mask(traps(deer_multisession),
 end_time<-Sys.time()
 
 #And make sure we save that data so we can start with it next time
-save(deer_multisession, file = file.path(output_directory, "deer_multisession.RData"))
+save(deer_multisession, file = file.path(output_directory, "deer_multisession_females.RData"))
 
 
 ```
@@ -212,9 +279,22 @@ multisession_fit_suggested_buffer <- secr.fit(deer_multisession,
                                         binomN = 0,     
                                        start = multisession_fit, 
                                        details = list(nsim = 10000)) #this line gives the previous model fit1 as a starting point, calls nsim simulations to estimated overdispersion (c-hat)
+save(multisession_fit_suggested_buffer, file = file.path(output_directory, "multisession_fit_suggested_buffer_females.RData"))
 
 
 ```
+
+```{r}
+load(file = file.path(output_directory, "multisession_fit_suggested_buffer.RData"))
+
+multisession_fit_suggested_buffer$details$chat
+
+chat_res <- chat.nk(multisession_fit_suggested_buffer, nsim = 5000, ncores = 4, type = "Fletcher")
+chat_res$chat       # numeric c-hat value
+chat_res$stats      # diagnostic summary (X2/nu etc)
+chat_res$p          # if nsim>0 gives p-value from simulations
+```
+
 
 
 ```{r}
@@ -284,65 +364,92 @@ write.csv(density_estimates, file.path(output_directory, "density_estimates.csv"
 
 ```
 
+This is janky, but rather than re-run everything I am going to upload the old and new density estimates so I can plot them together. I will fix it in post if need be
+```{r}
+both<-read.csv(file.path(output_directory, "density_estimates_old.csv"))%>%
+  mutate(group = "male_and_female")
+
+females<-read.csv(file.path(output_directory, "density_estimates.csv"))%>%
+  mutate(group = "female_only")
+
+df<-rbind(both, females)
+
+ggplot(df, aes(x = as.factor(year), y = mean_density, color = group)) +
+  geom_point(position = position_dodge(width = 0.5), size = 2) +
+  geom_errorbar(
+    aes(ymin = lower_cl, ymax = upper_cl),
+    width = 0.2,
+    position = position_dodge(width = 0.5)
+  ) +
+  ylab("Mean Density \u00B1 95% CI") +
+  xlab("Year") +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 16)
+  )
+
+```
+
 
 
 
 ```{r}
 
-#Inspect results
-summary(multisession_fit)
-
-#Extract estimate (deer/ha) for each session and convert to deer per km2
-mean_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["estimate"]][[1]]*100
-mean_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["estimate"]][[1]]*100
-mean_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["estimate"]][[1]]*100
-mean_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
-mean_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
-mean_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["estimate"]][[1]]*100
-
-#extract confidence intervals for each year
-upper_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["ucl"]][[1]]*100
-lower_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["lcl"]][[1]]*100
-
-upper_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["ucl"]][[1]]*100
-lower_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["lcl"]][[1]]*100
-
-upper_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["ucl"]][[1]]*100
-lower_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["lcl"]][[1]]*100
-
-upper_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
-lower_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
-
-upper_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
-lower_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
-
-upper_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["ucl"]][[1]]*100
-lower_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["lcl"]][[1]]*100
-
-#Wrap that into a dataframe and plot
-density_estimates<-data.frame(
-    year = c(2018, 2019, 2020, 2021, 2022, 2023),
-    mean_density = c(mean_2018, mean_2019, mean_2020, mean_2021, mean_2022, mean_2023),
-    upper_cl = c(upper_2018, upper_2019, upper_2020, upper_2021, upper_2022, upper_2023),
-    lower_cl = c(lower_2018, lower_2019, lower_2020, lower_2021, lower_2022, lower_2023)
-)
-
-ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
-  geom_point()+
-  geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
-  ylab("Mean Density\u00B1 95% CI")+
-  xlab("Year")+
-  theme_classic()+
-  theme(axis.text.x = element_text(size = 10),
-        axis.title.x = element_text(size = 12))+
-  ggtitle("Single Multisession Model Output")
-
-#I just like to know how long this takes
-end_time<-Sys.time()
-end_time - start_time
-
-
-save(multisession_fit, file = file.path(output_directory, "multisession_autoini5.RData"))
+# #Inspect results
+# summary(multisession_fit)
+# 
+# #Extract estimate (deer/ha) for each session and convert to deer per km2
+# mean_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["estimate"]][[1]]*100
+# mean_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["estimate"]][[1]]*100
+# mean_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["estimate"]][[1]]*100
+# mean_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["estimate"]][[1]]*100
+# mean_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["estimate"]][[1]]*100
+# mean_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["estimate"]][[1]]*100
+# 
+# #extract confidence intervals for each year
+# upper_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["ucl"]][[1]]*100
+# lower_2018<-summary(multisession_fit)[["predicted"]][["session = Oakbay2018"]][["lcl"]][[1]]*100
+# 
+# upper_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["ucl"]][[1]]*100
+# lower_2019<-summary(multisession_fit)[["predicted"]][["session = Oakbay2019"]][["lcl"]][[1]]*100
+# 
+# upper_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["ucl"]][[1]]*100
+# lower_2020<-summary(multisession_fit)[["predicted"]][["session = Oakbay2020"]][["lcl"]][[1]]*100
+# 
+# upper_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["ucl"]][[1]]*100
+# lower_2021<-summary(multisession_fit)[["predicted"]][["session = Oakbay2021"]][["lcl"]][[1]]*100
+# 
+# upper_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["ucl"]][[1]]*100
+# lower_2022<-summary(multisession_fit)[["predicted"]][["session = Oakbay2022"]][["lcl"]][[1]]*100
+# 
+# upper_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["ucl"]][[1]]*100
+# lower_2023<-summary(multisession_fit)[["predicted"]][["session = Oakbay2023"]][["lcl"]][[1]]*100
+# 
+# #Wrap that into a dataframe and plot
+# density_estimates<-data.frame(
+#     year = c(2018, 2019, 2020, 2021, 2022, 2023),
+#     mean_density = c(mean_2018, mean_2019, mean_2020, mean_2021, mean_2022, mean_2023),
+#     upper_cl = c(upper_2018, upper_2019, upper_2020, upper_2021, upper_2022, upper_2023),
+#     lower_cl = c(lower_2018, lower_2019, lower_2020, lower_2021, lower_2022, lower_2023)
+# )
+# 
+# ggplot(density_estimates, aes(x = as.factor(year), y = mean_density))+
+#   geom_point()+
+#   geom_errorbar(aes(ymin = lower_cl, ymax = upper_cl), width = 0.2)+
+#   ylab("Mean Density\u00B1 95% CI")+
+#   xlab("Year")+
+#   theme_classic()+
+#   theme(axis.text.x = element_text(size = 10),
+#         axis.title.x = element_text(size = 12))+
+#   ggtitle("Single Multisession Model Output")
+# 
+# #I just like to know how long this takes
+# end_time<-Sys.time()
+# end_time - start_time
+# 
+# 
+# save(multisession_fit, file = file.path(output_directory, "multisession_autoini5.RData"))
 
 ```
 

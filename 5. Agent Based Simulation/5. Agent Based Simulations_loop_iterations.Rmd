@@ -1,0 +1,794 @@
+The purpose of this script is to analyze detection data from an agent-based model of deer movement in Oak Bay, British Columbia. This script relies on data from urban_deer_movement_simulation.nlogo, located in the sibling folder 5.1 Netlogo Model. This script produces a series of single session mark resight models in a similar framework to the main paper's analysis. The main outputs of this script are density estimates for each simulated scenario, and a figure comparing density estimates using male & female data vs just female deer data.
+
+Andrew Barnas
+andrewbarnas@uvic.ca
+April 9th 2026
+
+
+Load packages and data
+```{r}
+
+rm(list=ls())
+#Being a bit lazy here, setting working directory to file location
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+#Packages needed
+library(dplyr)        #data wrangling
+library(tidyr)        #more data wrangling
+library(purrr)        #feline friendly loops
+library(stringr)      #dealing with strings
+library(readr)
+library(secr)         #density estimates
+library(reproducible) #reproducible workflows
+library(ggplot2)      #data visualization
+
+#Setup working directories
+netlogo_directory<-reproducible::checkPath(file.path(getwd(), "5.1 Netlogo Model/outputs"), create = TRUE)
+input_directory<-reproducible::checkPath(file.path(getwd(), "inputs"), create = TRUE)
+output_directory<-reproducible::checkPath(file.path(getwd(), "outputs"), create = TRUE)
+figure_directory<-reproducible::checkPath(file.path(getwd(), "figures"), create = TRUE)
+```
+
+
+Ok all I want to do with this block is read in the camera operability files and the deteciton files into lists
+```{r}
+list.files(netlogo_directory)
+
+# 1. Identify the files
+camop_paths <- list.files(netlogo_directory, 
+                          pattern = "camera_operability_.*\\.csv$", 
+                          full.names = TRUE)
+
+#Read them into a giant dataframe
+camop_df<-read_csv(camop_paths)
+
+##################################################
+#Now just need to calculate usage, this can be done safely as it is done by row
+# --- 1. Setup Constants ---
+patch_size_m  <- 11.18
+utm_x_origin  <- 476000
+utm_y_origin  <- 5362000
+
+camop_df<-camop_df%>%
+  mutate(
+      trap.id = camera_id,
+      # Convert patch coords -> meters -> UTM
+      x = round(utm_x_origin + (xcor * patch_size_m), 0),
+      y = round(utm_y_origin + (ycor * patch_size_m), 0),
+      # Calculate usage string
+      n_days = ticks / (60 * 24),
+      usage = str_dup("1", n_days)
+    ) %>%
+    select(run_num, number_deer, trap.id, x, y, usage) %>%
+    arrange(run_num, number_deer, trap.id)
+
+#Nice, and for subsequent moves we can just pull out the run number of interest!
+camop_df%>%
+  filter(run_num == 3)
+
+
+```
+
+Ok now the deteciton files. Same thing these need to be read into a giant dataframe that we can subsequently pull from
+```{r}
+# 1. Identify the files
+deer_paths <- list.files(netlogo_directory, 
+                          pattern = "deer_detections_.*\\.csv$", 
+                          full.names = TRUE)
+
+#Read them into a giant dataframe
+deer_df<-read_csv(deer_paths)
+
+
+#One quick rename and re-arrange for aesthetics
+deer_df<-deer_df%>%
+  rename(number_deer = `number-deer`)%>%
+  relocate(run_num, number_deer)%>%
+  arrange(run_num, number_deer)
+
+```
+
+
+Ok so I have a bunch of files of deer detections, and as of right now they are all of "known" IDs. But we need to make these into subsets of marked and unmarked individuals to replicate reality. But, I want to make sure that the deer I randomly assign to be "known" within each simulation is consistent right, to make sure we can replicate results.
+```{r}
+
+#So what I am going to do here is go dataframe by dataframe, and pull out the same random sample of individuals to be marked, label them as marked, and add those dataframes to a growing list that we can work from!
+
+#Start with an empty list
+dataframes<-list()
+
+for(i in unique(deer_df$run_num)){
+  
+  #Pull out the dataframe
+  temp<-deer_df%>%filter(run_num == i)
+  
+  #Number to sample
+  number_to_sample<-as.numeric(unique(temp$number_deer))/4
+  
+  #Figure out who the marked individuals should be
+  marked_female_ids<-temp%>%
+    filter(sex == "female")%>%
+    distinct(deer_id)%>%
+    pull(deer_id)%>%
+    sample(number_to_sample)
+  
+  #And then assign status based on whether they occur in the marked dataframe
+  temp<-temp%>%
+  mutate(status = ifelse(deer_id %in% marked_female_ids, "marked", "unmarked"))
+  
+  #And then add the dataframe to the growing list
+  dataframes <- append(dataframes, list(temp))
+  
+}
+
+
+#Ok, now we have a way to pull out data for specific run numbers from our list of dataframes, and the camop dataframe!
+#For example pulling out runnumber 2
+
+# Find the index of the list element with run_num == X
+index <- which(sapply(dataframes, function(df) unique(df$run_num) == 2))
+
+# Extract the corresponding dataframe
+deer <- dataframes[[index]]
+camop<-camop_df%>%
+  filter(run_num == 2)
+
+```
+
+
+
+
+##############################################################################################
+Everything past here I am going to deal with seperately our of laziness/ease. For each of the scenarios I need to 1) identify indepenent events for marked and unmarked individuals, 2) format those files for secr, 3) write those files to text
+
+#################################################################################################
+######### POPULATION SIZE: 400 (NO REDUCTION)###################################################
+#################################################################################################
+```{r}
+
+
+#Ok so we have two things here, a list of deer detection dataframes and a giant dataframe of camop stuff
+dataframes
+camop_df
+
+#In the following loop we are going to work through them by each unique run number by subsetting out the data of interest
+#And carrying on like we did previously
+
+
+#A list to store the unmarked matrix counts
+unmarked_matrix_list<-list()
+#A list to store counts of known individuals
+known_individuals_list<-list()
+
+for (j in unique(camop_df$run_num)) {
+  
+  #And here is the new procedure for pulling out dataframes of interest
+  # Find the index of the list element with run_num == X
+  index <- which(sapply(dataframes, function(df) unique(df$run_num) == j))
+  df <- dataframes[[index]]
+  
+  camop<-camop_df%>%
+  filter(run_num == j)
+  
+  
+  
+  
+  
+  df_unmarked<-df%>%
+  filter(status == "unmarked")
+ #And the marked dataframe, we will deal with this below
+  df_marked<-df%>%
+  filter(status == "marked" )
+  
+  #But carrying on with the unmarked individuals
+#First identify "independant detections"
+df_unmarked<-df_unmarked%>%
+  dplyr::select(-c(deer_id, sex, run_num, number_deer, status))%>%
+  arrange(camera_id, tick)%>%
+  group_by(camera_id)%>%
+  mutate(duration = as.numeric(tick - lag(tick)))
+
+df_unmarked$Event.ID <- 9999
+independence_threshold <- 30
+
+seq <- as.numeric(paste0(nrow(df_unmarked),0))
+seq <- round(seq,-(nchar(seq)))
+
+
+for (i in 2:nrow(df_unmarked)) {
+  #Starting at the first row, assign an event ID that is (E+seq)
+  df_unmarked$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F)) 
+  #And then if the next row is an NA (indicating a new individual)
+  #Or if the next row is more than 30 mins past the previous row
+  #Increase sequence by 1 (so that we now move on to a new Event ID)
+  if(is.na(df_unmarked$duration[i]) | abs(df_unmarked$duration[i]) > independence_threshold){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(df_unmarked$duration[nrow(df_unmarked)] < independence_threshold| 
+   is.na(df_unmarked$duration[nrow(df_unmarked)])){
+  df_unmarked$Event.ID[nrow(df_unmarked)] <- df_unmarked$Event.ID[nrow(df_unmarked)-1] 
+} else{
+  df_unmarked$Event.ID[nrow(df_unmarked)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#And lastly, we are just going to rip out a single row from each independent event
+#(The first row)
+df_unmarked<-df_unmarked %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)
+
+ticks_per_day <- 60 * 24       # 1440
+
+#Format this a bit more
+df_unmarked<-df_unmarked%>% 
+  ungroup()%>%
+  mutate(
+    occasion = ceiling(tick / ticks_per_day),
+    trap.id = camera_id,
+    session = "test",
+  ) %>%
+  select(session, trap.id,  occasion)%>%
+  relocate(session, occasion, trap.id)
+
+#############################################################
+#Formatting into matrix
+# This counts how many times each trap saw an unmarked individual in each window
+unmarked_counts <- df_unmarked %>%
+  group_by(trap.id, occasion) %>%
+  summarise(n = n(), .groups = "drop")
+
+# 2. Create a complete grid of all Traps and all Occasions
+# This is crucial so that '0' counts are explicitly represented
+all_traps <- camop$trap.id
+all_occasions <- 1:30
+
+full_grid <- expand.grid(
+  trap.id = all_traps, 
+  occasion = all_occasions
+)
+
+# 3. Join counts to the grid and pivot to matrix format
+unmarked_matrix <- full_grid %>%
+  left_join(unmarked_counts, by = c("trap.id", "occasion")) %>%
+  mutate(n = replace_na(n, 0)) %>%
+  arrange(trap.id, occasion) %>%
+  pivot_wider(names_from = occasion, values_from = n) %>%
+  select(-trap.id)%>%
+  mutate(session = "test")%>%
+  relocate(session)
+ 
+  
+  # Store the result in the i-th position of the list
+  unmarked_matrix_list[[j]] <- unmarked_matrix
+  
+  
+  ####################################################
+  #Now the marked individuals
+  
+ df_independent<-df_marked%>%
+  arrange(camera_id, tick, deer_id)%>%
+  group_by(camera_id, deer_id)%>%
+  mutate(duration = as.numeric(tick - lag(tick)))%>%
+  dplyr::select(camera_id, tick, deer_id, duration)
+
+df_independent$Event.ID <- 9999
+independence_threshold <- 30
+
+seq <- as.numeric(paste0(nrow(df_independent),0))
+seq <- round(seq,-(nchar(seq)))
+
+
+for (i in 2:nrow(df_independent)) {
+  #Starting at the first row, assign an event ID that is (E+seq)
+  df_independent$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F)) 
+  #And then if the next row is an NA (indicating a new individual)
+  #Or if the next row is more than 30 mins past the previous row
+  #Increase sequence by 1 (so that we now move on to a new Event ID)
+  if(is.na(df_independent$duration[i]) | abs(df_independent$duration[i]) > independence_threshold){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(df_independent$duration[nrow(df_independent)] < independence_threshold| 
+   is.na(df_independent$duration[nrow(df_independent)])){
+  df_independent$Event.ID[nrow(df_independent)] <- df_independent$Event.ID[nrow(df_independent)-1] 
+} else{
+  df_independent$Event.ID[nrow(df_independent)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#And lastly, we are just going to rip out a single row from each independent event
+#(The first row)
+df_independent<-df_independent %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)
+
+#And now convert those to occassions (days)
+df_independent<-df_independent%>%
+  ungroup()%>%
+  mutate(
+    occasion = ceiling(tick / ticks_per_day),
+    trap.id = camera_id,
+    session = "test",
+  ) %>%
+  select(session, trap.id, deer_id, occasion)%>%
+  relocate(session, deer_id, occasion, trap.id)
+ 
+ # Store the result in the i-th position of the list
+  known_individuals_list[[j]] <- df_independent 
+  
+  
+  #I've got a crazy idea here...since we know the population size and run number we are dealing with
+  #Can we not just export these data on the fly?
+  #To export
+  df_independent
+  unmarked_matrix
+  camop%>%dplyr::select(-c(run_num, number_deer)) #modified
+  
+  #store the population size we will need it for naming
+  num_deer<-as.numeric(unique(camop$number_deer))
+  
+  
+  write.table(df_independent,
+              file.path(input_directory, paste0("df_independent_", num_deer, "_run", j,  ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+  
+  write.table(unmarked_matrix,
+              file.path(input_directory, paste0("unmarked_matrix_", num_deer, "_run", j,  ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+   
+  write.table(camop%>%dplyr::select(-c(run_num, number_deer)),
+              file.path(input_directory, paste0("camop_", num_deer, "_run", j,  ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+  
+}
+
+
+#Extract unmarked counts
+#unmarked_matrix_400<-unmarked_matrix_list[[1]]
+#unmarked_matrix_360<-unmarked_matrix_list[[2]]
+#unmarked_matrix_300<-unmarked_matrix_list[[3]]
+#unmarked_matrix_200<-unmarked_matrix_list[[4]]
+
+#extract known counts
+#df_independent_400<-known_individuals_list[[1]]
+#df_independent_360<-known_individuals_list[[2]]
+#df_independent_300<-known_individuals_list[[3]]
+#df_independent_200<-known_individuals_list[[4]]
+
+
+
+```
+
+
+
+Now just females!!
+#################################################################################################
+######### FEMALES ONLY!!!########################################################################
+#################################################################################################
+```{r}
+
+#Same thing as above still using the same dataframes and lists
+
+
+
+#A list to store the unmarked matrix counts
+unmarked_matrix_females_list<-list()
+#A list to store counts of known individuals
+known_individuals_females_list<-list()
+
+for (j in unique(camop_df$run_num)) {
+  
+  #And here is the new procedure for pulling out dataframes of interest
+  # Find the index of the list element with run_num == X
+  index <- which(sapply(dataframes, function(df) unique(df$run_num) == j))
+  df <- dataframes[[index]]
+  
+  camop<-camop_df%>%
+  filter(run_num == j)
+  
+  
+  #KEY DIFFERENCE HERE! ONLY RETAINING FEMALE DATA
+  df_unmarked<-df%>%
+  filter(status == "unmarked")%>%
+  filter(sex == "female")
+ #And the marked dataframe, we will deal with this below
+  df_marked<-df%>%
+  filter(status == "marked" )%>%
+  filter(sex == "female")
+  
+  #But carrying on with the unmarked individuals
+#First identify "independant detections"
+df_unmarked<-df_unmarked%>%
+  dplyr::select(-c(deer_id, sex, run_num, number_deer, status))%>%
+  arrange(camera_id, tick)%>%
+  group_by(camera_id)%>%
+  mutate(duration = as.numeric(tick - lag(tick)))
+
+df_unmarked$Event.ID <- 9999
+independence_threshold <- 30
+
+seq <- as.numeric(paste0(nrow(df_unmarked),0))
+seq <- round(seq,-(nchar(seq)))
+
+
+for (i in 2:nrow(df_unmarked)) {
+  #Starting at the first row, assign an event ID that is (E+seq)
+  df_unmarked$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F)) 
+  #And then if the next row is an NA (indicating a new individual)
+  #Or if the next row is more than 30 mins past the previous row
+  #Increase sequence by 1 (so that we now move on to a new Event ID)
+  if(is.na(df_unmarked$duration[i]) | abs(df_unmarked$duration[i]) > independence_threshold){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(df_unmarked$duration[nrow(df_unmarked)] < independence_threshold| 
+   is.na(df_unmarked$duration[nrow(df_unmarked)])){
+  df_unmarked$Event.ID[nrow(df_unmarked)] <- df_unmarked$Event.ID[nrow(df_unmarked)-1] 
+} else{
+  df_unmarked$Event.ID[nrow(df_unmarked)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#And lastly, we are just going to rip out a single row from each independent event
+#(The first row)
+df_unmarked<-df_unmarked %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)
+
+ticks_per_day <- 60 * 24       # 1440
+
+#Format this a bit more
+df_unmarked<-df_unmarked%>% 
+  ungroup()%>%
+  mutate(
+    occasion = ceiling(tick / ticks_per_day),
+    trap.id = camera_id,
+    session = "test",
+  ) %>%
+  select(session, trap.id,  occasion)%>%
+  relocate(session, occasion, trap.id)
+
+#############################################################
+#Formatting into matrix
+# This counts how many times each trap saw an unmarked individual in each window
+unmarked_counts <- df_unmarked %>%
+  group_by(trap.id, occasion) %>%
+  summarise(n = n(), .groups = "drop")
+
+# 2. Create a complete grid of all Traps and all Occasions
+# This is crucial so that '0' counts are explicitly represented
+all_traps <- camop$trap.id
+all_occasions <- 1:30
+
+full_grid <- expand.grid(
+  trap.id = all_traps, 
+  occasion = all_occasions
+)
+
+# 3. Join counts to the grid and pivot to matrix format
+unmarked_matrix <- full_grid %>%
+  left_join(unmarked_counts, by = c("trap.id", "occasion")) %>%
+  mutate(n = replace_na(n, 0)) %>%
+  arrange(trap.id, occasion) %>%
+  pivot_wider(names_from = occasion, values_from = n) %>%
+  select(-trap.id)%>%
+  mutate(session = "test")%>%
+  relocate(session)
+ 
+  
+  # Store the result in the i-th position of the list
+  unmarked_matrix_females_list[[j]] <- unmarked_matrix
+  
+  
+  ####################################################
+  #Now the marked individuals
+  
+ df_independent<-df_marked%>%
+  arrange(camera_id, tick, deer_id)%>%
+  group_by(camera_id, deer_id)%>%
+  mutate(duration = as.numeric(tick - lag(tick)))%>%
+  dplyr::select(camera_id, tick, deer_id, duration)
+
+df_independent$Event.ID <- 9999
+independence_threshold <- 30
+
+seq <- as.numeric(paste0(nrow(df_independent),0))
+seq <- round(seq,-(nchar(seq)))
+
+
+for (i in 2:nrow(df_independent)) {
+  #Starting at the first row, assign an event ID that is (E+seq)
+  df_independent$Event.ID[i-1]  <- paste0("E",format(seq, scientific = F)) 
+  #And then if the next row is an NA (indicating a new individual)
+  #Or if the next row is more than 30 mins past the previous row
+  #Increase sequence by 1 (so that we now move on to a new Event ID)
+  if(is.na(df_independent$duration[i]) | abs(df_independent$duration[i]) > independence_threshold){
+    seq <- seq + 1 
+  }
+}
+
+# Update the information for the last row
+# group ID  for the last row
+if(df_independent$duration[nrow(df_independent)] < independence_threshold| 
+   is.na(df_independent$duration[nrow(df_independent)])){
+  df_independent$Event.ID[nrow(df_independent)] <- df_independent$Event.ID[nrow(df_independent)-1] 
+} else{
+  df_independent$Event.ID[nrow(df_independent)] <- paste0("E",format(seq+1, scientific = F)) 
+}
+
+#And lastly, we are just going to rip out a single row from each independent event
+#(The first row)
+df_independent<-df_independent %>%
+  group_by(Event.ID) %>%
+  filter(row_number()==1)
+
+#And now convert those to occassions (days)
+df_independent<-df_independent%>%
+  ungroup()%>%
+  mutate(
+    occasion = ceiling(tick / ticks_per_day),
+    trap.id = camera_id,
+    session = "test",
+  ) %>%
+  select(session, trap.id, deer_id, occasion)%>%
+  relocate(session, deer_id, occasion, trap.id)
+ 
+ # Store the result in the i-th position of the list
+  known_individuals_females_list[[j]] <- df_independent 
+  
+  #Replicating my crazy idea of outputing on the go
+   #store the population size we will need it for naming
+  num_deer<-as.numeric(unique(camop$number_deer))
+  
+  
+  write.table(df_independent,
+              file.path(input_directory, paste0("df_independent_", num_deer, "_run", j, "_females",  ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+  
+  write.table(unmarked_matrix,
+              file.path(input_directory, paste0("unmarked_matrix_", num_deer, "_run", j, "_females",  ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+   
+  write.table(camop%>%dplyr::select(-c(run_num, number_deer)),
+              file.path(input_directory, paste0("camop_", num_deer, "_run", j, "_females", ".txt")), sep = "\t", 
+            quote = FALSE,     #no quotes allowed!
+            row.names = FALSE) #prevent including row IDs
+  
+  
+  
+  
+}
+
+
+```
+
+
+Ok we are almost there. Now I have a directory filed with files and I need to loop over the right ones
+
+
+
+And now we can fit models for all
+```{r}
+
+list.files(input_directory)
+
+# Setup your variables
+pop_sizes <- c("400", "360", "300", "200")
+groups <- c("all", "females")
+runs<-paste0("run", unique(camop_df$run_num))
+
+
+# Outer loop for population size
+for (size in pop_sizes) {
+  
+  # Inner loop for group (All vs Females)
+  for (group in groups) {
+    
+    #And then finally the run number of interest
+    for (run in runs){
+    
+    # Construct file names dynamically
+    # Note: Using the naming logic from your list.files()
+    suffix <- ifelse(group == "females", "_females", "")
+    
+    capt_file <- file.path(input_directory, paste0("df_independent_", size, "_", run, suffix, ".txt"))
+    trap_file <- file.path(input_directory, paste0("camop_", size, "_", run, suffix, ".txt"))
+    unmarked_file <- file.path(input_directory,paste0("unmarked_matrix_", size, "_", run, suffix, ".txt"))
+    
+    
+    # Optional: skip if files don't exist (VERY useful here)
+      if (!all(file.exists(c(capt_file, trap_file, unmarked_file)))) {
+        message("Skipping missing combo: ", size, " ", group, " ", run)
+        next
+      }
+    
+    # 1. Read capthist
+    deer_capthist <- read.capthist(
+      captfile = capt_file, 
+      trapfile = trap_file,
+      detector = "count",
+      markocc = rep(0, 30),
+      skip = 1,
+      verify = TRUE
+    )
+    
+    # 2. Add unmarked sightings
+    deer_capthist <- addSightings(
+      deer_capthist, 
+      unmarked = unmarked_file, 
+      skip = 1
+    )
+    
+    # 3. Fit the model
+    # I recommend adding a message so you know which model is running!
+    message(paste("Fitting model for size:", size, "| group:", group, "|", run))
+    
+    fit_model <- secr.fit(
+      deer_capthist, 
+      buffer = 1000, 
+      detectfn = "HN",
+      binomN = 0,
+      trace = FALSE # Set to FALSE in loops to keep console clean, or TRUE to monitor
+    )
+    
+    # 4. Save the model object
+    # We create a unique filename like "fit_deer_secr_400_females.RData"
+    out_filename <- paste0("fit_deer_secr_", size, "_", group, "_", run, ".RData")
+    save(fit_model, file = file.path(output_directory, out_filename))
+    
+    # Clean up memory after each fit
+    rm(fit_model, deer_capthist)
+    gc()
+    
+    }
+  }
+}
+
+
+
+
+```
+
+
+
+Bring the saved model objects back in, extract estimates and plot!
+```{r}
+pop_sizes <- c("300", "200")
+groups <- c("all", "females")
+runs<-paste0("run", unique(camop_df$run_num))
+
+# Create an empty dataframe to store results
+results <- data.frame()
+
+for (size in pop_sizes) {
+  for (group in groups) {
+    for(run in runs){
+    
+    file_name <- paste0("fit_deer_secr_", size, "_", group, "_", run, ".RData")
+    file_path <- file.path(output_directory, file_name)
+    
+    # Only proceed if the file actually exists
+    if (file.exists(file_path)) {
+      
+      # Load the file. Remember, inside the loop it was saved as 'fit_model'
+      load(file_path)
+      
+      # Extract predicted density (usually the first row of the 'predicted' table)
+      stats <- summary(fit_model)$predicted
+      
+      # Create a temporary row
+      temp_df <- data.frame(
+        population_size = as.numeric(size),
+        sex_group = group,
+        run = run,
+        density = stats["D", "estimate"] * 100,
+        ucl = stats["D", "ucl"] * 100,
+        lcl = stats["D", "lcl"] * 100
+      )
+      
+      # Bind to the main results table
+      results <- rbind(results, temp_df)
+      
+      # Clean up to keep the environment tidy
+      rm(fit_model)
+     }
+   }
+  }
+}
+
+#Clean up the dataframe a bit
+results<-results %>%
+  group_by(population_size, sex_group) %>%
+  mutate(model_id = row_number()) %>%
+  ungroup()
+
+results$population_size<-factor(results$population_size,
+                                   levels = c("300", "200"))
+
+
+# 2. Plot with nested dodging
+ggplot(results, aes(x = as.factor(population_size), 
+                    y = density, 
+                    color = sex_group,
+                    # Putting sex_group last in interaction keeps colors together
+                    group = interaction(model_id, sex_group))) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), 
+                position = position_dodge(width = 0.3), 
+                width = 0.2) +
+  geom_point(position = position_dodge(width = 0.3), 
+             size = 3) +
+  labs(x = "Population Size", y = "Density Estimate", color = "Sex Group") +
+  theme_classic()
+
+
+
+
+#And plot
+ggplot(results, aes(x = as.factor(population_size), 
+                           y = density, 
+                           color = sex_group, 
+                           group = sex_group)) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), 
+                position = position_dodge(width = 0.5), 
+                width = 0.2) +
+  geom_line(aes(group = sex_group), 
+            position = position_dodge(width = 0.5), 
+            linetype = "dashed") +
+  geom_point(position = position_dodge(width = 0.5), 
+             size = 3) +
+  # Add custom labels here:
+  scale_x_discrete(labels = c("400" = "Original Population\n(N = 400)", 
+                              "360" = "10% Reduction\n(N = 360)", 
+                              "300" = "25% Reduction\n(N = 300)", 
+                              "200" = "50% Reduction\n(N = 200)")) +
+  labs(x = "Simulated Population Size", 
+       y = "Estimated Density", 
+       color = "Data Subset") +
+  theme_minimal()
+
+#And plot
+ggplot(results, aes(x = as.factor(population_size), 
+                           y = density, 
+                           color = sex_group, 
+                           group = sex_group)) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), 
+                position = position_dodge(width = 0.5), 
+                width = 0.2) +
+  geom_line(aes(group = sex_group), 
+            position = position_dodge(width = 0.5), 
+            linetype = "dashed") +
+  geom_point(position = position_dodge(width = 0.5), 
+             size = 3) +
+  # Add custom labels here:
+  scale_x_discrete(labels = c("400" = "Original Population\n(N = 400)", 
+                              "360" = "10% Reduction\n(N = 360)", 
+                              "300" = "25% Reduction\n(N = 300)", 
+                              "200" = "50% Reduction\n(N = 200)")) +
+  labs(x = "Simulated Population Size", 
+       y = "Estimated Density", 
+       color = "Data Subset") +
+  theme_minimal()
+
+
+
+
+
+
+```
+
+
+
+

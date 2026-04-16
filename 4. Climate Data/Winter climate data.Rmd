@@ -1,0 +1,85 @@
+The purpose of this script is to batch extract daily surface weather and climate data from DAYMET's single pixel extraction tool. To do this I will use our file of camera locations (lat/long), and extract data for every study year for each site. I could go through and only extract the relevant years for each site, since all sites were not sampled across the entire study period, but I think its easier just to extract it all and then filter down later.
+
+The Daymet single pixel extractor tool takes the camera lat and long coordinates into the projected daymet x/y coordinates.  From the Daymet dataset of daily interpolated surface weather variables, daily data from the nearest 1 km x 1 km Daymet grid cell are extracted and formatted as a table with one column for each Daymet variable and one row for each day
+
+One note on operability from the daymetr github page: We received news from Dr. Michele Thornton at the Oak Ridge National Laboratory (ORNL) that the DAYMET API they host will be decommissioned. This change will be effective within weeks (late March 2025) and affect first and foremost the spatial (gridded/tiled) data products, before most likely covering the whole THREDDS data server setup including point based data by the end of the year. We suggest that users of our {daymetr} R package migrate to the NASA EarthData Appeears based API as covered by our {appeears} R package.
+
+DAYMET single pixel extraction tool: https://daymet.ornl.gov/single-pixel/
+daymetr package: https://github.com/bluegreen-labs/daymetr
+
+
+Andrew Barnas
+andrewbarnas@uvic.ca
+October 30th 2025
+
+
+
+Load packages you will need. Don't need an input since we are going to extract data and then plot that
+```{r}
+
+rm(list=ls())
+library(reproducible) #setting up directories for data management
+library(ggplot2)      #plottin!
+library(daymetr)      #interface for daymet web services
+library(dplyr)        #data wranglin'
+library(tidyr)        #more data manipulation
+library(purrr)        #feline-friendly loops 
+
+output_directory<-reproducible::checkPath(file.path(getwd(), "3. SECR Models/outputs"), create = TRUE)
+
+
+```
+
+Batch extracting the daymet data
+```{r}
+
+#Option for single pixel download, including here as an example using one of our sites, and requesting two years of data
+test_example<-download_daymet(site = "Oak Ridge National Laboratories",
+                lat = 54.87192,
+                lon = -111.48897,
+                start = 2023,
+                end = 2024,
+                internal = TRUE)
+
+
+#And now we can feed that file into the batch extract. I am going to extract data for years 2020-2024 (5 years)
+
+#Batch extraction - for this to work, you need to read in a dataframe that has columns for "lat" and "long" (pretty sure needs to be in that order as well). You can have additional columns in this dataframe for things like SiteID and whatnot
+#One other note, I don't think this supports dataframes in your R environment, I think you are required to read it in from a working directory
+batch_data<-download_daymet_batch(file_location = file.path(input_directory, "site_locations_name_example.csv"),
+                      start = 2020, #example start year in 2020
+                      end = 2024,   #example end year in 2024
+                      internal = TRUE)
+
+#And then a function to rip it into a dataframe
+df <- map_dfr(batch_data, function(x) {
+  x$data %>%
+    mutate(
+      site = x$site,
+      latitude = x$latitude,
+      longitude = x$longitude,
+      altitude = x$altitude
+    )
+})
+
+#Lets do some cleaning up, its quite messy right now
+df<-df%>%
+  rename(day_length_seconds = dayl..s.,
+         precip_mm = prcp..mm.day.,
+         shortwave_radiation = srad..W.m.2.,
+         snow_water_equiv_kgM2 = swe..kg.m.2.,
+         max_temp_C = tmax..deg.c.,
+         min_temp_C = tmin..deg.c.,
+         water_vapor_pressure_pa = vp..Pa.,
+         day = yday)%>%
+  relocate(site, latitude, longitude, year, day)
+
+#Are there any NA values? Or something that otherwise did not get extracted?
+#This is key to check since there may be some issues with the American datasources in coming months/years
+ df %>%
+  filter(if_any(everything(), is.na))
+
+
+
+
+```
