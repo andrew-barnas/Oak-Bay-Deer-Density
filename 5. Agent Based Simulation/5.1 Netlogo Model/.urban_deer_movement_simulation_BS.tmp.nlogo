@@ -374,7 +374,7 @@ number-deer
 number-deer
 0
 500
-400.0
+300.0
 10
 1
 NIL
@@ -813,7 +813,7 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="replicates" repetitions="2" runMetricsEveryStep="false">
+  <experiment name="replicates" repetitions="10" runMetricsEveryStep="false">
     <setup>random-seed behaviorspace-run-number 
 setup</setup>
     <go>go</go>
@@ -821,6 +821,8 @@ setup</setup>
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="number-deer">
+      <value value="400"/>
+      <value value="360"/>
       <value value="300"/>
       <value value="200"/>
     </enumeratedValueSet>
