@@ -208,7 +208,7 @@ Now some summary statistics and plots!
 ```{r}
 
 #Information on the average number of independent detections for each group per camera
-A%>%
+mean_detections<-A%>%
   group_by(year, SiteID, detection_type)%>%
   summarise(n_obs = n())%>%
   ungroup()%>%
@@ -218,19 +218,18 @@ A%>%
 
 
 #And a plot of those means with error
-A%>%
-  group_by(year, SiteID, detection_type)%>%
-  summarise(n_obs = n())%>%
-  ungroup()%>%
-  group_by(year, detection_type)%>%
-  summarise(mean = mean(n_obs),
-            sd = sd(n_obs))%>%
-  ggplot(aes(x = as.factor(year), y = mean, color = detection_type))+
-  geom_point()+
+mean_detections_plot<-mean_detections%>%
+  ggplot(aes(x = as.factor(year), y = mean, color = detection_type, group = detection_type))+
+  geom_point(position = position_dodge(width = 0.3), 
+             size = 3)+
+  geom_errorbar(aes(ymin = mean  - sd, ymax = mean + sd), 
+                position = position_dodge(width = 0.3), 
+                width = 0.2)+
   scale_color_manual(labels = c("Adults Only", "Fawns Present"),
                       name = "Detection Type",
                       values = c("adult_only" = "#66A61E",
                                  "fawns_present" = "#E6AB02"))+
+  ylab("Mean Independent Detections\nPer Camera\u00B1 SD ")+
   xlab("Year")+
   theme_classic()+
   theme(axis.title.x = element_text(size = 15),
@@ -239,48 +238,6 @@ A%>%
         axis.text.y = element_text(size = 12),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 13))
-
-
-
-#What overall proportion for each site?
-proportion_summary<-A%>%
-  group_by(year, detection_type)%>%
-  summarise(n_dets = n())%>%
-  group_by(year)%>%
-  mutate(total_dets = sum(n_dets),
-         proportion = n_dets / total_dets)
-
-#Color pallete info: https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
-
-#And lets plot that
-set.seed(420)
-proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
-  geom_bar(position = "stack", stat = "identity")+
-  geom_text(aes(label = round(proportion, digits = 2)), 
-            position = position_stack(vjust = 0.9), 
-            size = 4, color = "white")+
-  ylab("Proportion of\nDetection Types")+
-  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
-                      name = "Detection Type",
-                      values = c("adult_only" = "#66A61E",
-                                 "fawns_present" = "#E6AB02"))+
-  xlab("Year")+
-  theme_classic()+
-  theme(axis.title.x = element_text(size = 15),
-        axis.title.y = element_text(size = 15),
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 13))
-
-ggsave(filename = "proportion_detections.jpeg", #name of file
-       plot = proportion_detections,                 #plot you want to save
-       path = figure_directory,            #where it's saved
-       width = 3500,                       #how wide
-       height = 2200,                      #how tall
-        units = "px",                      #units in pixels
-        bg = 'white')                      #make sure background is white
-
 
 
 
@@ -462,25 +419,8 @@ ggsave(filename = "relative_abundance_no_outliers.jpeg", #name of file
 #########################################################################################################
 #Lets modify these slightly for stacking the figures together
 set.seed(420)
-proportion_detections<-ggplot(proportion_summary, aes(x = as.factor(year), y = proportion, fill = detection_type))+
-  geom_bar(position = "stack", stat = "identity")+
-  geom_text(aes(label = round(proportion, digits = 2)), 
-            position = position_stack(vjust = 0.9), 
-            size = 6, color = "white")+
-  ylab("Proportion of\nDetection Types")+
-  scale_fill_manual(labels = c("Adults Only", "Fawns Present"),
-                      name = "Detection Type",
-                      values = c("adult_only" = "#66A61E",
-                                 "fawns_present" = "#E6AB02"))+
-  xlab("Year")+
-  theme_classic()+
-  theme(axis.title.x = element_text(size = 15),
-        axis.title.y = element_text(size = 15),
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        legend.text = element_text(size = 18),
-        legend.title = element_text(size = 20),
-        legend.position = "top")
+mean_detections_plot<-mean_detections_plot+
+  theme(legend.position = "top")
 
 relative_abundance_no_outliers<-ggplot(detections_no_outliers, aes(x = as.factor(year), y = dets_per_effort, fill = detection_type, color = detection_type)) +
   geom_violin() +
@@ -505,13 +445,15 @@ relative_abundance_no_outliers<-ggplot(detections_no_outliers, aes(x = as.factor
 
 
 #Maybe I should put these together?
-stacked_figure<-ggpubr::ggarrange(proportion_detections, relative_abundance_no_outliers,
+
+
+stacked_figure<-ggpubr::ggarrange(mean_detections_plot, relative_abundance_no_outliers,
                   nrow = 2,
                   labels = c("A", "B"),
                   font.label = list(size = 25))
 
 #export those plots
-ggsave(filename = "stacked_figure.jpeg", #name of file
+ggsave(filename = "stacked_figure2.jpeg", #name of file
        plot = stacked_figure,                 #plot you want to save
        path = figure_directory,            #where it's saved
        width = 3500,                       #how wide

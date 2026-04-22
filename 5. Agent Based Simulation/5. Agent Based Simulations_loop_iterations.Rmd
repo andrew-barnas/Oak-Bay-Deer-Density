@@ -720,7 +720,7 @@ results$population_size<-factor(results$population_size,
 
 
 # 2. Plot with nested dodging
-ggplot(results, aes(x = as.factor(population_size), 
+density_figure_simulated<-ggplot(results, aes(x = as.factor(population_size), 
                     y = density, 
                     color = sex_group,
                     # Putting sex_group last in interaction keeps colors together
@@ -731,56 +731,34 @@ ggplot(results, aes(x = as.factor(population_size),
   geom_point(position = position_dodge(width = 0.3), 
              size = 3) +
   labs(x = "Population Size", y = "Density Estimate", color = "Sex Group") +
-  theme_classic()
-
-
-
-
-#And plot
-ggplot(results, aes(x = as.factor(population_size), 
-                           y = density, 
-                           color = sex_group, 
-                           group = sex_group)) +
-  geom_errorbar(aes(ymin = lcl, ymax = ucl), 
-                position = position_dodge(width = 0.5), 
-                width = 0.2) +
-  geom_line(aes(group = sex_group), 
-            position = position_dodge(width = 0.5), 
-            linetype = "dashed") +
-  geom_point(position = position_dodge(width = 0.5), 
-             size = 3) +
+  theme_classic()+
   # Add custom labels here:
   scale_x_discrete(labels = c("400" = "Original Population\n(N = 400)", 
                               "360" = "10% Reduction\n(N = 360)", 
                               "300" = "25% Reduction\n(N = 300)", 
                               "200" = "50% Reduction\n(N = 200)")) +
   labs(x = "Simulated Population Size", 
-       y = "Estimated Density", 
+       y = "Estimated Density\n\u00B1 95% CI", 
        color = "Data Subset") +
-  theme_minimal()
+  theme_classic()+
+  theme(axis.title = element_text(size = 15),
+        axis.text = element_text(size = 13),
+        legend.text = element_text(size = 15),
+        legend.title = element_text(size = 15))
 
-#And plot
-ggplot(results, aes(x = as.factor(population_size), 
-                           y = density, 
-                           color = sex_group, 
-                           group = sex_group)) +
-  geom_errorbar(aes(ymin = lcl, ymax = ucl), 
-                position = position_dodge(width = 0.5), 
-                width = 0.2) +
-  geom_line(aes(group = sex_group), 
-            position = position_dodge(width = 0.5), 
-            linetype = "dashed") +
-  geom_point(position = position_dodge(width = 0.5), 
-             size = 3) +
-  # Add custom labels here:
-  scale_x_discrete(labels = c("400" = "Original Population\n(N = 400)", 
-                              "360" = "10% Reduction\n(N = 360)", 
-                              "300" = "25% Reduction\n(N = 300)", 
-                              "200" = "50% Reduction\n(N = 200)")) +
-  labs(x = "Simulated Population Size", 
-       y = "Estimated Density", 
-       color = "Data Subset") +
-  theme_minimal()
+
+#Export the figure as well as the main dataframe.
+ggsave(filename = "density_figure_simulated.jpeg", #name of file
+       plot = density_figure_simulated,                 #plot you want to save
+       path = figure_directory,            #where it's saved
+       width = 3500,                       #how wide
+       height = 2200,                      #how tall
+        units = "px",                      #units in pixels
+        bg = 'white')                      #make sure background is white
+
+
+
+
 
 
 
@@ -789,6 +767,27 @@ ggplot(results, aes(x = as.factor(population_size),
 
 ```
 
+And then one last calculation, what is the bias associated with these estimates?
+```{r}
+#Calculate an overall mean for each treatment
+bias_estimates<-results%>%
+  group_by(population_size, sex_group)%>%
+  summarise(mean_density = mean(density))%>%
+  mutate(pop_estimate = mean_density*10)%>%
+  #Correct for females (double it)
+  mutate(pop_estimate = case_when(sex_group == "females" ~ pop_estimate*2,
+                                   sex_group == "all" ~ pop_estimate))%>%
+  mutate(population_size = as.numeric(as.character(population_size)))%>%
+  mutate(relative_bias = (pop_estimate - population_size)/ population_size)
+  
+  
+  
+write.csv(bias_estimates, file.path(figure_directory, "bias_estimates.csv"),
+          row.names = FALSE)  
+  
 
 
+
+
+```
 

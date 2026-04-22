@@ -448,7 +448,7 @@ colnames(deer_2019)
 
 deer_2019<-deer_2019%>%
   rowwise()%>%
-  filter((sum(#Buck, 
+  filter((sum(Buck, 
               UnmarkedDoe,
               # ICDoe, 
               #ControlDoe, 

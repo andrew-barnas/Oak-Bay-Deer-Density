@@ -404,7 +404,7 @@ colnames(deer_2023)
 #QUERY #################################Do we want bucks? Shouldn't this all be females?
 deer_2023<-deer_2023%>%
   rowwise()%>%
-  filter((sum(#Buck,
+  filter((sum(Buck,
               UnmarkedDoe, 
               #ICDoe, 
               #ControlDoe, 
